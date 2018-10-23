@@ -8,7 +8,7 @@ services:
     #   dockerfile: Dockerfile
     restart: always
     ports:
-      - "5432:5555"
+      - "5555:5432"
     environment:
       POSTGRES_PASSWORD: iamaninsecurepassword
       POSTGRES_USER: honeycomb_user
