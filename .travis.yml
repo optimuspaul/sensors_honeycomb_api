@@ -17,7 +17,7 @@ before_script:
   - while sudo lsof -Pi :5432 -sTCP:LISTEN -t; do sleep 1; done
   - docker-compose up --build -d
   - sleep 10
-  - docker run --rm -v $(pwd)/migrations:/liquibase/ -e "LIQUIBASE_URL=jdbc:postgresql://localhost:5432/templates" -e "LIQUIBASE_USERNAME=honeycomb_user" -e "LIQUIBASE_PASSWORD=iamaninsecurepassword" -e "LIQUIBASE_CHANGELOG=/liquibase/main.yml" --network="host" webdevops/liquibase:postgres update
+  - docker run --rm -v $(pwd)/migrations:/liquibase/ -e "LIQUIBASE_URL=jdbc:postgresql://localhost:5432/honeycomb" -e "LIQUIBASE_USERNAME=honeycomb_user" -e "LIQUIBASE_PASSWORD=iamaninsecurepassword" -e "LIQUIBASE_CHANGELOG=/liquibase/main.yml" --network="host" webdevops/liquibase:postgres update
   - npm test
 
 script:
