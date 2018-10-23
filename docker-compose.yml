@@ -8,7 +8,7 @@ services:
     #   dockerfile: Dockerfile
     restart: always
     ports:
-      - "5432:5432"
+      - "5432:5555"
     environment:
       POSTGRES_PASSWORD: iamaninsecurepassword
       POSTGRES_USER: honeycomb_user
@@ -24,7 +24,7 @@ services:
       LIQUIBASE_PASSWORD: iamaninsecurepassword
       LIQUIBASE_USERNAME: honeycomb_user
       LIQUIBASE_CHANGELOG: /liquibase/main.yml
-      LIQUIBASE_URL: jdbc:postgresql://postgres:5432/honeycomb
+      LIQUIBASE_URL: jdbc:postgresql://postgres:5555/honeycomb
     command: update
     volumes:
       - type: bind
@@ -44,6 +44,7 @@ services:
       PGUSER: honeycomb_user
       PGDATABASE: honeycomb
       PGHOST: postgres
+      PGPORT: 5555
     ports:
       - 4000:4000
     command: "scripts/setup-and-startup.sh"
