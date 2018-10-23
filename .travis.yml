@@ -13,13 +13,15 @@ before_install:
   - npm install
 
 before_script:
-    - docker-compose up --build -d
-    - sleep 10
-    - docker-compose restart liquibase
-    - npm test
+  - sudo service postgresql stop
+  - while sudo lsof -Pi :5432 -sTCP:LISTEN -t; do sleep 1; done
+  - docker-compose up --build -d
+  - sleep 10
+  - docker-compose restart liquibase
+  - npm test
 
 script:
-    - py.test
+  - py.test
 
 sudo: required
 dist: trusty
