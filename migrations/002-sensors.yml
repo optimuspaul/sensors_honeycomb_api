@@ -1,0 +1,67 @@
+databaseChangeLog:
+  - changeSet:
+      id: devices-table
+      author: pdecoursey
+      context: live
+      changes:
+        - createTable:
+            schemaName: honeycomb
+            tableName: devices
+            columns:
+              - column:
+                  name: device_id
+                  type: UUID
+                  defaultValueComputed: uuid_generate_v4()
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: varchar(96)
+              - column:
+                  name: created
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
+  - changeSet:
+      id: sensors-table
+      author: pdecoursey
+      context: live
+      changes:
+        - createTable:
+            schemaName: honeycomb
+            tableName: sensors
+            columns:
+              - column:
+                  name: sensor_id
+                  type: UUID
+                  defaultValueComputed: uuid_generate_v4()
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: sensor_type
+                  type: varchar(96)
+              - column:
+                  name: name
+                  type: varchar(96)
+              - column:
+                  name: created
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
+              - column:
+                  name: version
+                  type: int
+                  defaultValue: 1
+              - column:
+                  name: device
+                  type: UUID
+                  constraints:
+                    foreignKeyName: sensor_device_fkey
+        - addForeignKeyConstraint:
+            baseTableSchemaName: honeycomb
+            baseColumnNames: device
+            baseTableName: sensors
+            constraintName: sensor_device_fkey
+            referencedColumnNames: device_id
+            referencedTableSchemaName: honeycomb
+            referencedTableName: devices

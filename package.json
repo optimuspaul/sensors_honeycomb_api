@@ -1,0 +1,38 @@
+{
+    "name": "honeycomb",
+    "version": "0.0.1",
+    "description": "wildflower data service",
+    "main": "src/index.js",
+    "scripts": {
+        "test": "docker-compose run honeycomb-service /app/node_modules/.bin/mocha src/**/*.spec.js",
+        "coverage": "node_modules/.bin/nyc --reporter=html npm test && open coverage/index.html",
+        "start": "ENVIRONMENT=local node_modules/.bin/nodemon src/index.js"
+    },
+    "nyc": {
+        "exclude": [
+            "**/*.spec.js"
+        ]
+    },
+    "author": "pjdecoursey",
+    "license": "MIT",
+    "dependencies": {
+        "apollo": "^1.9.2",
+        "apollo-server": "^2.1.0",
+        "apollo-server-express": "^2.1.0",
+        "body-parser": "^1.18.3",
+        "express": "^4.16.4",
+        "graphql": "^14.0.2",
+        "graphql-custom-types": "^1.4.0",
+        "graphql-directive": "^0.2.1",
+        "graphql-iso-date": "^3.6.1",
+        "graphql-tools": "^4.0.1",
+        "npm": "^6.4.1",
+        "pg": "^7.5.0"
+    },
+    "devDependencies": {
+        "chai": "^4.2.0",
+        "mocha": "^5.2.0",
+        "nodemon": "^1.18.4",
+        "nyc": "^13.1.0"
+    }
+}

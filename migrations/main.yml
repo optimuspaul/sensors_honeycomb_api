@@ -1,0 +1,37 @@
+databaseChangeLog:
+- preConditions:
+  - dbms:
+      type: postgresql
+
+- changeSet:
+    id: zero
+    author: pdecoursey
+    context: live
+    changes:
+    - tagDatabase:
+        tag: zero
+
+- include:
+    file: 001-schema.yml
+    relativeToChangelogFile: true
+
+- changeSet:
+    id: version_1
+    author: pdecoursey
+    context: live
+    changes:
+    - tagDatabase:
+        tag: version_1
+
+- include:
+    file: 002-sensors.yml
+    relativeToChangelogFile: true
+
+
+- changeSet:
+    id: version_2
+    author: pdecoursey
+    context: live
+    changes:
+    - tagDatabase:
+        tag: version_2
