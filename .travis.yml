@@ -4,6 +4,7 @@ node_js:
 
 env:
   - DOCKER_COMPOSE_VERSION=1.22.0
+  - GIT_TAG=v$(date -u "+%Y-%m-%d-%H-%M-%S")-$TRAVIS_BUILD_NUMBER
 
 sudo: required
 dist: trusty
@@ -35,8 +36,5 @@ deploy:
   script:
     - git config --global user.email "builds@travis-ci.com"
     - git config --global user.name "Travis CI"
-    - echo $(date -u "+%Y-%m-%d-%H-%M-%S")
-    - echo $TRAVIS_BUILD_NUMBER
-    - export GIT_TAG=v$(date -u "+%Y-%m-%d-%H-%M-%S")-$TRAVIS_BUILD_NUMBER
     - git tag $GIT_TAG -a -m "Generated tag from TravisCI build $TRAVIS_BUILD_NUMBER"
     - git push origin $GIT_TAG
