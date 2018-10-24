@@ -25,18 +25,16 @@ before_script:
   - sleep 10
   - docker run --rm -v $(pwd)/migrations:/liquibase/ -e "LIQUIBASE_URL=jdbc:postgresql://localhost:5432/honeycomb" -e "LIQUIBASE_USERNAME=honeycomb_user" -e "LIQUIBASE_PASSWORD=iamaninsecurepassword" -e "LIQUIBASE_CHANGELOG=/liquibase/main.yml" --network="host" webdevops/liquibase:postgres update
 
-stages:
-  - name: test pull_request
-    if: type = pull_request
-    script:
-      - npm test
-  - name: test push
-    if: type = push
-    script:
-      - npm test
-    after_success:
-      - git config --global user.email "builds@travis-ci.com"
-      - git config --global user.name "Travis CI"
-      - export GIT_TAG=v$(date -u "+%Y-%m-%d-%H-%M")-$TRAVIS_BUILD_NUMBER
-      - git tag $GIT_TAG -a -m "Generated tag from TravisCI build $TRAVIS_BUILD_NUMBER"
-      - git push origin $GIT_TAG
+script:
+  - npm test
+
+deploy:
+  provider: script
+  on:
+    type: push
+  script:
+    - git config --global user.email "builds@travis-ci.com"
+    - git config --global user.name "Travis CI"
+    - export GIT_TAG=v$(date -u "+%Y-%m-%d-%H-%M")-$TRAVIS_BUILD_NUMBER
+    - git tag $GIT_TAG -a -m "Generated tag from TravisCI build $TRAVIS_BUILD_NUMBER"
+    - git push origin $GIT_TAG
