@@ -1,7 +1,5 @@
 #!/bin/bash
 
-GIT_TAG="TESTING"
-TRAVIS_COMMIT="1faac87972fd14b5ffc2da944b2f4815368492fe"
 version=$GIT_TAG
 text="built by travis"
 branch=$TRAVIS_COMMIT
