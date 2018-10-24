@@ -32,4 +32,4 @@ deploy:
   provider: script
   on:
     type: push
-  script: bash scrupts/tag.sh
+  script: bash scripts/tag.sh
