@@ -1,7 +1,27 @@
 #!/bin/bash
 
-git config --global user.email "builds@travis-ci.com"
-git config --global user.name "Travis CI"
-git tag $GIT_TAG -a -m "Generated tag from TravisCI build $TRAVIS_BUILD_NUMBER" $TRAVIS_COMMIT
-git push origin $GIT_TAG
+GIT_TAG="TESTING"
+TRAVIS_COMMIT="1faac87972fd14b5ffc2da944b2f4815368492fe"
+version=$GIT_TAG
+text="built by travis"
+branch=$TRAVIS_COMMIT
+repo_full_name="WildflowerSchools/sensors_honeycomb_api"
+token=$GIT_TOKEN
 
+
+generate_post_data()
+{
+  cat <<EOF
+{
+  "tag_name": "$version",
+  "target_commitish": "$branch",
+  "name": "$version",
+  "body": "$text",
+  "draft": false,
+  "prerelease": false
+}
+EOF
+}
+
+echo "Create release $version for repo: $repo_full_name branch: $branch"
+curl --data "$(generate_post_data)" "https://api.github.com/repos/$repo_full_name/releases?access_token=$token"
