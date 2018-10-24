@@ -5,25 +5,37 @@ node_js:
 env:
   - DOCKER_COMPOSE_VERSION=1.22.0
 
-before_install:
-  - sudo rm /usr/local/bin/docker-compose
-  - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
-  - chmod +x docker-compose
-  - sudo mv docker-compose /usr/local/bin
-  - npm install
-
-before_script:
-  - sudo service postgresql stop
-  - while sudo lsof -Pi :5432 -sTCP:LISTEN -t; do sleep 1; done
-  - docker-compose up --build -d
-  - sleep 10
-  - docker run --rm -v $(pwd)/migrations:/liquibase/ -e "LIQUIBASE_URL=jdbc:postgresql://localhost:5432/honeycomb" -e "LIQUIBASE_USERNAME=honeycomb_user" -e "LIQUIBASE_PASSWORD=iamaninsecurepassword" -e "LIQUIBASE_CHANGELOG=/liquibase/main.yml" --network="host" webdevops/liquibase:postgres update
-
-script:
-  - npm test
-
 sudo: required
 dist: trusty
 
 services:
   - docker
+
+stages:
+  - name: setup
+    if: type =~ /^(push|pull_request)$/
+    script:
+      - sudo rm /usr/local/bin/docker-compose
+      - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
+      - chmod +x docker-compose
+      - sudo mv docker-compose /usr/local/bin
+      - npm install
+      - sudo service postgresql stop
+      - while sudo lsof -Pi :5432 -sTCP:LISTEN -t; do sleep 1; done
+      - docker-compose up --build -d
+      - sleep 10
+      - docker run --rm -v $(pwd)/migrations:/liquibase/ -e "LIQUIBASE_URL=jdbc:postgresql://localhost:5432/honeycomb" -e "LIQUIBASE_USERNAME=honeycomb_user" -e "LIQUIBASE_PASSWORD=iamaninsecurepassword" -e "LIQUIBASE_CHANGELOG=/liquibase/main.yml" --network="host" webdevops/liquibase:postgres update
+  - name: test pull_request
+    if: type = pull_request
+    script:
+      - npm test
+  - name: test push
+    if: type = push
+    script:
+      - npm test
+    after_success:
+      - git config --global user.email "builds@travis-ci.com"
+      - git config --global user.name "Travis CI"
+      - export GIT_TAG=v$(date -u "+%Y-%m-%d-%H-%M")-$TRAVIS_BUILD_NUMBER
+      - git tag $GIT_TAG -a -m "Generated tag from TravisCI build $TRAVIS_BUILD_NUMBER"
+      - git push origin $GIT_TAG
