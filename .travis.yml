@@ -12,7 +12,6 @@ services:
   - docker
 
 before_install:
-  - echo $(date -u "+%Y-%m-%d-%H-%M-%S")
   - sudo rm /usr/local/bin/docker-compose
   - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
   - chmod +x docker-compose
@@ -36,6 +35,8 @@ deploy:
   script:
     - git config --global user.email "builds@travis-ci.com"
     - git config --global user.name "Travis CI"
+    - echo $(date -u "+%Y-%m-%d-%H-%M-%S")
+    - echo $TRAVIS_BUILD_NUMBER
     - export GIT_TAG=v$(date -u "+%Y-%m-%d-%H-%M-%S")-$TRAVIS_BUILD_NUMBER
     - git tag $GIT_TAG -a -m "Generated tag from TravisCI build $TRAVIS_BUILD_NUMBER"
     - git push origin $GIT_TAG
