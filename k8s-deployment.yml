@@ -1,0 +1,53 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sensors-honeycomb-api
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: honeycomb.apparatus.wildflowertesting.org
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+    name: http
+    targetPort: 4000
+  selector:
+    app: sensors-honeycomb-api
+
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: honeycomb
+spec:
+  template:
+    metadata:
+      labels:
+        app: sensors-honeycomb-api
+    spec:
+      containers:
+      - image: "wildflowerschools/sensors_honeycomb_api:v2018-10-24-15-56-07"
+        name: sensors-honeycomb-api
+        env:
+          - name: ENV
+            value: "test"
+          - name: PGPASSWORD
+            valueFrom:
+              configMapKeyRef:
+                name: honeycomb-postgres-config
+                key: POSTGRES_PASSWORD
+          - name: PGUSER
+            valueFrom:
+              configMapKeyRef:
+                name: honeycomb-postgres-config
+                key: POSTGRES_USER
+          - name: PGDATABASE
+            valueFrom:
+              configMapKeyRef:
+                name: honeycomb-postgres-config
+                key: POSTGRES_DB
+          - name: PGHOST
+            value: honeycomb-postgres.default.svc.cluster.local
+        ports:
+        - containerPort: 4000
+          name: http
