@@ -2,10 +2,7 @@ version: '3.6'
 services:
 
   postgres:
-    image: postgres:9.6
-    # build:
-    #   context: ./build/local/db/
-    #   dockerfile: Dockerfile
+    image: postgres:10.4
     restart: always
     ports:
       - "5432:5432"
