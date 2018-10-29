@@ -1,0 +1,36 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: honeycomb-liquibase-migrations
+spec:
+  backoffLimit: 5
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: honeycomb-liquibase-runner
+        image: "wildflowerschools/sensors_honeycomb_api:migrations-v2018-10-26-19-49-13"
+        command: ["/entrypoint", "update"]
+        env:
+          - name: ENV
+            value: "test"
+          - name: LIQUIBASE_PASSWORD
+            valueFrom:
+              configMapKeyRef:
+                name: honeycomb-postgres-config
+                key: POSTGRES_PASSWORD
+          - name: LIQUIBASE_USERNAME
+            valueFrom:
+              configMapKeyRef:
+                name: honeycomb-postgres-config
+                key: POSTGRES_USER
+          - name: PGDATABASE
+            valueFrom:
+              configMapKeyRef:
+                name: honeycomb-postgres-config
+                key: POSTGRES_DB
+          - name: LIQUIBASE_URL
+            value: jdbc:postgresql://honeycomb-postgres.default.svc.cluster.local:5432/honeycomb
+          - name: LIQUIBASE_CHANGELOG
+            value: /liquibase/main.yml
+  backoffLimit: 4
