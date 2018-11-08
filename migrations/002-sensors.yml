@@ -19,6 +19,9 @@ databaseChangeLog:
                   name: name
                   type: varchar(96)
               - column:
+                  name: description
+                  type: TEXT
+              - column:
                   name: created
                   type: TIMESTAMP
                   defaultValueComputed: CURRENT_TIMESTAMP
@@ -45,6 +48,9 @@ databaseChangeLog:
                   name: name
                   type: varchar(96)
               - column:
+                  name: description
+                  type: TEXT
+              - column:
                   name: created
                   type: TIMESTAMP
                   defaultValueComputed: CURRENT_TIMESTAMP
@@ -53,15 +59,63 @@ databaseChangeLog:
                   type: int
                   defaultValue: 1
               - column:
-                  name: device
+                  name: default_config
+                  type: JSONB
+  - changeSet:
+      id: sensor-install-table
+      author: pdecoursey
+      context: live
+      changes:
+        - createTable:
+            schemaName: honeycomb
+            tableName: sensor_installation
+            columns:
+              - column:
+                  name: sensor_install_id
+                  type: UUID
+                  defaultValueComputed: uuid_generate_v4()
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: description
+                  type: TEXT
+              - column:
+                  name: sensor_id
                   type: UUID
                   constraints:
-                    foreignKeyName: sensor_device_fkey
+                    nullable: false
+                    foreignKeyName: install_sensors_sensor_fkey
+              - column:
+                  name: device_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+                    foreignKeyName: install_sensors_device_fkey
+              - column:
+                  name: start
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: end
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: true
         - addForeignKeyConstraint:
             baseTableSchemaName: honeycomb
-            baseColumnNames: device
-            baseTableName: sensors
-            constraintName: sensor_device_fkey
+            baseColumnNames: sensor_id
+            baseTableName: sensor_installation
+            constraintName: install_sensors_sensor_fkey
+            referencedColumnNames: sensor_id
+            referencedTableSchemaName: honeycomb
+            referencedTableName: sensors
+        - addForeignKeyConstraint:
+            baseTableSchemaName: honeycomb
+            baseColumnNames: device_id
+            baseTableName: sensor_installation
+            constraintName: install_sensors_device_fkey
             referencedColumnNames: device_id
             referencedTableSchemaName: honeycomb
             referencedTableName: devices

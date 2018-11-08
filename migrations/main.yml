@@ -35,3 +35,17 @@ databaseChangeLog:
     changes:
     - tagDatabase:
         tag: version_2
+
+
+- include:
+    file: 003-environments.yml
+    relativeToChangelogFile: true
+
+
+- changeSet:
+    id: version_3
+    author: pdecoursey
+    context: live
+    changes:
+    - tagDatabase:
+        tag: version_3

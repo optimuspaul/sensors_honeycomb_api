@@ -4,6 +4,7 @@
     "description": "wildflower data service",
     "main": "src/index.js",
     "scripts": {
+        "local-fixtures": "docker-compose run honeycomb-service node src/local-fixtures.js",
         "test": "docker-compose run honeycomb-service /app/node_modules/.bin/mocha src/**/*.spec.js",
         "coverage": "node_modules/.bin/nyc --reporter=html npm test && open coverage/index.html",
         "start": "ENVIRONMENT=local node_modules/.bin/nodemon src/index.js"
@@ -26,10 +27,12 @@
         "graphql-directive": "^0.2.1",
         "graphql-iso-date": "^3.6.1",
         "graphql-tools": "^4.0.1",
-        "npm": "^6.4.1",
+        "graphql-voyager": "^1.0.0-rc.26",
+        "js-base64": "^2.4.9",
         "pg": "^7.5.0"
     },
     "devDependencies": {
+        "npm": "^6.4.1",
         "chai": "^4.2.0",
         "mocha": "^5.2.0",
         "nodemon": "^1.18.4",

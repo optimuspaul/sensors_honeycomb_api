@@ -1,5 +1,7 @@
-const { ApolloServer, gql } = require('apollo-server');
+const express = require("express");
+const { ApolloServer, gql } = require('apollo-server-express');
 const { schema } = require("./schema");
+const voyager = require('graphql-voyager/middleware');
 
 const server = new ApolloServer({
     schema,
@@ -13,6 +15,12 @@ const server = new ApolloServer({
     },
 });
 
-server.listen().then(({ url }) => {
-  console.log(`🚀  Server ready at ${url}`);
-});
+const app = express();
+
+app.use('/voyager', voyager.express({ endpointUrl: '/graphql' }));
+
+server.applyMiddleware({ app });
+
+app.listen({ port: 4000 }, () =>
+  console.log(`🚀 Server ready at http://localhost:4000${server.graphqlPath}`)
+)
