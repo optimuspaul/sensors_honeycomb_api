@@ -1,6 +1,6 @@
 {
     "name": "honeycomb",
-    "version": "0.0.1",
+    "version": "1.0.0",
     "description": "wildflower data service",
     "main": "src/index.js",
     "scripts": {
@@ -17,6 +17,8 @@
     "author": "pjdecoursey",
     "license": "MIT",
     "dependencies": {
+        "@wildflowerschools/graphql-beehive": "^0.6.0",
+        "@wildflowerschools/graphql-s3-directive": "^0.1.0",
         "apollo": "^1.9.2",
         "apollo-server": "^2.1.0",
         "apollo-server-express": "^2.1.0",
@@ -32,10 +34,11 @@
         "pg": "^7.5.0"
     },
     "devDependencies": {
-        "npm": "^6.4.1",
         "chai": "^4.2.0",
+        "event-stream": "^4.0.1",
         "mocha": "^5.2.0",
         "nodemon": "^1.18.4",
+        "npm": "^6.4.1",
         "nyc": "^13.1.0"
     }
 }

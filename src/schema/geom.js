@@ -40,7 +40,8 @@ exports.typeDefs = `
     objects: [GeometricObject!]
   }
 
-  type CoordinateSpace {
+  type CoordinateSpace @beehiveTable(table_name: "spaces", pk_column: "space_id") {
+    space_id: ID!
     name: String!
     environment: Environment!
     start: Datetime!
