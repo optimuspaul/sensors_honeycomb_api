@@ -1,46 +1,80 @@
 version: '3.6'
 services:
 
+  minio:
+    image: "minio/minio:latest"
+    restart: always
+    command: "server /data"
+    ports:
+      - 9000:9000
+    environment:
+      MINIO_ACCESS_KEY: myaccesskey
+      MINIO_SECRET_KEY: mysecret
+    volumes:
+      - type: bind
+        source: ./minio-data
+        target: /data
+
   postgres:
     image: postgres:10.4
     restart: always
-    ports:
-      - "5432:5432"
     environment:
       POSTGRES_PASSWORD: iamaninsecurepassword
       POSTGRES_USER: honeycomb_user
       POSTGRES_DB: honeycomb
 
+  redis:
+    image: redis:5.0.2
+    restart: always
 
-  liquibase:
-    image: webdevops/liquibase:postgres
+  proton-pack-service:
+    image: wildflowerschools/redis-proton-pack:service-0.2.0-py3.7
+    restart: always
     depends_on:
-      - postgres
+      - redis
     environment:
-      ENV: local
-      LIQUIBASE_PASSWORD: iamaninsecurepassword
-      LIQUIBASE_USERNAME: honeycomb_user
-      LIQUIBASE_CHANGELOG: /liquibase/main.yml
-      LIQUIBASE_URL: jdbc:postgresql://postgres:5432/honeycomb
-    command: update
-    volumes:
-      - type: bind
-        source: ./migrations
-        target: /liquibase
+      ENVIRONMENT: local
+      PROTON_PACK_REDIS_HOST: redis
+      SPY_LOG_LOGGER: json-clean
+      SPY_LOG_LEVEL: DEBUG
+      SPY_SHOW_META: "False"
+    ports:
+      - 5000:5000
 
+  proton-pack-worker:
+    image: wildflowerschools/redis-proton-pack:worker-0.2.0-py3.7
+    depends_on:
+      - redis
+    environment:
+      ENVIRONMENT: local
+      PROTON_PACK_REDIS_HOST: redis
+      STREAM: honeycomb
+      CONSUMER: copland
+      CONSUMERID: copland-01
+      SPY_LOG_LOGGER: json-clean
+      SPY_LOG_LEVEL: DEBUG
+      SPY_SHOW_META: "False"
 
   honeycomb-service:
     build:
-      context: ./build
-      dockerfile: local/Dockerfile
+      context: ./
+      dockerfile: build/local/Dockerfile
     depends_on:
+      - minio
       - postgres
     environment:
+      NODE_ENV: docker-compose
       ENV: local
       PGPASSWORD: iamaninsecurepassword
       PGUSER: honeycomb_user
       PGDATABASE: honeycomb
       PGHOST: postgres
+      AWS_S3_ENDPOINT: http://minio:9000
+      AWS_ACCESS_KEY: myaccesskey
+      AWS_SECRET_KEY: mysecret
+      S3_MINIO: "true"
+      BEEHIVE_ENABLE_EVENTS: "yes"
+      PROTON_PACK_STREAM_URI: http://proton-pack-service:5000/streams/honeycomb
     ports:
       - 4000:4000
     command: "scripts/setup-and-startup.sh"

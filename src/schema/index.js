@@ -1,52 +1,63 @@
-const scalars = require("./scalars");
-const sensors = require("./sensors");
-const geom = require("./geom");
-const environments = require("./environments");
-const resolvers = require("../resolvers").resolvers;
-const {
-  makeExecutableSchema,
-  mergeSchemas,
-} = require('graphql-tools');
+const sensors = require("./sensors")
+const geom = require("./geom")
+const datapoints = require("./data")
+const environments = require("./environments")
+const {makeExecutableSchema} = require('graphql-tools')
+const {BeehiveDirectives, BeehiveTypeDefs, BeehiveResolvers, hivePg} = require("@wildflowerschools/graphql-beehive")
 
 
 const rootDefs = `
-  
-  input PaginationInput {
-    max: Int
-    cursor: String
-  }
 
   type Query {
-    devices(envId: String, page: PaginationInput): DeviceList!
-    sensors(page: PaginationInput): SensorList!
-    environments(page: PaginationInput): [Environment]!
+    _ : Boolean
   }
 
   type Mutation {
-    # adds a new device to the graph
-    createDevice(device: DeviceInput): Device
-    # adds a new sensor to the graph
-    createSensor(sensor: SensorInput): Sensor
-    addSensorToDevice(deviceId: ID!, sensorId: ID!): Device
-    createCoordinateSpace(space: CoordinateSpaceInput): CoordinateSpace
+    _ : Boolean
+    singleUpload(file: Upload!): String
   }
-`;
+
+  schema @beehive(schema_name: "honeycomb") {
+    query: Query
+    mutation: Mutation
+  }
+
+`
 
 const logger = { log: e => console.log(e) }
   
 const schema = makeExecutableSchema({
   typeDefs: [
+    rootDefs,
+    BeehiveTypeDefs,
     geom.typeDefs,
-    scalars.typeDefs,
     sensors.typeDefs,
     environments.typeDefs,
-    rootDefs,
+    datapoints.typeDefs,
   ],
-  resolvers: resolvers,
+  resolvers: [
+    BeehiveResolvers,
+    {
+      Assignment: {
+        assigned: async function(obj, args, context, info) {
+          const assigned_type = obj.assigned_type
+          const fixed_type_name = assigned_type.charAt(0) + assigned_type.slice(1).toLowerCase()
+          return hivePg.getItem(schema, schema._beehive.tables[fixed_type_name], obj.assigned)
+        }
+      },
+      Mutation: {
+         singleUpload: async function(obj, args, context, info) {
+          console.log(args)
+          return "OK"
+         }
+      }
+    }
+  ],
+  schemaDirectives: Object.assign(BeehiveDirectives),
   resolverValidationOptions: {
     requireResolversForResolveType: false
   },
   logger: logger,
-});
+})
 
-exports.schema = schema;
+exports.schema = schema
