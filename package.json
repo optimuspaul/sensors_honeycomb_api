@@ -5,7 +5,7 @@
     "main": "src/index.js",
     "scripts": {
         "local-fixtures": "docker-compose run honeycomb-service node src/local-fixtures.js",
-        "test": "docker-compose run honeycomb-service /app/node_modules/.bin/mocha src/**/*.spec.js",
+        "test": "docker-compose run honeycomb-service /app/node_modules/.bin/mocha --recursive --timeout 30000",
         "coverage": "node_modules/.bin/nyc --reporter=html npm test",
         "gobro": "ENVIRONMENT=local node_modules/.bin/nodemon --watch src src/index.js"
     },
