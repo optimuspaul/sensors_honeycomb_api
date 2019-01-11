@@ -6,8 +6,8 @@
     "scripts": {
         "local-fixtures": "docker-compose run honeycomb-service node src/local-fixtures.js",
         "test": "docker-compose run honeycomb-service /app/node_modules/.bin/mocha src/**/*.spec.js",
-        "coverage": "node_modules/.bin/nyc --reporter=html npm test && open coverage/index.html",
-        "start": "ENVIRONMENT=local node_modules/.bin/nodemon src/index.js"
+        "coverage": "node_modules/.bin/nyc --reporter=html npm test",
+        "gobro": "ENVIRONMENT=local node_modules/.bin/nodemon --watch src src/index.js"
     },
     "nyc": {
         "exclude": [
@@ -17,8 +17,8 @@
     "author": "pjdecoursey",
     "license": "MIT",
     "dependencies": {
-        "@wildflowerschools/graphql-beehive": "^0.6.0",
-        "@wildflowerschools/graphql-s3-directive": "^0.1.0",
+        "@wildflowerschools/graphql-beehive": "^0.7.3",
+        "@wildflowerschools/graphql-s3-directive": "^0.2.0",
         "apollo": "^1.9.2",
         "apollo-server": "^2.1.0",
         "apollo-server-express": "^2.1.0",

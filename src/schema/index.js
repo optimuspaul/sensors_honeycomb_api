@@ -4,16 +4,17 @@ const datapoints = require("./data")
 const environments = require("./environments")
 const {makeExecutableSchema} = require('graphql-tools')
 const {BeehiveDirectives, BeehiveTypeDefs, BeehiveResolvers, hivePg} = require("@wildflowerschools/graphql-beehive")
-// const graphS3 = require("@wildflowerschools/graphql-s3-directive")
 
 
 const rootDefs = `
+
   type Query {
     _ : Boolean
   }
 
   type Mutation {
     _ : Boolean
+    singleUpload(file: Upload!): String
   }
 
   schema @beehive(schema_name: "honeycomb") {
@@ -33,11 +34,9 @@ const schema = makeExecutableSchema({
     sensors.typeDefs,
     environments.typeDefs,
     datapoints.typeDefs,
-    // graphS3.typeDefs,
   ],
   resolvers: [
     BeehiveResolvers,
-    // graphS3.resolvers,
     {
       Assignment: {
         assigned: async function(obj, args, context, info) {
@@ -45,10 +44,15 @@ const schema = makeExecutableSchema({
           const fixed_type_name = assigned_type.charAt(0) + assigned_type.slice(1).toLowerCase()
           return hivePg.getItem(schema, schema._beehive.tables[fixed_type_name], obj.assigned)
         }
+      },
+      Mutation: {
+         singleUpload: async function(obj, args, context, info) {
+          console.log(args)
+          return "OK"
+         }
       }
     }
   ],
-  // schemaDirectives: Object.assign(BeehiveDirectives, graphS3.directives),
   schemaDirectives: Object.assign(BeehiveDirectives),
   resolverValidationOptions: {
     requireResolversForResolveType: false

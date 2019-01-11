@@ -58,12 +58,16 @@ exports.typeDefs = `
     description: String
     start: Datetime!
     end: Datetime
-    sensor: Sensor @beehiveRelation(target_type_name: "Sensor")
+    sensor: Sensor! @beehiveRelation(target_type_name: "Sensor")
     tag_id: String
   }
 
   type DeviceList {
     data: [Device!]!
+  }
+
+  type SensorInstallationList {
+    data: [SensorInstallation!]!
   }
 
   type SensorList {
@@ -73,7 +77,6 @@ exports.typeDefs = `
   input DeviceInput {
     name: String
     description: String
-    sensors: [SensorInstallationInput!]
   }
 
   input SensorInstallationInput {
@@ -84,10 +87,11 @@ exports.typeDefs = `
     end: Datetime
     tag_id: String
   }
-  
+
   input SensorInput {
     name: String!
     version: Int
+    description: String
     sensor_type: SensorType!
   }
 
@@ -96,6 +100,8 @@ exports.typeDefs = `
     devices(envId: String, page: PaginationInput): DeviceList! @beehiveList(target_type_name: "Device")
     # Gets the list of sensors
     sensors(page: PaginationInput): SensorList! @beehiveList(target_type_name: "Sensor")
+    # list of SensorInstallations
+    sensorInstallations(page: PaginationInput): SensorInstallationList! @beehiveList(target_type_name: "SensorInstallation")
   }
 
   extend type Mutation {
