@@ -1,8 +1,12 @@
-const express = require("express");
-const { ApolloServer, gql } = require('apollo-server-express');
-const { schema } = require("./schema");
-const voyager = require('graphql-voyager/middleware');
+const express = require("express")
+const { ApolloServer, gql } = require('apollo-server-express')
+const { schema } = require("./schema")
+const voyager = require('graphql-voyager/middleware')
 const beehive = require("@wildflowerschools/graphql-beehive")
+const bodyParser = require('body-parser')
+
+const jwt = require('express-jwt')
+const jwks = require('jwks-rsa')
 
 
 const server = new ApolloServer({
@@ -19,16 +23,59 @@ const server = new ApolloServer({
     //     console.log("------------------")
     //     return response;
     // },
-});
+    // context: ({ req }) => ({
+    //     authScope: getScope(req.user)
+    // }),
+})
 
 
-const app = express();
+const app = express()
 
-app.use('/voyager', voyager.express({ endpointUrl: '/graphql' }));
+app.use(bodyParser.json())
 
-server.applyMiddleware({ app });
 
-(async () => {
+// TODO - make these things configurable
+const jwtCheck = jwt({
+    secret: jwks.expressJwtSecret({
+        cache: true,
+        rateLimit: true,
+        jwksRequestsPerMinute: 5,
+        jwksUri: "https://wildflowerschools.auth0.com/.well-known/jwks.json"
+    }),
+    audience: 'https://honeycomb.api.wildflowerschools.org',
+    issuer: "https://wildflowerschools.auth0.com/",
+    algorithms: ['RS256']
+})
+
+
+
+if(process.env.ENVIRONMENT != 'local') {
+    app.use(function(req, res, next) {
+        if(req.method == "GET" || (req.method == "POST" && req.body.operationName == "IntrospectionQuery")) {
+            next()
+        } else {
+            jwtCheck(req, res, next)
+        }
+    })
+    // app.use(function(req, res, next) {
+    //     console.log(req)
+    //     next()
+    // })
+}
+
+app.use(function (err, req, res, next) {
+  console.error(err.stack)
+  res.status(500).json({status: "error", message: err.message})
+})
+
+
+app.use('/voyager', voyager.express({ endpointUrl: '/graphql' }))
+
+server.applyMiddleware({ app })
+
+
+
+const start = async () => {
     console.log("checking database")
     try {
         console.log(beehive)
@@ -42,4 +89,6 @@ server.applyMiddleware({ app });
         console.log(e)
         console.log("----------------------------")
     }
-})();
+}
+
+start()
