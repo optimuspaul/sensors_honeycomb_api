@@ -1,11 +1,15 @@
 exports.typeDefs = `
 
-  type Environment {
+  type Environment @beehiveTable(table_name: "environments", pk_column: "environment_id") {
+    environment_id: ID!
     name: String!
     description: String
     location: String
-    created: Datetime!
-    assignments(when: Datetime): [Assignment!]
+    assignments(when: Datetime): [Assignment!] @beehiveRelation(target_type_name: "Assignment", target_field_name: "environment")
+  }
+
+  type EnvironmentList {
+    data: [Environment!]!
   }
 
   type Person {
@@ -18,9 +22,9 @@ exports.typeDefs = `
     DEVICE
   }
   
-  union Assignable = Device | Person
+  union Assignable @beehiveUnion = Device | Person
 
-  type Assignment {
+  type Assignment @beehiveTable(table_name: "assignments", pk_column: "assignment_id") {
     assignment_id: ID!
     environment: Environment!
     assigned: Assignable!
@@ -42,8 +46,20 @@ exports.typeDefs = `
   input AssignmentInput {
     environment: ID!
     assigned_type: AssignableTypeEnum!
-    assigned_id: ID!
+    assigned: ID!
     start: Datetime
+    end: Datetime
   }
 
-`;
+  extend type Query {
+    # Gets the list of environments
+    environments(page: PaginationInput): EnvironmentList @beehiveList(target_type_name: "Environment")
+  }
+
+  extend type Mutation {
+    # Create a new Environment
+    createEnvironment(environment: EnvironmentInput): Environment @beehiveCreate(target_type_name: "Environment")
+    assignToEnvironment(assignment: AssignmentInput): Assignment @beehiveCreate(target_type_name: "Assignment")
+  }
+
+`
