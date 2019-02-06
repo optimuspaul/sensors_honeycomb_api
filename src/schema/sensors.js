@@ -7,7 +7,7 @@ exports.typeDefs = `
     # A part number for tracking models of devices
     part_number: String
     # A name for the device.
-    name: String
+    name: String!
     # tags
     tag_id: String
     description: String
@@ -23,33 +23,14 @@ exports.typeDefs = `
     INERTIAL
   }
 
-  interface Sensor @beehiveTable(table_name: "sensors", pk_column: "sensor_id", resolve_type_field: "sensor_type") {
+  type Sensor @beehiveTable(table_name: "sensors", pk_column: "sensor_id", resolve_type_field: "sensor_type") {
     sensor_id: ID!
     part_number: String
     name: String!
     description: String
-    sensor_type: SensorType
+    sensor_type: SensorType!
     version: Int!
-  }
-
-  type Camera implements Sensor @beehiveTable(table_name: "sensors", pk_column: "sensor_id") {
-    sensor_id: ID!
-    part_number: String
-    name: String!
-    description: String
-    sensor_type: SensorType
-    version: Int!
-    default_camera_parameters: CameraParameters
-  }
-
-  type GenericSensor implements Sensor @beehiveTable(table_name: "sensors", pk_column: "sensor_id") {
-    sensor_id: ID!
-    part_number: String
-    name: String!
-    description: String
-    sensor_type: SensorType
-    version: Int!
-    default_config: String
+    default_config: [Property!]
   }
 
   type SensorInstallation @beehiveTable(table_name: "sensor_installations", pk_column: "sensor_install_id") {
@@ -60,6 +41,21 @@ exports.typeDefs = `
     end: Datetime
     sensor: Sensor! @beehiveRelation(target_type_name: "Sensor")
     tag_id: String
+    config: [Property!]
+  }
+
+  enum PropertyType {
+    BOOL
+    STR
+    INT
+    FLOAT
+    NULL
+  }
+
+  type Property {
+    name: String!
+    value: String
+    type: PropertyType!
   }
 
   type DeviceList {
@@ -77,6 +73,8 @@ exports.typeDefs = `
   input DeviceInput {
     name: String
     description: String
+    part_number: String
+    tag_id: String
   }
 
   input SensorInstallationInput {
@@ -86,21 +84,48 @@ exports.typeDefs = `
     start: Datetime
     end: Datetime
     tag_id: String
+    config: [PropertyInput!]
+  }
+
+  input SensorInstallationUpdateInput {
+    description: String
+    start: Datetime
+    end: Datetime
+    tag_id: String
+    config: [PropertyInput!]
   }
 
   input SensorInput {
+    part_number: String
     name: String!
-    version: Int
     description: String
     sensor_type: SensorType!
+    version: Int!
+    default_config: [PropertyInput!]
+  }
+
+  input PropertyInput {
+    name: String!
+    value: String
+    type: PropertyType!
   }
 
   extend type Query {
     # Gets the list of devices
     devices(envId: String, page: PaginationInput): DeviceList! @beehiveList(target_type_name: "Device")
+    # Get a device
+    device(device_id: ID): Device @beehiveGet(target_type_name: "Device")
+    # Find a device based on one or more of it's properties
+    findDevice(name: String, part_number: String): DeviceList! @beehiveSimpleQuery(target_type_name: "Device")
+
     # Gets the list of sensors
     sensors(page: PaginationInput): SensorList! @beehiveList(target_type_name: "Sensor")
-    # list of SensorInstallations
+    # Get a sensor
+    sensor(sensor_id: ID): Sensor @beehiveGet(target_type_name: "Sensor")
+    # Find a sensor based on one or more of it's properties
+    findSensor(name: String, version: Int): SensorList! @beehiveSimpleQuery(target_type_name: "Sensor")
+
+    # list of SensorInstallations, for debugging mostly
     sensorInstallations(page: PaginationInput): SensorInstallationList! @beehiveList(target_type_name: "SensorInstallation")
   }
 
@@ -109,7 +134,10 @@ exports.typeDefs = `
     createDevice(device: DeviceInput): Device @beehiveCreate(target_type_name: "Device")
     # adds a new sensor to the graph
     createSensor(sensor: SensorInput): Sensor @beehiveCreate(target_type_name: "Sensor")
+    # Creates a sensor installation, adding to the sensors list on a Device
     addSensorToDevice(sensorInstallation: SensorInstallationInput): SensorInstallation @beehiveCreate(target_type_name: "SensorInstallation")
+    # Update the config for a sensorInstallation
+    updateSensorInstall(sensor_install_id: ID, sensorInstallation: SensorInstallationUpdateInput): SensorInstallation @beehiveUpdate(target_type_name: "SensorInstallation")
   }
 
 `
