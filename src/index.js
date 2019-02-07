@@ -11,18 +11,19 @@ const jwks = require('jwks-rsa')
 
 const server = new ApolloServer({
     schema,
-    // formatError: error => {
-    //     console.log("---- error ----")
-    //     console.log(error);
-    //     console.log("---------------")
-    //     return error;
-    // },
-    // formatResponse: response => {
-    //     console.log("---- response ----")
-    //     console.log(JSON.stringify(response, null, 4));
-    //     console.log("------------------")
-    //     return response;
-    // },
+    formatError: error => {
+        console.log("---- error ----")
+        // console.log(error);
+        console.log(JSON.stringify(error, null, 4));
+        console.log("---------------")
+        return error;
+    },
+    formatResponse: response => {
+        console.log("---- response ----")
+        console.log(JSON.stringify(response, null, 4));
+        console.log("------------------")
+        return response;
+    },
     // context: ({ req }) => ({
     //     authScope: getScope(req.user)
     // }),
