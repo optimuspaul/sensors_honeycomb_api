@@ -1,3 +1,4 @@
+const common = require("./common")
 const sensors = require("./sensors")
 const geom = require("./geom")
 const datapoints = require("./data")
@@ -29,6 +30,7 @@ const schema = makeExecutableSchema({
   typeDefs: [
     rootDefs,
     BeehiveTypeDefs,
+    common.typeDefs,
     geom.typeDefs,
     sensors.typeDefs,
     environments.typeDefs,
