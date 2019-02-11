@@ -14,6 +14,14 @@ exports.typeDefs = `
     sensors: [SensorInstallation!]! @beehiveRelation(target_type_name: "SensorInstallation", target_field_name: "device")
   }
 
+  type DeviceConfiguration @beehiveAssignmentType(table_name: "device_configurations", assigned_field: "assigned", exclusive: true, pk_column: "device_configuration_id") {
+    device_configuration_id: ID!
+    device: Device! @beehiveRelation(target_type_name: "Device")
+    start: Datetime!
+    end: Datetime
+  }
+
+
   enum SensorType {
     CAMERA
     RADIO
@@ -42,20 +50,6 @@ exports.typeDefs = `
     sensor: Sensor! @beehiveRelation(target_type_name: "Sensor")
     tag_id: String
     config: [Property!]
-  }
-
-  enum PropertyType {
-    BOOL
-    STR
-    INT
-    FLOAT
-    NULL
-  }
-
-  type Property {
-    name: String!
-    value: String
-    type: PropertyType!
   }
 
   type DeviceList {
@@ -102,12 +96,6 @@ exports.typeDefs = `
     sensor_type: SensorType!
     version: Int!
     default_config: [PropertyInput!]
-  }
-
-  input PropertyInput {
-    name: String!
-    value: String
-    type: PropertyType!
   }
 
   extend type Query {
