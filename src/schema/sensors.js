@@ -12,6 +12,7 @@ exports.typeDefs = `
     tag_id: String
     description: String
     sensors: [SensorInstallation!]! @beehiveRelation(target_type_name: "SensorInstallation", target_field_name: "device")
+    confgurations: [DeviceConfiguration!] @beehiveRelation(target_type_name: "DeviceConfiguration", target_field_name: "device")
   }
 
   type DeviceConfiguration @beehiveAssignmentType(table_name: "device_configurations", assigned_field: "assigned", exclusive: true, pk_column: "device_configuration_id") {
@@ -19,6 +20,14 @@ exports.typeDefs = `
     device: Device! @beehiveRelation(target_type_name: "Device")
     start: Datetime!
     end: Datetime
+    properties: [Property!]
+  }
+
+  input DeviceConfigurationInput {
+    device: ID!
+    start: Datetime!
+    end: Datetime
+    properties: [PropertyInput!]
   }
 
 
@@ -120,6 +129,8 @@ exports.typeDefs = `
   extend type Mutation {
     # adds a new device to the graph
     createDevice(device: DeviceInput): Device @beehiveCreate(target_type_name: "Device")
+    # sets the device confguration
+    setDeviceConfiguration(deviceConfiguration: DeviceConfigurationInput): DeviceConfiguration @beehiveCreate(target_type_name: "DeviceConfiguration")
     # adds a new sensor to the graph
     createSensor(sensor: SensorInput): Sensor @beehiveCreate(target_type_name: "Sensor")
     # Creates a sensor installation, adding to the sensors list on a Device
