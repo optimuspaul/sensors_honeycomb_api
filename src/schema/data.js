@@ -21,8 +21,10 @@ type Datapoint @beehiveTable(table_name: "datapoints", pk_column: "data_id") {
     # Timestamp that the data was observed. When sensors produce data this timestamp will be the moment the data was captured. If the data is derived from other data this should match the observedTime of the parent data. If the data does not corespond to an sensor observation then this should match the created timestamp.
     observed_time: Datetime!
     # Which sensor, etc. was the source of this data. Only applicable to origin data, not derived data.
-    observer: SensorInstallation @beehiveRelation(target_type_name: "SensorInstallation")
+    observer: Observer! @beehiveUnionResolver(target_types: ["Device", "Person", "SensorInstallation"])
 }
+
+union Observer @beehiveUnion = Assignment | SensorInstallation
 
 type DatapointList{
     data: [Datapoint!]!
@@ -33,8 +35,8 @@ input DatapointInput {
     format: String
     file: S3FileInput
     observed_time: Datetime!
-    observer: ID
-    parents: [ID]
+    observer: ID!
+    parents: [ID!]
 }
 
 # Temporary input type until we add time series type queries to beehive
