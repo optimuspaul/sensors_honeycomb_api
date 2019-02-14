@@ -10,6 +10,7 @@ const jwks = require('jwks-rsa')
 
 
 const server = new ApolloServer({
+    introspection: true,
     schema,
     formatError: error => {
         console.log("---- error ----")
