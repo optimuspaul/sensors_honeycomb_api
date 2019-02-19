@@ -1,4 +1,5 @@
 const express = require("express")
+const cors = require('cors')
 const { ApolloServer, gql } = require('apollo-server-express')
 const { schema } = require("./schema")
 const voyager = require('graphql-voyager/middleware')
@@ -33,7 +34,9 @@ const server = new ApolloServer({
 
 const app = express()
 
+app.use(cors())
 app.use(bodyParser.json())
+app.options('*', cors())
 
 
 // TODO - make these things configurable
