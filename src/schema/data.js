@@ -39,19 +39,12 @@ input DatapointInput {
     parents: [ID!]
 }
 
-# Temporary input type until we add time series type queries to beehive
-# input TimeRange {
-#     from: Datetime!
-#     to: Datetime!
-# }
-
-
-
 extend type Query {
     # Gets the list of datapoints
     datapoints(page: PaginationInput): DatapointList! @beehiveList(target_type_name: "Datapoint")
     getDatapoint(datapoint_id: ID!): Datapoint! @beehiveGet(target_type_name: "Datapoint")
     findDatapointsForObserver(observer: ID!): DatapointList! @beehiveSimpleQuery(target_type_name: "Datapoint")
+    findDatapoints(query: QueryExpression!, page: PaginationInput): DatapointList! @beehiveQuery(target_type_name: "Datapoint")
 }
 
 extend type Mutation {
