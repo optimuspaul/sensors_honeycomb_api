@@ -42,7 +42,7 @@ input DatapointInput {
 extend type Query {
     # Gets the list of datapoints
     datapoints(page: PaginationInput): DatapointList! @beehiveList(target_type_name: "Datapoint")
-    getDatapoint(datapoint_id: ID!): Datapoint! @beehiveGet(target_type_name: "Datapoint")
+    getDatapoint(data_id: ID!): Datapoint! @beehiveGet(target_type_name: "Datapoint")
     findDatapointsForObserver(observer: ID!): DatapointList! @beehiveSimpleQuery(target_type_name: "Datapoint")
     findDatapoints(query: QueryExpression!, page: PaginationInput): DatapointList! @beehiveQuery(target_type_name: "Datapoint")
 }
