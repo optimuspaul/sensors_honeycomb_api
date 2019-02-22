@@ -65,6 +65,8 @@ exports.typeDefs = `
     createEnvironment(environment: EnvironmentInput): Environment @beehiveCreate(target_type_name: "Environment")
     # Assign an assignable to an envionemnt
     assignToEnvironment(assignment: AssignmentInput): Assignment @beehiveCreate(target_type_name: "Assignment")
+    # Update an assignment to set the end date/time of the assignment
+    updateAssignment(end: Datetime): Assignment @beehiveUpdate(target_type_name: "Assignment")
   }
 
 `
