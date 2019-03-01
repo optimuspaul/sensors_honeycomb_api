@@ -5,7 +5,7 @@ exports.typeDefs = `
     name: String!
     description: String
     location: String
-    assignments(when: Datetime): [Assignment!] @beehiveRelation(target_type_name: "Assignment", target_field_name: "environment")
+    assignments: [Assignment!] @beehiveAssignmentFilter(target_type_name: "Assignment", assignee_field: "environment")
   }
 
   type EnvironmentList {
