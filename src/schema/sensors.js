@@ -12,10 +12,10 @@ exports.typeDefs = `
     tag_id: String
     description: String
     sensors: [SensorInstallation!]! @beehiveRelation(target_type_name: "SensorInstallation", target_field_name: "device")
-    confgurations: [DeviceConfiguration!] @beehiveRelation(target_type_name: "DeviceConfiguration", target_field_name: "device")
+    confgurations: [DeviceConfiguration!] @beehiveAssignmentFilter(target_type_name: "DeviceConfiguration", assignee_field: "device")
   }
 
-  type DeviceConfiguration @beehiveAssignmentType(table_name: "device_configurations", assigned_field: "assigned", exclusive: true, pk_column: "device_configuration_id") {
+  type DeviceConfiguration @beehiveAssignmentType(table_name: "device_configurations", assigned_field: "device", exclusive: true, pk_column: "device_configuration_id") {
     device_configuration_id: ID!
     device: Device! @beehiveRelation(target_type_name: "Device")
     start: Datetime!
