@@ -107,7 +107,7 @@ exports.typeDefs = `
     # Update an assignment to set the end date/time of the assignment
     updateAssignment(assignment_id: ID!, assignment: AssignmentUpdateInput): Assignment @beehiveUpdate(target_type_name: "Assignment")
     # creates a new Layout, which represents the basic shape of an enviroment.
-    createLayout(enviromentLayout: LayoutInput): Layout @beehiveCreate(target_type_name: "Layout")
+    createLayout(layout: LayoutInput): Layout @beehiveCreate(target_type_name: "Layout")
     # set the end date for a Layout
     updateLayout(layout_id: ID!, layout: AssignmentUpdateInput): Layout @beehiveUpdate(target_type_name: "Layout")
   }
