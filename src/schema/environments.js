@@ -6,6 +6,7 @@ exports.typeDefs = `
     description: String
     location: String
     assignments: [Assignment!] @beehiveAssignmentFilter(target_type_name: "Assignment", assignee_field: "environment")
+    layouts: [Layout!] @beehiveAssignmentFilter(target_type_name: "Layout", assignee_field: "environment")
   }
 
   type EnvironmentList {
@@ -20,6 +21,39 @@ exports.typeDefs = `
   enum AssignableTypeEnum {
     PERSON
     DEVICE
+  }
+
+  type Layout @beehiveAssignmentType(table_name: "layouts", assigned_field: "environment", exclusive: true, pk_column: "layout_id") {
+      layout_id: ID!
+      environment: Environment!
+      spaces: [Rect!]
+      objects: [Rect!]
+      start: Datetime
+      end: Datetime
+  }
+
+  type Rect {
+      name: String
+      x: Int!
+      y: Int!
+      width: Int!
+      height: Int!
+  }
+
+  input RectInput {
+      name: String
+      x: Int!
+      y: Int!
+      width: Int!
+      height: Int!
+  }
+
+  input LayoutInput {
+      environment: ID!
+      spaces: [RectInput!]
+      objects: [RectInput!]
+      start: Datetime
+      end: Datetime
   }
 
   union Assignable @beehiveUnion = Device | Person
@@ -72,6 +106,10 @@ exports.typeDefs = `
     assignToEnvironment(assignment: AssignmentInput): Assignment @beehiveCreate(target_type_name: "Assignment")
     # Update an assignment to set the end date/time of the assignment
     updateAssignment(assignment_id: ID!, assignment: AssignmentUpdateInput): Assignment @beehiveUpdate(target_type_name: "Assignment")
+    # creates a new Layout, which represents the basic shape of an enviroment.
+    createLayout(enviromentLayout: LayoutInput): Layout @beehiveCreate(target_type_name: "Layout")
+    # set the end date for a Layout
+    updateLayout(layout_id: ID!, layout: AssignmentUpdateInput): Layout @beehiveUpdate(target_type_name: "Layout")
   }
 
 `
