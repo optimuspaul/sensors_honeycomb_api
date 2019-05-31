@@ -22,6 +22,8 @@ type Datapoint @beehiveTable(table_name: "datapoints", pk_column: "data_id") {
     observed_time: Datetime!
     # Which sensor, etc. was the source of this data. Only applicable to origin data, not derived data.
     observer: Observer! @beehiveUnionResolver(target_types: ["Device", "Person", "SensorInstallation"])
+    # duration of the data included in this observation. time should be expressed in milliseconds. If not set then assumed to be a snapshot observation without a duration
+    duration: Int
 }
 
 union Observer @beehiveUnion = Assignment | SensorInstallation
