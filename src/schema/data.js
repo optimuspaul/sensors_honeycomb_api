@@ -39,6 +39,7 @@ input DatapointInput {
     observed_time: Datetime!
     observer: ID!
     parents: [ID!]
+    duration: Int
 }
 
 extend type Query {
