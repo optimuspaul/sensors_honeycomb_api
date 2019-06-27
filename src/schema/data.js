@@ -1,5 +1,5 @@
 exports.typeDefs = `
-  
+
 enum DataFormat {
     BINARY
     CSV
@@ -53,6 +53,7 @@ extend type Query {
 extend type Mutation {
     # adds a new datapoint to the graph
     createDatapoint(datapoint: DatapointInput): Datapoint @beehiveCreate(target_type_name: "Datapoint", s3_file_fields: ["file"])
+    deleteDatapoint(data_id: ID): DeleteStatusResponse @beehiveDelete(target_type_name: "Datapoint")
 }
 
 
