@@ -11,7 +11,8 @@ exports.typeDefs = `
 
   type EnvironmentList {
     data: [Environment!]!
-  }
+    page_info: PageInfo!
+}
 
   type Person {
     person_id: ID!

@@ -30,6 +30,7 @@ union Observer @beehiveUnion = Assignment | SensorInstallation
 
 type DatapointList{
     data: [Datapoint!]!
+    page_info: PageInfo!
 }
 
 input DatapointInput {

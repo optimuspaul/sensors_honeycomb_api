@@ -63,14 +63,17 @@ exports.typeDefs = `
 
   type DeviceList {
     data: [Device!]!
+    page_info: PageInfo!
   }
 
   type SensorInstallationList {
     data: [SensorInstallation!]!
+    page_info: PageInfo!
   }
 
   type SensorList {
     data: [Sensor!]!
+    page_info: PageInfo!
   }
 
   input DeviceInput {
