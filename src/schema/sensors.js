@@ -8,8 +8,13 @@ exports.typeDefs = `
     part_number: String
     # A name for the device.
     name: String!
-    # tags
+    # tag_id is the information printed on an identifier label on the device itself
     tag_id: String
+    # A serial number specific to the device, could be a manufacturer id or a wildflower assigner number that is unique to the device.
+    serial_number: String
+    # mac address(s) associated with the network interface(s) of the device
+    mac_address: [String!]
+    # a long description for the device.
     description: String
     sensors: [SensorInstallation!]! @beehiveRelation(target_type_name: "SensorInstallation", target_field_name: "device")
     configurations: [DeviceConfiguration!] @beehiveAssignmentFilter(target_type_name: "DeviceConfiguration", assignee_field: "device")
@@ -81,6 +86,10 @@ exports.typeDefs = `
     description: String
     part_number: String
     tag_id: String
+    # A serial number specific to the device, could be a manufacturer id or a wildflower assigner number that is unique to the device.
+    serial_number: String
+    # mac address(s) associated with the network interface(s) of the device
+    mac_address: [String!]
   }
 
   input SensorInstallationInput {
