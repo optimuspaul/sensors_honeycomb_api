@@ -141,6 +141,8 @@ exports.typeDefs = `
   extend type Mutation {
     # adds a new device to the graph
     createDevice(device: DeviceInput): Device @beehiveCreate(target_type_name: "Device")
+    # update an existing device
+    updateDevice(device_id: ID!, device: DeviceInput): Device @beehiveUpdate(target_type_name: "Device")
     # sets the device configuration
     setDeviceConfiguration(deviceConfiguration: DeviceConfigurationInput): DeviceConfiguration @beehiveCreate(target_type_name: "DeviceConfiguration")
     # adds a new sensor to the graph
