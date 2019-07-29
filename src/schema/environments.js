@@ -103,6 +103,8 @@ exports.typeDefs = `
   extend type Mutation {
     # Create a new Environment
     createEnvironment(environment: EnvironmentInput): Environment @beehiveCreate(target_type_name: "Environment")
+    # update an Environment
+    updateEnvironment(environment_id: ID!, environment: EnvironmentInput): Assignment @beehiveUpdate(target_type_name: "Environment")
     # Assign an assignable to an envionemnt
     assignToEnvironment(assignment: AssignmentInput): Assignment @beehiveCreate(target_type_name: "Assignment")
     # Update an assignment to set the end date/time of the assignment
