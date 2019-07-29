@@ -81,7 +81,7 @@ extend type Query {
     findDatapoints(query: QueryExpression!, page: PaginationInput): DatapointList! @beehiveQuery(target_type_name: "Datapoint")
     inferences(page: PaginationInput): InferenceExecutionList! @beehiveSimpleQuery(target_type_name: "InferenceExecution")
     getInferenceExecution(inference_id: ID!): InferenceExecution! @beehiveGet(target_type_name: "InferenceExecution")
-    findInferences(query: QueryExpression!, page: PaginationInput): DatapointList! @beehiveQuery(target_type_name: "InferenceExecution")
+    findInferences(query: QueryExpression!, page: PaginationInput): InferenceExecutionList! @beehiveQuery(target_type_name: "InferenceExecution")
 }
 
 extend type Mutation {
