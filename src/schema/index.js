@@ -2,6 +2,7 @@ const common = require("./common")
 const sensors = require("./sensors")
 const geom = require("./geom")
 const datapoints = require("./data")
+const activity = require("./activity")
 const environments = require("./environments")
 const {makeExecutableSchema} = require('graphql-tools')
 const {BeehiveDirectives, BeehiveTypeDefs, BeehiveResolvers, hivePg} = require("@wildflowerschools/graphql-beehive")
@@ -25,7 +26,7 @@ const rootDefs = `
 `
 
 const logger = { log: e => console.log(e) }
-  
+
 const schema = makeExecutableSchema({
   typeDefs: [
     rootDefs,
@@ -35,6 +36,7 @@ const schema = makeExecutableSchema({
     sensors.typeDefs,
     environments.typeDefs,
     datapoints.typeDefs,
+    activity.typeDefs,
   ],
   resolvers: [
     BeehiveResolvers,
