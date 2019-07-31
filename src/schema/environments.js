@@ -26,7 +26,7 @@ exports.typeDefs = `
 
   type Layout @beehiveAssignmentType(table_name: "layouts", assigned_field: "environment", exclusive: true, pk_column: "layout_id") {
       layout_id: ID!
-      environment: Environment!
+      environment: Environment! @beehiveRelation(target_type_name: "Environment")
       spaces: [Rect!]
       objects: [Rect!]
       start: Datetime
