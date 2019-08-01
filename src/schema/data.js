@@ -16,8 +16,6 @@ type Datapoint @beehiveTable(table_name: "datapoints", pk_column: "data_id") {
     format: String
     # Data stored on S3
     file: S3File @s3file(keyPrefix: "datapoints", bucketName: "wildfower-honeycomb-datapoints-us-east-2", region: "us-east-2")
-    # URL that can be used to get the data directly via a REST request - TODO, need an endpoint for this
-    url: String!
     # Timestamp that the data was observed. When sensors produce data this timestamp will be the moment the data was captured. If the data is derived from other data this should match the observedTime of the parent data. If the data does not corespond to an sensor observation then this should match the created timestamp.
     observed_time: Datetime!
     # Which sensor, etc. was the source of this data.
