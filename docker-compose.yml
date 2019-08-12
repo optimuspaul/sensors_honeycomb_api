@@ -16,44 +16,53 @@ services:
         target: /data
 
   postgres:
+    # image: wildflowerschools/docker-postgres:10.4-alpine-v5
     image: postgres:10.4
     restart: always
     environment:
       POSTGRES_PASSWORD: iamaninsecurepassword
       POSTGRES_USER: honeycomb_user
       POSTGRES_DB: honeycomb
+      # WALE_S3_PREFIX: s3://wildflower-db-backups/honeycomb/archives/
+      # AWS_REGION: us-east-2
+      # RESTORE_FROM_BACKUP: LATEST
+    volumes:
+      - type: bind
+        source: ./
+        target: /app
+
 
   redis:
     image: redis:5.0.2
     restart: always
 
-  proton-pack-service:
-    image: wildflowerschools/redis-proton-pack:service-0.2.0-py3.7
-    restart: always
-    depends_on:
-      - redis
-    environment:
-      ENVIRONMENT: local
-      PROTON_PACK_REDIS_HOST: redis
-      SPY_LOG_LOGGER: json-clean
-      SPY_LOG_LEVEL: DEBUG
-      SPY_SHOW_META: "False"
-    ports:
-      - 5000:5000
+  # proton-pack-service:
+  #   image: wildflowerschools/redis-proton-pack:service-0.2.0-py3.7
+  #   restart: always
+  #   depends_on:
+  #     - redis
+  #   environment:
+  #     ENVIRONMENT: local
+  #     PROTON_PACK_REDIS_HOST: redis
+  #     SPY_LOG_LOGGER: json-clean
+  #     SPY_LOG_LEVEL: DEBUG
+  #     SPY_SHOW_META: "False"
+  #   ports:
+  #     - 5000:5000
 
-  proton-pack-worker:
-    image: wildflowerschools/redis-proton-pack:worker-0.2.0-py3.7
-    depends_on:
-      - redis
-    environment:
-      ENVIRONMENT: local
-      PROTON_PACK_REDIS_HOST: redis
-      STREAM: honeycomb
-      CONSUMER: copland
-      CONSUMERID: copland-01
-      SPY_LOG_LOGGER: json-clean
-      SPY_LOG_LEVEL: DEBUG
-      SPY_SHOW_META: "False"
+  # proton-pack-worker:
+  #   image: wildflowerschools/redis-proton-pack:worker-0.2.0-py3.7
+  #   depends_on:
+  #     - redis
+  #   environment:
+  #     ENVIRONMENT: local
+  #     PROTON_PACK_REDIS_HOST: redis
+  #     STREAM: honeycomb
+  #     CONSUMER: copland
+  #     CONSUMERID: copland-01
+  #     SPY_LOG_LOGGER: json-clean
+  #     SPY_LOG_LEVEL: DEBUG
+  #     SPY_SHOW_META: "False"
 
   honeycomb-service:
     build:
@@ -73,8 +82,8 @@ services:
       AWS_ACCESS_KEY: myaccesskey
       AWS_SECRET_KEY: mysecret
       S3_MINIO: "true"
-      BEEHIVE_ENABLE_EVENTS: "yes"
-      PROTON_PACK_STREAM_URI: http://proton-pack-service:5000/streams/honeycomb
+      BEEHIVE_ENABLE_EVENTS: "no"
+      # PROTON_PACK_STREAM_URI: http://proton-pack-service:5000/streams/honeycomb
     ports:
       - 4000:4000
     command: "scripts/setup-and-startup.sh"

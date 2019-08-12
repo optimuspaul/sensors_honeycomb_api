@@ -16,14 +16,14 @@ type Datapoint @beehiveTable(table_name: "datapoints", pk_column: "data_id") {
     format: String
     # Data stored on S3
     file: S3File @s3file(keyPrefix: "datapoints", bucketName: "wildfower-honeycomb-datapoints-us-east-2", region: "us-east-2")
-    # Timestamp that the data was observed. When sensors produce data this timestamp will be the moment the data was captured. If the data is derived from other data this should match the observedTime of the parent data. If the data does not corespond to an sensor observation then this should match the created timestamp.
-    observed_time: Datetime!
-    # Which sensor, etc. was the source of this data.
-    observer: Observer @beehiveUnionResolver(target_types: ["Device", "Person", "SensorInstallation", "InferenceExecution", "Environment"])
-    # Which sensor(s), etc. was the source of this data. Use this with multiple observers.
-    observers: [Observer!] @beehiveUnionResolver(target_types: ["Device", "Person", "SensorInstallation", "InferenceExecution", "Environment"])
+    # Timestamp that the data was observed, measured, or inferred.
+    timestamp: Datetime!
+    # Which objects are associated with this data
+    associations: [Association!] @beehiveUnionResolver(target_types: ["Device", "Person", "Environment"])
     # duration of the data included in this observation. time should be expressed in milliseconds. If not set then assumed to be a snapshot observation without a duration
     duration: Int
+    # where did the data originate
+    source: DataSource!
 }
 
 
@@ -58,24 +58,42 @@ input InferenceExecutionInput {
     execution_start: Datetime!
 }
 
-union Observer @beehiveUnion = Assignment | SensorInstallation | InferenceExecution | Environment
+enum DataSourceType {
+    GROUND_TRUTH
+    GENERATED_TEST
+    MEASURED
+    INFERRED
+}
+
+type DataSource {
+    type: DataSourceType!
+    source: SourceObject @beehiveUnionResolver(target_types: ["Assignment", "Person", "InferenceExecution"])
+}
+
+
+union Association @beehiveUnion = Device | Environment | Person | Material
+union SourceObject @beehiveUnion = Assignment | InferenceExecution | Person
+
+input DataSourceInput {
+    type: DataSourceType!
+    source: ID
+}
 
 input DatapointInput {
     # format of the data
     format: String
     file: S3FileInput
-    observed_time: Datetime!
-    observer: ID!
-    observers: [ID!]
+    timestamp: Datetime!
+    associations: [ID!]
     parents: [ID!]
     duration: Int
+    source: DataSourceInput
 }
 
 extend type Query {
     # Gets the list of datapoints
     datapoints(page: PaginationInput): DatapointList! @beehiveList(target_type_name: "Datapoint")
     getDatapoint(data_id: ID!): Datapoint! @beehiveGet(target_type_name: "Datapoint")
-    findDatapointsForObserver(observer: ID!): DatapointList! @beehiveSimpleQuery(target_type_name: "Datapoint")
     findDatapoints(query: QueryExpression!, page: PaginationInput): DatapointList! @beehiveQuery(target_type_name: "Datapoint")
     inferences(page: PaginationInput): InferenceExecutionList! @beehiveSimpleQuery(target_type_name: "InferenceExecution")
     getInferenceExecution(inference_id: ID!): InferenceExecution! @beehiveGet(target_type_name: "InferenceExecution")
