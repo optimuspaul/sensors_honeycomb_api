@@ -113,6 +113,9 @@ exports.typeDefs = `
     createLayout(layout: LayoutInput): Layout @beehiveCreate(target_type_name: "Layout")
     # set the end date for a Layout
     updateLayout(layout_id: ID!, layout: AssignmentUpdateInput): Layout @beehiveUpdate(target_type_name: "Layout")
+    
+    # Create a new Person
+    createPerson(person: PersonInput): Person @beehiveCreate(target_type_name: "Person")
   }
 
 `

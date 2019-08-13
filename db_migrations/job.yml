@@ -1,0 +1,23 @@
+
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: honeycomb-db-migrate
+  namespace: honeycomb
+spec:
+    template:
+      spec:
+        containers:
+        - name: migrate
+          image: wildflowerschools/sensors_honeycomb_api:migrate-v1
+          env:
+          - name: POSTGRES_USER
+            value: honeycomb_app_rw
+          - name: POSTGRES_PASSWORD
+            value: D0BF56B00DA62700941259C30607C39D
+          - name: POSTGRES_DB
+            value: honeycomb
+          - name: PGHOST
+            value: honeycomb-postgres-encrypted.honeycomb.svc.cluster.local
+        restartPolicy: OnFailure

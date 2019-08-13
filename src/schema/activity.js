@@ -80,9 +80,11 @@ type MaterialInteraction @beehiveTable(table_name: "material_interaction", pk_co
     # child or teacher that is the subject of the interaciton
     subject: Person! @beehiveRelation(target_type_name: "Person")
     # what object were being used in this activity
-    objects: Material
+    object: Material
     start: Datetime!
+    # length of time the interaction took place
     duration: Int
+    code: ObservationCodes
     concentration: ConcentrationInformation!
     engagementType: EngagementType
     validations: [InteractionValidation!] @beehiveRelation(target_type_name: "InteractionValidation")
@@ -118,10 +120,11 @@ input MaterialInput {
 input MaterialInteractionInput {
     source: SourceType!
     subject: ID!
-    objects: ID!
+    object: ID!
+    code: ObservationCodes
     start: Datetime!
     duration: Int
-    concentration: ConcentrationInformationInput!
+    concentration: ConcentrationInformationInput
     engagementType: EngagementType
 }
 
