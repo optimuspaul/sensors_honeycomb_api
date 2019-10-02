@@ -9,6 +9,7 @@ exports.typeDefs = `
     layouts: [Layout!] @beehiveAssignmentFilter(target_type_name: "Layout", assignee_field: "environment")
   }
 
+
   type EnvironmentList {
     data: [Environment!]!
     page_info: PageInfo!
