@@ -1,14 +1,5 @@
 exports.typeDefs = `
 
-enum DataFormat {
-    BINARY
-    CSV
-    IMAGE
-    JSON
-    TEXT
-    VIDEO
-}
-
 type Datapoint @beehiveTable(table_name: "datapoints", pk_column: "data_id") {
     data_id: ID!
     parents: [Datapoint] @beehiveRelation(target_type_name: "Datapoint")
@@ -24,6 +15,21 @@ type Datapoint @beehiveTable(table_name: "datapoints", pk_column: "data_id") {
     duration: Int
     # where did the data originate
     source: DataSource!
+    # tags used to identify datapoints for classification
+    tags: [DataTag!] @beehiveRelation(target_type_name: "DataTag")
+}
+
+type DataTag @beehiveTable(table_name: "data_tags", pk_column: "value") {
+    value: ID!
+}
+
+type DataTagList {
+    data: [DataTag!]!
+    page_info: PageInfo!
+}
+
+input DataTagInput {
+    value: String!
 }
 
 
@@ -88,6 +94,7 @@ input DatapointInput {
     parents: [ID!]
     duration: Int
     source: DataSourceInput
+    tags: [String!]
 }
 
 extend type Query {
@@ -98,12 +105,14 @@ extend type Query {
     inferences(page: PaginationInput): InferenceExecutionList! @beehiveSimpleQuery(target_type_name: "InferenceExecution")
     getInferenceExecution(inference_id: ID!): InferenceExecution! @beehiveGet(target_type_name: "InferenceExecution")
     findInferences(query: QueryExpression!, page: PaginationInput): InferenceExecutionList! @beehiveQuery(target_type_name: "InferenceExecution")
+    listTags(page: PaginationInput): DataTagList @beehiveList(target_type_name: "DataTag")
 }
 
 extend type Mutation {
     # adds a new datapoint to the graph
     createDatapoint(datapoint: DatapointInput): Datapoint @beehiveCreate(target_type_name: "Datapoint", s3_file_fields: ["file"])
     deleteDatapoint(data_id: ID): DeleteStatusResponse @beehiveDelete(target_type_name: "Datapoint")
+    createTag(tag: DataTagInput): DataTag @beehiveCreate(target_type_name: "DataTag")
 
     # Inference Executions
     createInferenceExecution(inference: InferenceExecutionInput): InferenceExecution @beehiveCreate(target_type_name: "InferenceExecution")
