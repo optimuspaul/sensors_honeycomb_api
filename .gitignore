@@ -18,3 +18,5 @@ process-sensors\.py
 sensor-data\.json
 
 auth\.py
+
+*.bak
