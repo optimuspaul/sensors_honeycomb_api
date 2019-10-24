@@ -16,22 +16,8 @@ type Datapoint @beehiveTable(table_name: "datapoints", pk_column: "data_id") {
     # where did the data originate
     source: DataSource!
     # tags used to identify datapoints for classification
-    tags: [DataTag!] @beehiveRelation(target_type_name: "DataTag")
+    tags: [String!]
 }
-
-type DataTag @beehiveTable(table_name: "data_tags", pk_column: "value") {
-    value: ID!
-}
-
-type DataTagList {
-    data: [DataTag!]!
-    page_info: PageInfo!
-}
-
-input DataTagInput {
-    value: String!
-}
-
 
 type DatapointList{
     data: [Datapoint!]!
@@ -105,14 +91,14 @@ extend type Query {
     inferences(page: PaginationInput): InferenceExecutionList! @beehiveSimpleQuery(target_type_name: "InferenceExecution")
     getInferenceExecution(inference_id: ID!): InferenceExecution! @beehiveGet(target_type_name: "InferenceExecution")
     findInferences(query: QueryExpression!, page: PaginationInput): InferenceExecutionList! @beehiveQuery(target_type_name: "InferenceExecution")
-    listTags(page: PaginationInput): DataTagList @beehiveList(target_type_name: "DataTag")
 }
 
 extend type Mutation {
     # adds a new datapoint to the graph
     createDatapoint(datapoint: DatapointInput): Datapoint @beehiveCreate(target_type_name: "Datapoint", s3_file_fields: ["file"])
     deleteDatapoint(data_id: ID): DeleteStatusResponse @beehiveDelete(target_type_name: "Datapoint")
-    createTag(tag: DataTagInput): DataTag @beehiveCreate(target_type_name: "DataTag")
+    tagDatapoint(data_id: ID!, tags: [String!]!): Datapoint! @beehiveListFieldAppend(target_type_name: "Datapoint", field_name: "tags", input_field_name: "tags")
+    untagDatapoint(data_id: ID!, tags: [String!]!): Datapoint! @beehiveListFieldDelete(target_type_name: "Datapoint", field_name: "tags", input_field_name: "tags")
 
     # Inference Executions
     createInferenceExecution(inference: InferenceExecutionInput): InferenceExecution @beehiveCreate(target_type_name: "InferenceExecution")
