@@ -15,7 +15,7 @@ exports.typeDefs = `
     page_info: PageInfo!
 }
 
-  type Person {
+  type Person @beehiveTable(table_name: "persons", pk_column: "person_id") {
     person_id: ID!
     name: String!
   }

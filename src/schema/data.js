@@ -1,6 +1,17 @@
 exports.typeDefs = `
 
-type Datapoint @beehiveTable(table_name: "datapoints", pk_column: "data_id") {
+type Datapoint @beehiveTable(
+                table_name: "datapoints",
+                pk_column: "data_id",
+                table_type: native,
+                native_exclude: ["file"],
+                native_indexes: [
+                    {name: "format_ts", type: btree, columns: ["format", "timestamp"]},
+                    {name: "associations_ts", type: btree, columns: ["associations", "timestamp"]},
+                    {name: "source_ts", type: btree, columns: ["source", "timestamp"]},
+                    {name: "source_ts_tags", type: btree, columns: ["source", "timestamp", "tags"]},
+                    {name: "tags_ts", type: btree, columns: ["tags", "timestamp"]}
+                ]) {
     data_id: ID!
     parents: [Datapoint] @beehiveRelation(target_type_name: "Datapoint")
     # format of the data
@@ -14,7 +25,8 @@ type Datapoint @beehiveTable(table_name: "datapoints", pk_column: "data_id") {
     # duration of the data included in this observation. time should be expressed in milliseconds. If not set then assumed to be a snapshot observation without a duration
     duration: Int
     # where did the data originate
-    source: DataSource!
+    source: SourceObject @beehiveUnionResolver(target_types: ["Assignment", "Person", "InferenceExecution"])
+    source_type: DataSourceType
     # tags used to identify datapoints for classification
     tags: [String!]
 }
@@ -57,19 +69,9 @@ enum DataSourceType {
     INFERRED
 }
 
-type DataSource {
-    type: DataSourceType!
-    source: SourceObject @beehiveUnionResolver(target_types: ["Assignment", "Person", "InferenceExecution"])
-}
-
 
 union Association @beehiveUnion = Device | Environment | Person | Material
 union SourceObject @beehiveUnion = Assignment | InferenceExecution | Person
-
-input DataSourceInput {
-    type: DataSourceType!
-    source: ID
-}
 
 input DatapointInput {
     # format of the data
@@ -79,18 +81,24 @@ input DatapointInput {
     associations: [ID!]
     parents: [ID!]
     duration: Int
-    source: DataSourceInput
+    source: ID
+    source_type: DataSourceType!
     tags: [String!]
 }
 
 extend type Query {
     # Gets the list of datapoints
     datapoints(page: PaginationInput): DatapointList! @beehiveList(target_type_name: "Datapoint")
-    getDatapoint(data_id: ID!): Datapoint! @beehiveGet(target_type_name: "Datapoint")
-    findDatapoints(query: QueryExpression!, page: PaginationInput): DatapointList! @beehiveQuery(target_type_name: "Datapoint")
-    inferences(page: PaginationInput): InferenceExecutionList! @beehiveSimpleQuery(target_type_name: "InferenceExecution")
+    # get a single datapoint using it's ID
+    getDatapoint(data_id: ID!): Datapoint @beehiveGet(target_type_name: "Datapoint")
+    # find datapoints using a complex query
+    searchDatapoints(query: QueryExpression!, page: PaginationInput): DatapointList! @beehiveQuery(target_type_name: "Datapoint")
+
+    # List of all InferenceExecutions
+    inferenceExecutions(page: PaginationInput): InferenceExecutionList! @beehiveList(target_type_name: "InferenceExecution")
     getInferenceExecution(inference_id: ID!): InferenceExecution! @beehiveGet(target_type_name: "InferenceExecution")
-    findInferences(query: QueryExpression!, page: PaginationInput): InferenceExecutionList! @beehiveQuery(target_type_name: "InferenceExecution")
+    findInferenceExecutions(model: String, version: String, name: String, page: PaginationInput): InferenceExecutionList! @beehiveSimpleQuery(target_type_name: "InferenceExecution")
+    searchInferenceExecutions(query: QueryExpression!, page: PaginationInput): InferenceExecutionList! @beehiveQuery(target_type_name: "InferenceExecution")
 }
 
 extend type Mutation {
@@ -102,6 +110,8 @@ extend type Mutation {
 
     # Inference Executions
     createInferenceExecution(inference: InferenceExecutionInput): InferenceExecution @beehiveCreate(target_type_name: "InferenceExecution")
+    updateInferenceExecution(inference_id: ID!): InferenceExecution @beehiveUpdate(target_type_name: "InferenceExecution")
+    deleteInferenceExecution(inference_id: ID!): DeleteStatusResponse @beehiveDelete(target_type_name: "InferenceExecution")
 }
 
 
