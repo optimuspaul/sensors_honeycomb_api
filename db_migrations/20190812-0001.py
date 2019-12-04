@@ -7,6 +7,7 @@ conn = psycopg2.connect(f'host={os.environ["PGHOST"]} password={os.environ["POST
 conn.autocommit = False
 
 cur = conn.cursor()
+cur.arraysize = 100
 wcur = conn.cursor()
 
 
@@ -31,12 +32,12 @@ def migrate(data_id, data):
 
 cur.execute("SELECT data_id, data FROM honeycomb.datapoints;")
 
-batch = cur.fetchmany(100)
+batch = cur.fetchmany()
 
 while batch:
     for row in batch:
         if should_migrate(row[1]):
             print(f'{row[0]} will be migrated')
             migrate(row[0], row[1])
-    batch = cur.fetchall()
+    batch = cur.fetchmany()
     conn.commit()
