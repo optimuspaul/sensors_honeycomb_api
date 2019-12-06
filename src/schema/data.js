@@ -6,6 +6,8 @@ type Datapoint @beehiveTable(
                 table_type: native,
                 native_exclude: ["file"],
                 native_indexes: [
+                    {name: "created", type: btree, columns: ["created"]},
+                    {name: "timestamp", type: btree, columns: ["timestamp"]},
                     {name: "format_ts", type: btree, columns: ["format", "timestamp"]},
                     {name: "associations_ts", type: btree, columns: ["associations", "timestamp"]},
                     {name: "source_ts", type: btree, columns: ["source", "timestamp"]},

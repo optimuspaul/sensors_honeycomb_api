@@ -4,8 +4,10 @@ import json
 import os
 import psycopg2
 
+
 print("== begin migration ==")
 
+# SELECT * FROM pg_indexes WHERE schemaname = 'honeycomb' ORDER BY tablename;
 # prepares a db for a gradual migration of the datapoints, moving to native columns.
 conn = psycopg2.connect(f'host={os.environ["PGHOST"]} password={os.environ["POSTGRES_PASSWORD"]} user={os.environ["POSTGRES_USER"]} dbname={os.environ["POSTGRES_DB"]}')
 conn.autocommit = True
@@ -67,6 +69,7 @@ if rows:
                 batch = cur.fetchall()
                 conn.commit()
                 print(stats)
+            print("manually delete the datapoints_v0 table now")
         else:
             print("v0 does not exist, nothing to migrate")
     elif not v0:

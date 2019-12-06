@@ -18,7 +18,7 @@
     "author": "pjdecoursey",
     "license": "MIT",
     "dependencies": {
-        "@wildflowerschools/graphql-beehive": "^1.2.7",
+        "@wildflowerschools/graphql-beehive": "^1.2.8",
         "apollo": "^1.9.2",
         "apollo-server": "^2.1.0",
         "apollo-server-express": "^2.1.0",
@@ -42,7 +42,7 @@
         "event-stream": "^3.3.4",
         "mocha": "^5.2.0",
         "nodemon": "^1.18.4",
-        "npm": "^6.13.0",
+        "npm": "^6.13.2",
         "nyc": "^14.1.1"
     }
 }
