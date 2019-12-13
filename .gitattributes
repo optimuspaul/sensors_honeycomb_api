@@ -1,0 +1,2 @@
+# Ensure that script files don't get changed to CRLF on checkout in Windows
+*.sh text eol=lf
