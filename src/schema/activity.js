@@ -157,7 +157,7 @@ extend type Query {
     # Get a material (DEPRECATED; use getMaterial instead)
     material(material_id: ID!): Material! @beehiveGet(target_type_name: "Material")
     # Find materials based on one or more of their properties
-    findMaterials(name: String, description: String): MaterialList @beehiveSimpleQuery(target_type_name: "Material")
+    findMaterials(name: String, description: String, page: PaginationInput): MaterialList @beehiveSimpleQuery(target_type_name: "Material")
     # Find materials using a complex query
     searchMaterials(query: QueryExpression!, page: PaginationInput): MaterialList @beehiveQuery(target_type_name: "Material")
 

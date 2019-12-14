@@ -110,7 +110,7 @@ exports.typeDefs = `
     # Get a person
     getPerson(person_id: ID!): Person @beehiveGet(target_type_name: "Person")
     # Find people based on one or more of their properties
-    findPersons(name: String): PersonList @beehiveSimpleQuery(target_type_name: "Person")
+    findPersons(name: String, page: PaginationInput): PersonList @beehiveSimpleQuery(target_type_name: "Person")
     # Find people using a complex query
     searchPersons(query: QueryExpression!, page: PaginationInput): PersonList @beehiveQuery(target_type_name: "Person")
   }
