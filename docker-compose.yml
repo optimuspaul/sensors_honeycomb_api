@@ -91,3 +91,7 @@ services:
       - type: bind
         source: ./
         target: /app
+      - node-modules:/app/node_modules
+
+volumes:
+  node-modules:
