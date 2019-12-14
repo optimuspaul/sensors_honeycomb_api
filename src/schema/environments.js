@@ -20,6 +20,11 @@ exports.typeDefs = `
     name: String!
   }
 
+  type PersonList {
+    data: [Person!]!
+    page_info: PageInfo!
+  }
+
   enum AssignableTypeEnum {
     PERSON
     DEVICE
@@ -99,6 +104,15 @@ exports.typeDefs = `
     getEnvironment(environment_id: ID!): Environment @beehiveGet(target_type_name: "Environment")
     # Search for environments with exact match for name and/or location
     findEnvironment(name: String, location: String): EnvironmentList @beehiveSimpleQuery(target_type_name: "Environment")
+
+    # Get the list of people
+    persons(page: PaginationInput): PersonList @beehiveList(target_type_name: "Person")
+    # Get a person
+    getPerson(person_id: ID!): Person @beehiveGet(target_type_name: "Person")
+    # Find a person based on one or more of their properties
+    findPersons(name: String): PersonList @beehiveSimpleQuery(target_type_name: "Person")
+    # Find people using a complex query
+    searchPersons(query: QueryExpression!, page: PaginationInput): PersonList @beehiveQuery(target_type_name: "Person")
   }
 
   extend type Mutation {
@@ -114,9 +128,13 @@ exports.typeDefs = `
     createLayout(layout: LayoutInput): Layout @beehiveCreate(target_type_name: "Layout")
     # set the end date for a Layout
     updateLayout(layout_id: ID!, layout: AssignmentUpdateInput): Layout @beehiveUpdate(target_type_name: "Layout")
-    
-    # Create a new Person
+
+    # Create a new person
     createPerson(person: PersonInput): Person @beehiveCreate(target_type_name: "Person")
+    # Update a person
+    updatePerson(person_id: ID!, person: PersonInput): Environment @beehiveUpdate(target_type_name: "Person")
+    # Delete a person
+    deletePerson(person_id: ID): DeleteStatusResponse @beehiveDelete(target_type_name: "Person")
   }
 
 `
