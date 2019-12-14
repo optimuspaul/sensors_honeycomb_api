@@ -109,7 +109,7 @@ exports.typeDefs = `
     persons(page: PaginationInput): PersonList @beehiveList(target_type_name: "Person")
     # Get a person
     getPerson(person_id: ID!): Person @beehiveGet(target_type_name: "Person")
-    # Find a person based on one or more of their properties
+    # Find people based on one or more of their properties
     findPersons(name: String): PersonList @beehiveSimpleQuery(target_type_name: "Person")
     # Find people using a complex query
     searchPersons(query: QueryExpression!, page: PaginationInput): PersonList @beehiveQuery(target_type_name: "Person")
@@ -132,7 +132,7 @@ exports.typeDefs = `
     # Create a new person
     createPerson(person: PersonInput): Person @beehiveCreate(target_type_name: "Person")
     # Update a person
-    updatePerson(person_id: ID!, person: PersonInput): Environment @beehiveUpdate(target_type_name: "Person")
+    updatePerson(person_id: ID!, person: PersonInput): Person @beehiveUpdate(target_type_name: "Person")
     # Delete a person
     deletePerson(person_id: ID): DeleteStatusResponse @beehiveDelete(target_type_name: "Person")
   }

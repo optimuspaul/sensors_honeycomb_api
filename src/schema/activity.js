@@ -150,15 +150,29 @@ type MaterialList {
 }
 
 extend type Query {
+    # Get the list of materials
+    materials(page: PaginationInput): MaterialList @beehiveList(target_type_name: "Material")
+    # Get a material
+    getMaterial(material_id: ID!): Material @beehiveGet(target_type_name: "Material")
+    # Get a material (DEPRECATED; use getMaterial instead)
     material(material_id: ID!): Material! @beehiveGet(target_type_name: "Material")
-    materials(query: QueryExpression!, page: PaginationInput): MaterialList! @beehiveQuery(target_type_name: "Material")
+    # Find materials based on one or more of their properties
+    findMaterials(name: String, description: String): MaterialList @beehiveSimpleQuery(target_type_name: "Material")
+    # Find materials using a complex query
+    searchMaterials(query: QueryExpression!, page: PaginationInput): MaterialList @beehiveQuery(target_type_name: "Material")
+
     materialInteraction(material_interaction_id: ID!): MaterialInteraction! @beehiveGet(target_type_name: "MaterialInteraction")
     materialInteractions(query: QueryExpression!, page: PaginationInput): MaterialInteractionList! @beehiveQuery(target_type_name: "MaterialInteraction")
 }
 
 extend type Mutation {
-    # adds a new datapoint to the graph
+    # Create a new material
     createMaterial(material: MaterialInput): Material @beehiveCreate(target_type_name: "Material")
+    # Update a material
+    updateMaterial(material_id: ID!, material: MaterialInput): Material @beehiveUpdate(target_type_name: "Material")
+    # Delete a material
+    deleteMaterial(material_id: ID): DeleteStatusResponse @beehiveDelete(target_type_name: "Material")
+
     createMaterialInteraction(material_interaction: MaterialInteractionInput): MaterialInteraction @beehiveDelete(target_type_name: "MaterialInteraction")
 }
 
