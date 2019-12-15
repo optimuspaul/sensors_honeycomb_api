@@ -121,12 +121,18 @@ exports.typeDefs = `
   }
 
   extend type Query {
-    # Gets the list of devices
-    devices(envId: String, page: PaginationInput): DeviceList! @beehiveList(target_type_name: "Device")
+    # Get the list of devices (use of envID argument is DEPRECATED)
+    devices(envId: String, page: PaginationInput): DeviceList @beehiveList(target_type_name: "Device")
     # Get a device
+    getDevice(device_id: ID!): Device @beehiveGet(target_type_name: "Device")
+    # Get a device (DEPRECATED; use getDevice instead)
     device(device_id: ID): Device @beehiveGet(target_type_name: "Device")
-    # Find a device based on one or more of it's properties
+    # Find devices based on one or more of their properties
+    findDevices(part_number: String, name: String, tag_id: String, serial_number: String, page: PaginationInput): DeviceList @beehiveSimpleQuery(target_type_name: "Device")
+    # Find devices based on one or more of their properties (DEPRECATED; use findDevices instead)
     findDevice(name: String, part_number: String): DeviceList! @beehiveSimpleQuery(target_type_name: "Device")
+    # Find devices using a complex query
+    searchDevices(query: QueryExpression!, page: PaginationInput): DeviceList @beehiveQuery(target_type_name: "Device")
 
     # Gets the list of sensors
     sensors(page: PaginationInput): SensorList! @beehiveList(target_type_name: "Sensor")
@@ -140,10 +146,13 @@ exports.typeDefs = `
   }
 
   extend type Mutation {
-    # adds a new device to the graph
+    # Create a new device
     createDevice(device: DeviceInput): Device @beehiveCreate(target_type_name: "Device")
-    # update an existing device
+    # Update a device
     updateDevice(device_id: ID!, device: DeviceInput): Device @beehiveUpdate(target_type_name: "Device")
+    # Delete a device
+    deleteDevice(device_id: ID): DeleteStatusResponse @beehiveDelete(target_type_name: "Device")
+
     # sets the device configuration
     setDeviceConfiguration(deviceConfiguration: DeviceConfigurationInput): DeviceConfiguration @beehiveCreate(target_type_name: "DeviceConfiguration")
     # adds a new sensor to the graph
