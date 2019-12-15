@@ -17,12 +17,25 @@ exports.typeDefs = `
 
   type Person @beehiveTable(table_name: "persons", pk_column: "person_id") {
     person_id: ID!
-    name: String!
+    name: String
+    first_name: String
+    last_name: String
+    short_name: String
+    person_type: PersonType
+    transparent_classroom_id: Int
   }
 
   type PersonList {
     data: [Person!]!
     page_info: PageInfo!
+  }
+
+  enum PersonType {
+    STUDENT
+    TEACHER
+    ASSISTANT
+    PARENT
+    OTHER
   }
 
   enum AssignableTypeEnum {
@@ -88,11 +101,21 @@ exports.typeDefs = `
   }
 
   input PersonInput {
-    name: String!
+    name: String
+    first_name: String
+    last_name: String
+    short_name: String
+    person_type: PersonType
+    transparent_classroom_id: Int
   }
 
   input PersonUpdateInput {
     name: String
+    first_name: String
+    last_name: String
+    short_name: String
+    person_type: PersonType
+    transparent_classroom_id: Int
   }
 
   input AssignmentInput {
@@ -124,7 +147,7 @@ exports.typeDefs = `
     # Get a person
     getPerson(person_id: ID!): Person @beehiveGet(target_type_name: "Person")
     # Find people based on one or more of their properties
-    findPersons(name: String, page: PaginationInput): PersonList @beehiveSimpleQuery(target_type_name: "Person")
+    findPersons(name: String, first_name: String, last_name: String, short_name: String, person_type: PersonType, transparent_classroom_id: Int, page: PaginationInput): PersonList @beehiveSimpleQuery(target_type_name: "Person")
     # Find people using a complex query
     searchPersons(query: QueryExpression!, page: PaginationInput): PersonList @beehiveQuery(target_type_name: "Person")
   }

@@ -9,7 +9,7 @@ exports.typeDefs = `
     # The type of device
     device_type: DeviceType
     # A name for the device.
-    name: String!
+    name: String
     # tag_id is the information printed on an identifier label on the device itself
     tag_id: String
     # A serial number specific to the device, could be a manufacturer id or a wildflower assigner number that is unique to the device.
