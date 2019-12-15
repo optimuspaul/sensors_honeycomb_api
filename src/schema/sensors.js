@@ -6,6 +6,8 @@ exports.typeDefs = `
     device_id: ID!
     # A part number for tracking models of devices
     part_number: String
+    # The type of device
+    device_type: DeviceType
     # A name for the device.
     name: String!
     # tag_id is the information printed on an identifier label on the device itself
@@ -20,6 +22,15 @@ exports.typeDefs = `
     configurations: [DeviceConfiguration!] @beehiveAssignmentFilter(target_type_name: "DeviceConfiguration", assignee_field: "device")
     assignments: [Assignment!] @beehiveAssignmentFilter(target_type_name: "Assignment", assignee_field: "assigned")
 }
+
+  enum DeviceType {
+    PI3
+    PIZERO
+    UWBANCHOR
+    UWBTAG
+    BLEANCHOR
+    BLETAG
+  }
 
   type DeviceConfiguration @beehiveAssignmentType(table_name: "device_configurations", assigned_field: "device", exclusive: true, pk_column: "device_configuration_id") {
     device_configuration_id: ID!
@@ -86,6 +97,7 @@ exports.typeDefs = `
     name: String
     description: String
     part_number: String
+    device_type: DeviceType
     tag_id: String
     # A serial number specific to the device, could be a manufacturer id or a wildflower assigner number that is unique to the device.
     serial_number: String
@@ -97,6 +109,7 @@ exports.typeDefs = `
     name: String
     description: String
     part_number: String
+    device_type: DeviceType
     tag_id: String
     serial_number: String
     mac_address: [String!]
@@ -137,7 +150,7 @@ exports.typeDefs = `
     # Get a device (DEPRECATED; use getDevice instead)
     device(device_id: ID): Device @beehiveGet(target_type_name: "Device")
     # Find devices based on one or more of their properties
-    findDevices(part_number: String, name: String, tag_id: String, serial_number: String, page: PaginationInput): DeviceList @beehiveSimpleQuery(target_type_name: "Device")
+    findDevices(part_number: String, device_type: DeviceType, name: String, tag_id: String, serial_number: String, page: PaginationInput): DeviceList @beehiveSimpleQuery(target_type_name: "Device")
     # Find devices based on one or more of their properties (DEPRECATED; use findDevices instead)
     findDevice(name: String, part_number: String): DeviceList! @beehiveSimpleQuery(target_type_name: "Device")
     # Find devices using a complex query
