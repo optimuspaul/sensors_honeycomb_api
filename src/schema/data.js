@@ -89,12 +89,12 @@ input DatapointInput {
 }
 
 extend type Query {
-    # Gets the list of datapoints
-    datapoints(page: PaginationInput): DatapointList! @beehiveList(target_type_name: "Datapoint")
-    # get a single datapoint using it's ID
+    # Get the list of datapoints
+    datapoints(page: PaginationInput): DatapointList @beehiveList(target_type_name: "Datapoint")
+    # Get a datapoint
     getDatapoint(data_id: ID!): Datapoint @beehiveGet(target_type_name: "Datapoint")
-    # find datapoints using a complex query
-    searchDatapoints(query: QueryExpression!, page: PaginationInput): DatapointList! @beehiveQuery(target_type_name: "Datapoint")
+    # Find people using a complex query
+    searchDatapoints(query: QueryExpression!, page: PaginationInput): DatapointList @beehiveQuery(target_type_name: "Datapoint")
 
     # Get the list of inference executions
     inferenceExecutions(page: PaginationInput): InferenceExecutionList @beehiveList(target_type_name: "InferenceExecution")
@@ -107,9 +107,13 @@ extend type Query {
 }
 
 extend type Mutation {
-    # adds a new datapoint to the graph
+    # Create a new datapoint
     createDatapoint(datapoint: DatapointInput): Datapoint @beehiveCreate(target_type_name: "Datapoint", s3_file_fields: ["file"])
+    # Update a datapoint
+    updateDatapoint(data_id: ID!, datapoint: DatapointInput): Datapoint @beehiveUpdate(target_type_name: "Datapoint")
+    # Delete a datapoint
     deleteDatapoint(data_id: ID): DeleteStatusResponse @beehiveDelete(target_type_name: "Datapoint")
+
     tagDatapoint(data_id: ID!, tags: [String!]!): Datapoint! @beehiveListFieldAppend(target_type_name: "Datapoint", field_name: "tags", input_field_name: "tags")
     untagDatapoint(data_id: ID!, tags: [String!]!): Datapoint! @beehiveListFieldDelete(target_type_name: "Datapoint", field_name: "tags", input_field_name: "tags")
 
