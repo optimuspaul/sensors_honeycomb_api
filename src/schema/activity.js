@@ -41,7 +41,8 @@ enum SourceType {
 
 type Material @beehiveTable(table_name: "material", pk_column: "material_id") {
     material_id: ID!
-    name: String!
+    name: String
+    transparent_classroom_id: Int
     description: String
 }
 
@@ -113,11 +114,13 @@ type SocialInteraction @beehiveTable(table_name: "social_interaction", pk_column
 
 input MaterialInput {
     name: String
+    transparent_classroom_id: Int
     description: String
 }
 
 input MaterialUpdateInput {
     name: String
+    transparent_classroom_id: Int
     description: String
 }
 
@@ -161,7 +164,7 @@ extend type Query {
     # Get a material (DEPRECATED; use getMaterial instead)
     material(material_id: ID!): Material! @beehiveGet(target_type_name: "Material")
     # Find materials based on one or more of their properties
-    findMaterials(name: String, description: String, page: PaginationInput): MaterialList @beehiveSimpleQuery(target_type_name: "Material")
+    findMaterials(name: String, transparent_classroom_id: Int, description: String, page: PaginationInput): MaterialList @beehiveSimpleQuery(target_type_name: "Material")
     # Find materials using a complex query
     searchMaterials(query: QueryExpression!, page: PaginationInput): MaterialList @beehiveQuery(target_type_name: "Material")
 
