@@ -30,6 +30,7 @@ exports.typeDefs = `
     UWBTAG
     BLEANCHOR
     BLETAG
+    OTHER
   }
 
   type DeviceConfiguration @beehiveAssignmentType(table_name: "device_configurations", assigned_field: "device", exclusive: true, pk_column: "device_configuration_id") {
