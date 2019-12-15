@@ -81,8 +81,18 @@ exports.typeDefs = `
     location: String
   }
 
+  input EnvironmentUpdateInput {
+    name: String
+    description: String
+    location: String
+  }
+
   input PersonInput {
     name: String!
+  }
+
+  input PersonUpdateInput {
+    name: String
   }
 
   input AssignmentInput {
@@ -123,7 +133,7 @@ exports.typeDefs = `
     # Create a new environment
     createEnvironment(environment: EnvironmentInput): Environment @beehiveCreate(target_type_name: "Environment")
     # Update a person
-    updateEnvironment(environment_id: ID!, environment: EnvironmentInput): Environment @beehiveUpdate(target_type_name: "Environment")
+    updateEnvironment(environment_id: ID!, environment: EnvironmentUpdateInput): Environment @beehiveUpdate(target_type_name: "Environment")
     # Delete an environment
     deleteEnvironment(environment_id: ID): DeleteStatusResponse @beehiveDelete(target_type_name: "Environment")
 
@@ -140,7 +150,7 @@ exports.typeDefs = `
     # Create a new person
     createPerson(person: PersonInput): Person @beehiveCreate(target_type_name: "Person")
     # Update a person
-    updatePerson(person_id: ID!, person: PersonInput): Person @beehiveUpdate(target_type_name: "Person")
+    updatePerson(person_id: ID!, person: PersonUpdateInput): Person @beehiveUpdate(target_type_name: "Person")
     # Delete a person
     deletePerson(person_id: ID): DeleteStatusResponse @beehiveDelete(target_type_name: "Person")
   }

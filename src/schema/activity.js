@@ -116,6 +116,10 @@ input MaterialInput {
     description: String
 }
 
+input MaterialUpdateInput {
+    name: String
+    description: String
+}
 
 input MaterialInteractionInput {
     source: SourceType!
@@ -169,7 +173,7 @@ extend type Mutation {
     # Create a new material
     createMaterial(material: MaterialInput): Material @beehiveCreate(target_type_name: "Material")
     # Update a material
-    updateMaterial(material_id: ID!, material: MaterialInput): Material @beehiveUpdate(target_type_name: "Material")
+    updateMaterial(material_id: ID!, material: MaterialUpdateInput): Material @beehiveUpdate(target_type_name: "Material")
     # Delete a material
     deleteMaterial(material_id: ID): DeleteStatusResponse @beehiveDelete(target_type_name: "Material")
 

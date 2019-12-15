@@ -93,6 +93,15 @@ exports.typeDefs = `
     mac_address: [String!]
   }
 
+  input DeviceUpdateInput {
+    name: String
+    description: String
+    part_number: String
+    tag_id: String
+    serial_number: String
+    mac_address: [String!]
+  }
+
   input SensorInstallationInput {
     device: ID!
     sensor: ID!
@@ -149,7 +158,7 @@ exports.typeDefs = `
     # Create a new device
     createDevice(device: DeviceInput): Device @beehiveCreate(target_type_name: "Device")
     # Update a device
-    updateDevice(device_id: ID!, device: DeviceInput): Device @beehiveUpdate(target_type_name: "Device")
+    updateDevice(device_id: ID!, device: DeviceUpdateInput): Device @beehiveUpdate(target_type_name: "Device")
     # Delete a device
     deleteDevice(device_id: ID): DeleteStatusResponse @beehiveDelete(target_type_name: "Device")
 

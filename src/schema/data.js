@@ -64,6 +64,16 @@ input InferenceExecutionInput {
     execution_start: Datetime!
 }
 
+input InferenceExecutionUpdateInput {
+    name: String
+    notes: String
+    model: String
+    version: String
+    data_sources: [ID!]
+    data_results: [ID!]
+    execution_start: Datetime
+}
+
 enum DataSourceType {
     GROUND_TRUTH
     GENERATED_TEST
@@ -85,6 +95,17 @@ input DatapointInput {
     duration: Int
     source: ID
     source_type: DataSourceType!
+    tags: [String!]
+}
+
+input DatapointUpdateInput {
+    format: String
+    timestamp: Datetime
+    associations: [ID!]
+    parents: [ID!]
+    duration: Int
+    source: ID
+    source_type: DataSourceType
     tags: [String!]
 }
 
@@ -110,7 +131,7 @@ extend type Mutation {
     # Create a new datapoint
     createDatapoint(datapoint: DatapointInput): Datapoint @beehiveCreate(target_type_name: "Datapoint", s3_file_fields: ["file"])
     # Update a datapoint
-    updateDatapoint(data_id: ID!, datapoint: DatapointInput): Datapoint @beehiveUpdate(target_type_name: "Datapoint")
+    updateDatapoint(data_id: ID!, datapoint: DatapointUpdateInput): Datapoint @beehiveUpdate(target_type_name: "Datapoint")
     # Delete a datapoint
     deleteDatapoint(data_id: ID): DeleteStatusResponse @beehiveDelete(target_type_name: "Datapoint")
 
@@ -120,7 +141,7 @@ extend type Mutation {
     # Create a new inference execution
     createInferenceExecution(inferenceExecution: InferenceExecutionInput): InferenceExecution @beehiveCreate(target_type_name: "InferenceExecution")
     # Update an inference execution
-    updateInferenceExecution(inference_id: ID!, inferenceExecution: InferenceExecutionInput): InferenceExecution @beehiveUpdate(target_type_name: "InferenceExecution")
+    updateInferenceExecution(inference_id: ID!, inferenceExecution: InferenceExecutionUpdateInput): InferenceExecution @beehiveUpdate(target_type_name: "InferenceExecution")
     # Delete an inference execution
     deleteInferenceExecution(inference_id: ID): DeleteStatusResponse @beehiveDelete(target_type_name: "InferenceExecution")
 }
