@@ -2,7 +2,8 @@ exports.typeDefs = `
 
   type Environment @beehiveTable(table_name: "environments", pk_column: "environment_id") {
     environment_id: ID!
-    name: String!
+    name: String!,
+    transparent_classroom_id: Int
     description: String
     location: String
     assignments: [Assignment!] @beehiveAssignmentFilter(target_type_name: "Assignment", assignee_field: "environment")
@@ -90,12 +91,14 @@ exports.typeDefs = `
 
   input EnvironmentInput {
     name: String!
+    transparent_classroom_id: Int
     description: String
     location: String
   }
 
   input EnvironmentUpdateInput {
     name: String
+    transparent_classroom_id: Int
     description: String
     location: String
   }
@@ -136,7 +139,7 @@ exports.typeDefs = `
     # Get an environment
     getEnvironment(environment_id: ID!): Environment @beehiveGet(target_type_name: "Environment")
     # Find environments based on one or more of their properties
-    findEnvironments(name: String, location: String, page: PaginationInput): EnvironmentList @beehiveSimpleQuery(target_type_name: "Environment")
+    findEnvironments(name: String, transparent_classroom_id: Int, location: String, page: PaginationInput): EnvironmentList @beehiveSimpleQuery(target_type_name: "Environment")
     # Find environments based on one or more of their properties (DEPRECATED, use findEnvironments instead)
     findEnvironment(name: String, location: String): EnvironmentList @beehiveSimpleQuery(target_type_name: "Environment")
     # Find environments using a complex query
