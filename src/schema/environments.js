@@ -98,12 +98,16 @@ exports.typeDefs = `
   }
 
   extend type Query {
-    # Gets the list of environments
+    # Get the list of environments
     environments(page: PaginationInput): EnvironmentList @beehiveList(target_type_name: "Environment")
-    # Get a sepecific environment
+    # Get an environment
     getEnvironment(environment_id: ID!): Environment @beehiveGet(target_type_name: "Environment")
-    # Search for environments with exact match for name and/or location
+    # Find environments based on one or more of their properties
+    findEnvironments(name: String, location: String, page: PaginationInput): EnvironmentList @beehiveSimpleQuery(target_type_name: "Environment")
+    # Find environments based on one or more of their properties (DEPRECATED, use findEnvironments instead)
     findEnvironment(name: String, location: String): EnvironmentList @beehiveSimpleQuery(target_type_name: "Environment")
+    # Find environments using a complex query
+    searchEnvironments(query: QueryExpression!, page: PaginationInput): EnvironmentList @beehiveQuery(target_type_name: "Environment")
 
     # Get the list of people
     persons(page: PaginationInput): PersonList @beehiveList(target_type_name: "Person")
@@ -116,12 +120,16 @@ exports.typeDefs = `
   }
 
   extend type Mutation {
-    # Create a new Environment
+    # Create a new environment
     createEnvironment(environment: EnvironmentInput): Environment @beehiveCreate(target_type_name: "Environment")
-    # update an Environment
+    # Update a person
     updateEnvironment(environment_id: ID!, environment: EnvironmentInput): Environment @beehiveUpdate(target_type_name: "Environment")
+    # Delete an environment
+    deleteEnvironment(environment_id: ID): DeleteStatusResponse @beehiveDelete(target_type_name: "Environment")
+
     # Assign an assignable to an envionemnt
     assignToEnvironment(assignment: AssignmentInput): Assignment @beehiveCreate(target_type_name: "Assignment")
+
     # Update an assignment to set the end date/time of the assignment
     updateAssignment(assignment_id: ID!, assignment: AssignmentUpdateInput): Assignment @beehiveUpdate(target_type_name: "Assignment")
     # creates a new Layout, which represents the basic shape of an enviroment.
