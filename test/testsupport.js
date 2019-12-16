@@ -1,12 +1,15 @@
 const { Pool } = require('pg')
 const pool = new Pool()
 
+const {start} = require("../src/server")
+
 
 exports.cleanPostgres = async function() {
     try {
-        var tables = await pool.query("SELECT table_name FROM information_schema.tables WHERE table_schema='honeycomb'")
+        var schema_name = "honeycomb"
+        var tables = await pool.query(`SELECT table_name FROM information_schema.tables WHERE table_schema='${schema_name}'`)
         for (var table of tables.rows) {
-            await pool.query("TRUNCATE TABLE honeycomb." + table.table_name + " CASCADE")
+            await pool.query(`TRUNCATE TABLE ${schema_name}.${table.table_name} CASCADE`)
         }
     } catch(err) {
         console.log(err)
@@ -30,4 +33,8 @@ exports.doUnitTest = async function(tst, tableList) {
             resolve()
         }
     });
+}
+
+exports.server = async function(schema) {
+    return start()
 }
