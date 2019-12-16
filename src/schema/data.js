@@ -114,7 +114,7 @@ extend type Query {
     datapoints(page: PaginationInput): DatapointList @beehiveList(target_type_name: "Datapoint")
     # Get a datapoint
     getDatapoint(data_id: ID!): Datapoint @beehiveGet(target_type_name: "Datapoint")
-    # Find people using a complex query
+    # Find datapoints using a complex query
     searchDatapoints(query: QueryExpression!, page: PaginationInput): DatapointList @beehiveQuery(target_type_name: "Datapoint")
 
     # Get the list of inference executions
