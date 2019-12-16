@@ -130,8 +130,6 @@ extend type Query {
 extend type Mutation {
     # Create a new datapoint
     createDatapoint(datapoint: DatapointInput): Datapoint @beehiveCreate(target_type_name: "Datapoint", s3_file_fields: ["file"])
-    # Update a datapoint
-    updateDatapoint(data_id: ID!, datapoint: DatapointUpdateInput): Datapoint @beehiveUpdate(target_type_name: "Datapoint")
     # Delete a datapoint
     deleteDatapoint(data_id: ID): DeleteStatusResponse @beehiveDelete(target_type_name: "Datapoint")
 
