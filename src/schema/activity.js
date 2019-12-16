@@ -41,7 +41,8 @@ enum SourceType {
 
 type Material @beehiveTable(table_name: "material", pk_column: "material_id") {
     material_id: ID!
-    name: String!
+    name: String
+    transparent_classroom_id: Int
     description: String
 }
 
@@ -113,9 +114,15 @@ type SocialInteraction @beehiveTable(table_name: "social_interaction", pk_column
 
 input MaterialInput {
     name: String
+    transparent_classroom_id: Int
     description: String
 }
 
+input MaterialUpdateInput {
+    name: String
+    transparent_classroom_id: Int
+    description: String
+}
 
 input MaterialInteractionInput {
     source: SourceType!
@@ -150,15 +157,29 @@ type MaterialList {
 }
 
 extend type Query {
+    # Get the list of materials
+    materials(page: PaginationInput): MaterialList @beehiveList(target_type_name: "Material")
+    # Get a material
+    getMaterial(material_id: ID!): Material @beehiveGet(target_type_name: "Material")
+    # Get a material (DEPRECATED; use getMaterial instead)
     material(material_id: ID!): Material! @beehiveGet(target_type_name: "Material")
-    materials(query: QueryExpression!, page: PaginationInput): MaterialList! @beehiveQuery(target_type_name: "Material")
+    # Find materials based on one or more of their properties
+    findMaterials(name: String, transparent_classroom_id: Int, description: String, page: PaginationInput): MaterialList @beehiveSimpleQuery(target_type_name: "Material")
+    # Find materials using a complex query
+    searchMaterials(query: QueryExpression!, page: PaginationInput): MaterialList @beehiveQuery(target_type_name: "Material")
+
     materialInteraction(material_interaction_id: ID!): MaterialInteraction! @beehiveGet(target_type_name: "MaterialInteraction")
     materialInteractions(query: QueryExpression!, page: PaginationInput): MaterialInteractionList! @beehiveQuery(target_type_name: "MaterialInteraction")
 }
 
 extend type Mutation {
-    # adds a new datapoint to the graph
+    # Create a new material
     createMaterial(material: MaterialInput): Material @beehiveCreate(target_type_name: "Material")
+    # Update a material
+    updateMaterial(material_id: ID!, material: MaterialUpdateInput): Material @beehiveUpdate(target_type_name: "Material")
+    # Delete a material
+    deleteMaterial(material_id: ID): DeleteStatusResponse @beehiveDelete(target_type_name: "Material")
+
     createMaterialInteraction(material_interaction: MaterialInteractionInput): MaterialInteraction @beehiveDelete(target_type_name: "MaterialInteraction")
 }
 

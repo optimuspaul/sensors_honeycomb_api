@@ -64,6 +64,16 @@ input InferenceExecutionInput {
     execution_start: Datetime!
 }
 
+input InferenceExecutionUpdateInput {
+    name: String
+    notes: String
+    model: String
+    version: String
+    data_sources: [ID!]
+    data_results: [ID!]
+    execution_start: Datetime
+}
+
 enum DataSourceType {
     GROUND_TRUTH
     GENERATED_TEST
@@ -88,32 +98,52 @@ input DatapointInput {
     tags: [String!]
 }
 
-extend type Query {
-    # Gets the list of datapoints
-    datapoints(page: PaginationInput): DatapointList! @beehiveList(target_type_name: "Datapoint")
-    # get a single datapoint using it's ID
-    getDatapoint(data_id: ID!): Datapoint @beehiveGet(target_type_name: "Datapoint")
-    # find datapoints using a complex query
-    searchDatapoints(query: QueryExpression!, page: PaginationInput): DatapointList! @beehiveQuery(target_type_name: "Datapoint")
+input DatapointUpdateInput {
+    format: String
+    timestamp: Datetime
+    associations: [ID!]
+    parents: [ID!]
+    duration: Int
+    source: ID
+    source_type: DataSourceType
+    tags: [String!]
+}
 
-    # List of all InferenceExecutions
-    inferenceExecutions(page: PaginationInput): InferenceExecutionList! @beehiveList(target_type_name: "InferenceExecution")
+extend type Query {
+    # Get the list of datapoints
+    datapoints(page: PaginationInput): DatapointList @beehiveList(target_type_name: "Datapoint")
+    # Get a datapoint
+    getDatapoint(data_id: ID!): Datapoint @beehiveGet(target_type_name: "Datapoint")
+    # Find datapoints using a complex query
+    searchDatapoints(query: QueryExpression!, page: PaginationInput): DatapointList @beehiveQuery(target_type_name: "Datapoint")
+
+    # Get the list of inference executions
+    inferenceExecutions(page: PaginationInput): InferenceExecutionList @beehiveList(target_type_name: "InferenceExecution")
+    # Get an inference execution
     getInferenceExecution(inference_id: ID!): InferenceExecution! @beehiveGet(target_type_name: "InferenceExecution")
-    findInferenceExecutions(model: String, version: String, name: String, page: PaginationInput): InferenceExecutionList! @beehiveSimpleQuery(target_type_name: "InferenceExecution")
-    searchInferenceExecutions(query: QueryExpression!, page: PaginationInput): InferenceExecutionList! @beehiveQuery(target_type_name: "InferenceExecution")
+    # Find inference executions based on one or more of their properties
+    findInferenceExecutions(name: String, model: String, version: String, page: PaginationInput): InferenceExecutionList @beehiveSimpleQuery(target_type_name: "InferenceExecution")
+    # Find materials using a complex query
+    searchInferenceExecutions(query: QueryExpression!, page: PaginationInput): InferenceExecutionList @beehiveQuery(target_type_name: "InferenceExecution")
 }
 
 extend type Mutation {
-    # adds a new datapoint to the graph
+    # Create a new datapoint
     createDatapoint(datapoint: DatapointInput): Datapoint @beehiveCreate(target_type_name: "Datapoint", s3_file_fields: ["file"])
+    # Update a datapoint
+    updateDatapoint(data_id: ID!, datapoint: DatapointUpdateInput): Datapoint @beehiveUpdate(target_type_name: "Datapoint")
+    # Delete a datapoint
     deleteDatapoint(data_id: ID): DeleteStatusResponse @beehiveDelete(target_type_name: "Datapoint")
+
     tagDatapoint(data_id: ID!, tags: [String!]!): Datapoint! @beehiveListFieldAppend(target_type_name: "Datapoint", field_name: "tags", input_field_name: "tags")
     untagDatapoint(data_id: ID!, tags: [String!]!): Datapoint! @beehiveListFieldDelete(target_type_name: "Datapoint", field_name: "tags", input_field_name: "tags")
 
-    # Inference Executions
+    # Create a new inference execution
     createInferenceExecution(inferenceExecution: InferenceExecutionInput): InferenceExecution @beehiveCreate(target_type_name: "InferenceExecution")
-    updateInferenceExecution(inference_id: ID!): InferenceExecution @beehiveUpdate(target_type_name: "InferenceExecution")
-    deleteInferenceExecution(inference_id: ID!): DeleteStatusResponse @beehiveDelete(target_type_name: "InferenceExecution")
+    # Update an inference execution
+    updateInferenceExecution(inference_id: ID!, inferenceExecution: InferenceExecutionUpdateInput): InferenceExecution @beehiveUpdate(target_type_name: "InferenceExecution")
+    # Delete an inference execution
+    deleteInferenceExecution(inference_id: ID): DeleteStatusResponse @beehiveDelete(target_type_name: "InferenceExecution")
 }
 
 
