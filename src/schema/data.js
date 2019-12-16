@@ -111,7 +111,7 @@ extend type Mutation {
     untagDatapoint(data_id: ID!, tags: [String!]!): Datapoint! @beehiveListFieldDelete(target_type_name: "Datapoint", field_name: "tags", input_field_name: "tags")
 
     # Inference Executions
-    createInferenceExecution(inference: InferenceExecutionInput): InferenceExecution @beehiveCreate(target_type_name: "InferenceExecution")
+    createInferenceExecution(inferenceExecution: InferenceExecutionInput): InferenceExecution @beehiveCreate(target_type_name: "InferenceExecution")
     updateInferenceExecution(inference_id: ID!): InferenceExecution @beehiveUpdate(target_type_name: "InferenceExecution")
     deleteInferenceExecution(inference_id: ID!): DeleteStatusResponse @beehiveDelete(target_type_name: "InferenceExecution")
 }
