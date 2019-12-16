@@ -20,3 +20,5 @@ sensor-data\.json
 auth\.py
 
 *.bak
+
+db_check/
