@@ -42,7 +42,11 @@ exports.typeDefs = `
 
   type CoordinateSpace @beehiveTable(table_name: "spaces", pk_column: "space_id") {
     space_id: ID!
-    name: String!
+    name: String
+    origin_description: String
+    x_axis_description: String
+    y_axis_description: String
+    z_axis_description: String
     environment: Environment! @beehiveRelation(target_type_name: "Environment")
     start: Datetime!
     end: Datetime
@@ -64,9 +68,13 @@ exports.typeDefs = `
   }
 
   input CoordinateSpaceInput {
-    name: String!
+    name: String
+    origin_description: String
+    x_axis_description: String
+    y_axis_description: String
+    z_axis_description: String
     environment: ID!
-    start: Datetime
+    start: Datetime!
     end: Datetime
   }
 
@@ -92,17 +100,28 @@ exports.typeDefs = `
 
 
   extend type Query {
-    # Get a coordinateSpace
+    # Get the list of coordinate spaces
+    coordinateSpaces(page: PaginationInput): CoordinateSpaceList @beehiveList(target_type_name: "CoordinateSpace")
+    # Get a coordinate space
+    getCoordinateSpace(space_id: ID!): CoordinateSpace @beehiveGet(target_type_name: "CoordinateSpace")
+    # Get a coordinateSpace (DEPRECATED; use getCoordinateSpace instead)
     coordinateSpace(space_id: ID): CoordinateSpace! @beehiveGet(target_type_name: "CoordinateSpace")
-    # Find coordinateSpace(s)
+    # Find coordinate spaces based on one or more of their properties
+    findCoordinateSpaces(name: String, environment: ID, page: PaginationInput): CoordinateSpaceList @beehiveSimpleQuery(target_type_name: "CoordinateSpace")
+    # Find coordinateSpace(s) (DEPRECATED; use findCoordinateSpaces instead)
     findCoordinateSpace(environment: ID, name: String, page:PaginationInput): CoordinateSpaceList! @beehiveSimpleQuery(target_type_name: "CoordinateSpace")
+    # Find coordinate spaces using a complex query
+    searchCoordinateSpaces(query: QueryExpression!, page: PaginationInput): CoordinateSpaceList @beehiveQuery(target_type_name: "CoordinateSpace")
   }
 
   extend type Mutation {
-    # Creates a new Coordinate Space within an Environment
+
+    # Create a new coordinate space
     createCoordinateSpace(coordinateSpace: CoordinateSpaceInput): CoordinateSpace @beehiveCreate(target_type_name: "CoordinateSpace")
-    # Creates a new Coordinate Space within an Environment
-    updateCoordinateSpace(space_id: ID, coordinateSpace: CoordinateSpaceInput): CoordinateSpace @beehiveUpdate(target_type_name: "CoordinateSpace")
+    # Update a coordinate space
+    updateCoordinateSpace(space_id: ID!, coordinateSpace: CoordinateSpaceInput): CoordinateSpace @beehiveUpdate(target_type_name: "CoordinateSpace")
+    # Delete a coordinate space
+    deleteCoordinateSpace(space_id: ID): DeleteStatusResponse @beehiveDelete(target_type_name: "CoordinateSpace")
 
 
     # Sets the static Position of a Device in the CoordinateSpace
