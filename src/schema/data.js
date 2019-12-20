@@ -23,11 +23,11 @@ type Datapoint @beehiveTable(
     # Timestamp that the data was observed, measured, or inferred.
     timestamp: Datetime!
     # Which objects are associated with this data
-    associations: [Association!] @beehiveUnionResolver(target_types: ["Device", "Person", "Environment"])
+    associations: [Association!] @beehiveUnionResolver(target_types: ["Device", "Environment", "Person", "Material"])
     # duration of the data included in this observation. time should be expressed in milliseconds. If not set then assumed to be a snapshot observation without a duration
     duration: Int
     # where did the data originate
-    source: SourceObject @beehiveUnionResolver(target_types: ["Assignment", "Person", "InferenceExecution"])
+    source: SourceObject @beehiveUnionResolver(target_types: ["Assignment", "Person", "InferenceExecution", "Environment"])
     source_type: DataSourceType
     # tags used to identify datapoints for classification
     tags: [String!]
@@ -36,6 +36,86 @@ type Datapoint @beehiveTable(
 type DatapointList{
     data: [Datapoint!]!
     page_info: PageInfo!
+}
+
+input DatapointInput {
+    # format of the data
+    format: String
+    file: S3FileInput
+    timestamp: Datetime!
+    associations: [ID!]
+    parents: [ID!]
+    duration: Int
+    source: ID
+    source_type: DataSourceType!
+    tags: [String!]
+}
+
+input DatapointUpdateInput {
+    format: String
+    timestamp: Datetime
+    associations: [ID!]
+    parents: [ID!]
+    duration: Int
+    source: ID
+    source_type: DataSourceType
+    tags: [String!]
+}
+
+type Position3D @beehiveTable(
+    table_name: "positions3d",
+    pk_column: "position3d_id",
+    table_type: native,
+    native_indexes: [
+        {name: "created", type: btree, columns: ["created"]},
+        {name: "timestamp", type: btree, columns: ["timestamp"]},
+        {name: "associations_ts", type: btree, columns: ["associations", "timestamp"]},
+        {name: "source_ts", type: btree, columns: ["source", "timestamp"]},
+        {name: "source_ts_tags", type: btree, columns: ["source", "timestamp", "tags"]},
+        {name: "tags_ts", type: btree, columns: ["tags", "timestamp"]}
+    ]
+) {
+    position3d_id: ID!
+    parents: [Datapoint] @beehiveRelation(target_type_name: "Datapoint")
+    # Timestamp that the data was observed, measured, or inferred.
+    timestamp: Datetime!
+    # Coordinate space in which the position is specified
+    coordinate_space: CoordinateSpace! @beehiveRelation(target_type_name: "CoordinateSpace")
+    # Coordinates of the position in the specified coordinate space
+    coordinates: Coordinates3D!
+    # Which objects are associated with this data
+    associations: [Association!] @beehiveUnionResolver(target_types: ["Device", "Environment", "Person", "Material"])
+    # duration of the data included in this observation. time should be expressed in milliseconds. If not set then assumed to be a snapshot observation without a duration
+    duration: Int
+    # where did the data originate
+    source: SourceObject @beehiveUnionResolver(target_types: ["Assignment", "Person", "InferenceExecution", "Environment"])
+    source_type: DataSourceType
+    # tags used to identify datapoints for classification
+    tags: [String!]
+}
+
+type Position3DList{
+    data: [Position3D!]
+    page_info: PageInfo!
+}
+
+input Position3DInput {
+    timestamp: Datetime!
+    coordinate_space: ID!
+    coordinates: Coordinates3DInput!
+    associations: [ID!]
+    parents: [ID!]
+    duration: Int
+    source: ID
+    source_type: DataSourceType
+    tags: [String!]
+}
+
+enum DataSourceType {
+    GROUND_TRUTH
+    GENERATED_TEST
+    MEASURED
+    INFERRED
 }
 
 type InferenceExecution @beehiveTable(table_name: "inferences", pk_column: "inference_id") {
@@ -74,40 +154,8 @@ input InferenceExecutionUpdateInput {
     execution_start: Datetime
 }
 
-enum DataSourceType {
-    GROUND_TRUTH
-    GENERATED_TEST
-    MEASURED
-    INFERRED
-}
-
-
 union Association @beehiveUnion = Device | Environment | Person | Material
-union SourceObject @beehiveUnion = Assignment | InferenceExecution | Person
-
-input DatapointInput {
-    # format of the data
-    format: String
-    file: S3FileInput
-    timestamp: Datetime!
-    associations: [ID!]
-    parents: [ID!]
-    duration: Int
-    source: ID
-    source_type: DataSourceType!
-    tags: [String!]
-}
-
-input DatapointUpdateInput {
-    format: String
-    timestamp: Datetime
-    associations: [ID!]
-    parents: [ID!]
-    duration: Int
-    source: ID
-    source_type: DataSourceType
-    tags: [String!]
-}
+union SourceObject @beehiveUnion = Assignment | Person | InferenceExecution | Environment
 
 extend type Query {
     # Get the list of datapoints
@@ -116,6 +164,13 @@ extend type Query {
     getDatapoint(data_id: ID!): Datapoint @beehiveGet(target_type_name: "Datapoint")
     # Find datapoints using a complex query
     searchDatapoints(query: QueryExpression!, page: PaginationInput): DatapointList @beehiveQuery(target_type_name: "Datapoint")
+
+    # Get the list of 3D positions
+    positions3d(page: PaginationInput): Position3DList @beehiveList(target_type_name: "Position3D")
+    # Get a 3D position
+    getPosition3D(position3d_id: ID!): Position3D @beehiveGet(target_type_name: "Position3D")
+    # Find 3D positions using a complex query
+    searchPositions3D(query: QueryExpression!, page: PaginationInput): Position3DList @beehiveQuery(target_type_name: "Position3D")
 
     # Get the list of inference executions
     inferenceExecutions(page: PaginationInput): InferenceExecutionList @beehiveList(target_type_name: "InferenceExecution")
@@ -132,6 +187,11 @@ extend type Mutation {
     createDatapoint(datapoint: DatapointInput): Datapoint @beehiveCreate(target_type_name: "Datapoint", s3_file_fields: ["file"])
     # Delete a datapoint
     deleteDatapoint(data_id: ID): DeleteStatusResponse @beehiveDelete(target_type_name: "Datapoint")
+
+    # Create a new 3D position
+    createPosition3D(position3D: Position3DInput): Position3D @beehiveCreate(target_type_name: "Position3D")
+    # Delete a 3D position
+    deletePosition3D(position3d_id: ID): DeleteStatusResponse @beehiveDelete(target_type_name: "Position3D")
 
     tagDatapoint(data_id: ID!, tags: [String!]!): Datapoint! @beehiveListFieldAppend(target_type_name: "Datapoint", field_name: "tags", input_field_name: "tags")
     untagDatapoint(data_id: ID!, tags: [String!]!): Datapoint! @beehiveListFieldDelete(target_type_name: "Datapoint", field_name: "tags", input_field_name: "tags")
