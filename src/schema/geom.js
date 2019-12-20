@@ -96,6 +96,17 @@ exports.typeDefs = `
     end: Datetime
   }
 
+  input CoordinateSpaceUpdateInput {
+    name: String
+    origin_description: String
+    x_axis_description: String
+    y_axis_description: String
+    z_axis_description: String
+    environment: ID
+    start: Datetime
+    end: Datetime
+  }
+
   type PositionAssignment @beehiveAssignmentType(table_name: "position_assignments", assigned_field: "assignment", exclusive: true, pk_column: "position_assignment_id") {
     position_assignment_id: ID!
     assignment: Assignment! @beehiveRelation(target_type_name: "Assignment")
@@ -115,6 +126,15 @@ exports.typeDefs = `
     assignment: ID!
     coordinate_space: ID!
     coordinates: Coordinates3DInput!
+    description: String
+    start: Datetime
+    end: Datetime
+  }
+
+  input PositionAssignmentUpdateInput {
+    assignment: ID
+    coordinate_space: ID
+    coordinates: Coordinates3DInput
     description: String
     start: Datetime
     end: Datetime
@@ -156,14 +176,14 @@ exports.typeDefs = `
     # Create a new coordinate space
     createCoordinateSpace(coordinateSpace: CoordinateSpaceInput): CoordinateSpace @beehiveCreate(target_type_name: "CoordinateSpace")
     # Update a coordinate space
-    updateCoordinateSpace(space_id: ID!, coordinateSpace: CoordinateSpaceInput): CoordinateSpace @beehiveUpdate(target_type_name: "CoordinateSpace")
+    updateCoordinateSpace(space_id: ID!, coordinateSpace: CoordinateSpaceUpdateInput): CoordinateSpace @beehiveUpdate(target_type_name: "CoordinateSpace")
     # Delete a coordinate space
     deleteCoordinateSpace(space_id: ID): DeleteStatusResponse @beehiveDelete(target_type_name: "CoordinateSpace")
 
     # Create a new position assignment
     createPositionAssignment(positionAssignment: PositionAssignmentInput!): PositionAssignment @beehiveCreate(target_type_name: "PositionAssignment")
     # Update a position assignment
-    updatePositionAssignment(position_assignment_id: ID!, positionAssignment: PositionAssignmentInput): PositionAssignment @beehiveUpdate(target_type_name: "PositionAssignment")
+    updatePositionAssignment(position_assignment_id: ID!, positionAssignment: PositionAssignmentUpdateInput): PositionAssignment @beehiveUpdate(target_type_name: "PositionAssignment")
     # Delete a position assignment
     deletePositionAssignment(position_assignment_id: ID): DeleteStatusResponse @beehiveDelete(target_type_name: "PositionAssignment")
   }
