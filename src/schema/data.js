@@ -66,6 +66,7 @@ type Position3D @beehiveTable(
     table_name: "positions3d",
     pk_column: "position3d_id",
     table_type: native,
+    native_exclude: ["coordinates"],
     native_indexes: [
         {name: "created", type: btree, columns: ["created"]},
         {name: "timestamp", type: btree, columns: ["timestamp"]},
