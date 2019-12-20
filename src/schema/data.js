@@ -62,9 +62,9 @@ input DatapointUpdateInput {
     tags: [String!]
 }
 
-type Position3D @beehiveTable(
-    table_name: "positions3d",
-    pk_column: "position3d_id",
+type Position @beehiveTable(
+    table_name: "positions",
+    pk_column: "position_id",
     table_type: native,
     native_exclude: ["coordinates"],
     native_indexes: [
@@ -76,14 +76,14 @@ type Position3D @beehiveTable(
         {name: "tags_ts", type: btree, columns: ["tags", "timestamp"]}
     ]
 ) {
-    position3d_id: ID!
+    position_id: ID!
     parents: [Datapoint] @beehiveRelation(target_type_name: "Datapoint")
     # Timestamp that the data was observed, measured, or inferred.
     timestamp: Datetime!
     # Coordinate space in which the position is specified
     coordinate_space: CoordinateSpace! @beehiveRelation(target_type_name: "CoordinateSpace")
     # Coordinates of the position in the specified coordinate space
-    coordinates: Coordinates3D!
+    coordinates: [Float!]!
     # Which objects are associated with this data
     associations: [Association!] @beehiveUnionResolver(target_types: ["Device", "Environment", "Person", "Material"])
     # duration of the data included in this observation. time should be expressed in milliseconds. If not set then assumed to be a snapshot observation without a duration
@@ -95,15 +95,15 @@ type Position3D @beehiveTable(
     tags: [String!]
 }
 
-type Position3DList{
-    data: [Position3D!]
+type PositionList{
+    data: [Position!]
     page_info: PageInfo!
 }
 
-input Position3DInput {
+input PositionInput {
     timestamp: Datetime!
     coordinate_space: ID!
-    coordinates: Coordinates3DInput!
+    coordinates: [Float!]!
     associations: [ID!]
     parents: [ID!]
     duration: Int
@@ -166,12 +166,12 @@ extend type Query {
     # Find datapoints using a complex query
     searchDatapoints(query: QueryExpression!, page: PaginationInput): DatapointList @beehiveQuery(target_type_name: "Datapoint")
 
-    # Get the list of 3D positions
-    positions3d(page: PaginationInput): Position3DList @beehiveList(target_type_name: "Position3D")
-    # Get a 3D position
-    getPosition3D(position3d_id: ID!): Position3D @beehiveGet(target_type_name: "Position3D")
-    # Find 3D positions using a complex query
-    searchPositions3D(query: QueryExpression!, page: PaginationInput): Position3DList @beehiveQuery(target_type_name: "Position3D")
+    # Get the list of positions
+    positions(page: PaginationInput): PositionList @beehiveList(target_type_name: "Position")
+    # Get a position
+    getPosition(position_id: ID!): Position @beehiveGet(target_type_name: "Position")
+    # Find positions using a complex query
+    searchPositions(query: QueryExpression!, page: PaginationInput): PositionList @beehiveQuery(target_type_name: "Position")
 
     # Get the list of inference executions
     inferenceExecutions(page: PaginationInput): InferenceExecutionList @beehiveList(target_type_name: "InferenceExecution")
@@ -189,10 +189,10 @@ extend type Mutation {
     # Delete a datapoint
     deleteDatapoint(data_id: ID): DeleteStatusResponse @beehiveDelete(target_type_name: "Datapoint")
 
-    # Create a new 3D position
-    createPosition3D(position3D: Position3DInput): Position3D @beehiveCreate(target_type_name: "Position3D")
-    # Delete a 3D position
-    deletePosition3D(position3d_id: ID): DeleteStatusResponse @beehiveDelete(target_type_name: "Position3D")
+    # Create a new position
+    createPosition(position: PositionInput): Position @beehiveCreate(target_type_name: "Position")
+    # Delete a position
+    deletePosition(position_id: ID): DeleteStatusResponse @beehiveDelete(target_type_name: "Position")
 
     tagDatapoint(data_id: ID!, tags: [String!]!): Datapoint! @beehiveListFieldAppend(target_type_name: "Datapoint", field_name: "tags", input_field_name: "tags")
     untagDatapoint(data_id: ID!, tags: [String!]!): Datapoint! @beehiveListFieldDelete(target_type_name: "Datapoint", field_name: "tags", input_field_name: "tags")

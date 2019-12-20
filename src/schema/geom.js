@@ -31,28 +31,6 @@ exports.typeDefs = `
     z: Float!
   }
 
-  type Coordinates3D {
-    x: Float!
-    y: Float!
-    z: Float!
-  }
-
-  type Coordinates2D {
-    x: Float!
-    y: Float!
-  }
-
-  input Coordinates3DInput {
-    x: Float!
-    y: Float!
-    z: Float!
-  }
-
-  input Coordinates2DInput {
-    x: Float!
-    y: Float!
-  }
-
   # this needs to be looked at more closely. Not sure I have all the values, I think distortion is in there too.
   type CameraParameters {
     camera_matrix: [Float!]
@@ -71,10 +49,9 @@ exports.typeDefs = `
   type CoordinateSpace @beehiveTable(table_name: "spaces", pk_column: "space_id") {
     space_id: ID!
     name: String
+    axis_names: [String!]!
     origin_description: String
-    x_axis_description: String
-    y_axis_description: String
-    z_axis_description: String
+    axis_descriptions: [String!]
     environment: Environment! @beehiveRelation(target_type_name: "Environment")
     start: Datetime!
     end: Datetime
@@ -87,10 +64,9 @@ exports.typeDefs = `
 
   input CoordinateSpaceInput {
     name: String
+    axis_names: [String!]!
     origin_description: String
-    x_axis_description: String
-    y_axis_description: String
-    z_axis_description: String
+    axis_descriptions: [String!]
     environment: ID!
     start: Datetime!
     end: Datetime
@@ -98,10 +74,9 @@ exports.typeDefs = `
 
   input CoordinateSpaceUpdateInput {
     name: String
+    axis_names: [String!]
     origin_description: String
-    x_axis_description: String
-    y_axis_description: String
-    z_axis_description: String
+    axis_descriptions: [String!]
     environment: ID
     start: Datetime
     end: Datetime
@@ -111,7 +86,7 @@ exports.typeDefs = `
     position_assignment_id: ID!
     assignment: Assignment! @beehiveRelation(target_type_name: "Assignment")
     coordinate_space: CoordinateSpace! @beehiveRelation(target_type_name: "CoordinateSpace")
-    coordinates: Coordinates3D!
+    coordinates: [Float!]!
     description: String
     start: Datetime
     end: Datetime
@@ -125,7 +100,7 @@ exports.typeDefs = `
   input PositionAssignmentInput {
     assignment: ID!
     coordinate_space: ID!
-    coordinates: Coordinates3DInput!
+    coordinates: [Float!]!
     description: String
     start: Datetime
     end: Datetime
@@ -134,7 +109,7 @@ exports.typeDefs = `
   input PositionAssignmentUpdateInput {
     assignment: ID
     coordinate_space: ID
-    coordinates: Coordinates3DInput
+    coordinates: [Float!]
     description: String
     start: Datetime
     end: Datetime
