@@ -82,6 +82,43 @@ exports.typeDefs = `
     end: Datetime
   }
 
+  type PoseModel @beehiveTable(table_name: "posemodels", pk_column: "pose_model_id") {
+    pose_model_id: ID!
+    model_name: String!
+    model_variant_name: String
+    keypoint_names: [String!]!
+    keypoint_descriptions: [String!]
+  }
+
+  type PoseModelList {
+    data: [PoseModel!]!
+    page_info: PageInfo!
+  }
+
+  input PoseModelInput {
+    model_name: String!
+    model_variant_name: String
+    keypoint_names: [String!]!
+    keypoint_descriptions: [String!]
+  }
+
+  input PoseModelUpdateInput {
+    model_name: String
+    model_variant_name: String
+    keypoint_names: [String!]
+    keypoint_descriptions: [String!]
+  }
+
+  type Keypoint {
+    coordinates: [Float!]!
+    quality: Float
+  }
+
+  input KeypointInput {
+    coordinates: [Float!]!
+    quality: Float
+  }
+
   type PositionAssignment @beehiveAssignmentType(table_name: "position_assignments", assigned_field: "assignment", exclusive: true, pk_column: "position_assignment_id") {
     position_assignment_id: ID!
     assignment: Assignment! @beehiveRelation(target_type_name: "Assignment")
@@ -120,8 +157,6 @@ exports.typeDefs = `
     rotation: TupleInput!
   }
 
-
-
   extend type Query {
 
     # Get the list of coordinate spaces
@@ -136,6 +171,15 @@ exports.typeDefs = `
     findCoordinateSpace(environment: ID, name: String, page:PaginationInput): CoordinateSpaceList! @beehiveSimpleQuery(target_type_name: "CoordinateSpace")
     # Find coordinate spaces using a complex query
     searchCoordinateSpaces(query: QueryExpression!, page: PaginationInput): CoordinateSpaceList @beehiveQuery(target_type_name: "CoordinateSpace")
+
+    # Get the list of pose models
+    poseModels(page: PaginationInput): PoseModelList @beehiveList(target_type_name: "PoseModel")
+    # Get a pose model
+    getPoseModel(pose_model_id: ID!): PoseModel @beehiveGet(target_type_name: "PoseModel")
+    # Find pose models based on one or more of their properties
+    findPoseModels(model_name: String, model_variant_name: String, page: PaginationInput): PoseModelList @beehiveSimpleQuery(target_type_name: "PoseModel")
+    # Find pose models using a complex query
+    searchPoseModels(query: QueryExpression!, page: PaginationInput): PoseModelList @beehiveQuery(target_type_name: "PoseModel")
 
     # Get the list of position assignments
     positionAssignments(page: PaginationInput): PositionAssignmentList @beehiveList(target_type_name: "PositionAssignment")
@@ -154,6 +198,13 @@ exports.typeDefs = `
     updateCoordinateSpace(space_id: ID!, coordinateSpace: CoordinateSpaceUpdateInput): CoordinateSpace @beehiveUpdate(target_type_name: "CoordinateSpace")
     # Delete a coordinate space
     deleteCoordinateSpace(space_id: ID): DeleteStatusResponse @beehiveDelete(target_type_name: "CoordinateSpace")
+
+    # Create a new pose model
+    createPoseModel(poseModel: PoseModelInput): PoseModel @beehiveCreate(target_type_name: "PoseModel")
+    # Update a pose model
+    updatePoseModel(pose_model_id: ID!, poseModel: PoseModelUpdateInput): PoseModel @beehiveUpdate(target_type_name: "PoseModel")
+    # Delete a pose model
+    deletePoseModel(pose_model_id: ID): DeleteStatusResponse @beehiveDelete(target_type_name: "PoseModel")
 
     # Create a new position assignment
     createPositionAssignment(positionAssignment: PositionAssignmentInput!): PositionAssignment @beehiveCreate(target_type_name: "PositionAssignment")
