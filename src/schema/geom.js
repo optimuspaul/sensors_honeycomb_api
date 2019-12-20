@@ -25,6 +25,34 @@ exports.typeDefs = `
     y: Float!
   }
 
+  input TupleInput {
+    x: Float!
+    y: Float!
+    z: Float!
+  }
+
+  type Coordinates3D {
+    x: Float!
+    y: Float!
+    z: Float!
+  }
+
+  type Coordinates2D {
+    x: Float!
+    y: Float!
+  }
+
+  input Coordinates3DInput {
+    x: Float!
+    y: Float!
+    z: Float!
+  }
+
+  input Coordinates2DInput {
+    x: Float!
+    y: Float!
+  }
+
   # this needs to be looked at more closely. Not sure I have all the values, I think distortion is in there too.
   type CameraParameters {
     camera_matrix: [Float!]
@@ -57,16 +85,6 @@ exports.typeDefs = `
     page_info: PageInfo!
   }
 
-  type PositionAssignment @beehiveAssignmentType(table_name: "position_assignments", assigned_field: "device", exclusive: true, pk_column: "position_assignment_id") {
-    position_assignment_id: ID!
-    device: Device! @beehiveRelation(target_type_name: "Device")
-    coordinate_space: CoordinateSpace! @beehiveRelation(target_type_name: "CoordinateSpace")
-    locaton: Point!
-    description: String
-    start: Datetime
-    end: Datetime
-  }
-
   input CoordinateSpaceInput {
     name: String
     origin_description: String
@@ -78,10 +96,28 @@ exports.typeDefs = `
     end: Datetime
   }
 
-  input TupleInput {
-    x: Float!
-    y: Float!
-    z: Float!
+  type PositionAssignment @beehiveAssignmentType(table_name: "position_assignments", assigned_field: "assignment", exclusive: true, pk_column: "position_assignment_id") {
+    position_assignment_id: ID!
+    assignment: Assignment! @beehiveRelation(target_type_name: "Assignment")
+    coordinate_space: CoordinateSpace! @beehiveRelation(target_type_name: "CoordinateSpace")
+    coordinates: Coordinates3D!
+    description: String
+    start: Datetime
+    end: Datetime
+  }
+
+  type PositionAssignmentList {
+    data: [PositionAssignment!]
+    page_info: PageInfo
+  }
+
+  input PositionAssignmentInput {
+    assignment: ID!
+    coordinate_space: ID!
+    coordinates: Coordinates3DInput!
+    description: String
+    start: Datetime
+    end: Datetime
   }
 
   input CalibrationInput {
@@ -89,17 +125,10 @@ exports.typeDefs = `
     rotation: TupleInput!
   }
 
-  input PositionAssignmentInput {
-    device: ID!
-    coordinate_space: ID!
-    locaton: TupleInput!
-    description: String
-    start: Datetime
-    end: Datetime
-  }
 
 
   extend type Query {
+
     # Get the list of coordinate spaces
     coordinateSpaces(page: PaginationInput): CoordinateSpaceList @beehiveList(target_type_name: "CoordinateSpace")
     # Get a coordinate space
@@ -112,10 +141,18 @@ exports.typeDefs = `
     findCoordinateSpace(environment: ID, name: String, page:PaginationInput): CoordinateSpaceList! @beehiveSimpleQuery(target_type_name: "CoordinateSpace")
     # Find coordinate spaces using a complex query
     searchCoordinateSpaces(query: QueryExpression!, page: PaginationInput): CoordinateSpaceList @beehiveQuery(target_type_name: "CoordinateSpace")
+
+    # Get the list of position assignments
+    positionAssignments(page: PaginationInput): PositionAssignmentList @beehiveList(target_type_name: "PositionAssignment")
+    # Get a position assignment
+    getPositionAssignment(position_assignment_id: ID!): PositionAssignment @beehiveGet(target_type_name: "PositionAssignment")
+    # Find position assignments based on one or more of their properties
+    findPositionAssignments(assignment: ID, coordinate_space: ID, page: PaginationInput): PositionAssignmentList @beehiveSimpleQuery(target_type_name: "PositionAssignment")
+    # Find position assignments using a complex query
+    searchPositionAssignments(query: QueryExpression!, page: PaginationInput): PositionAssignmentList @beehiveQuery(target_type_name: "PositionAssignment")
   }
 
   extend type Mutation {
-
     # Create a new coordinate space
     createCoordinateSpace(coordinateSpace: CoordinateSpaceInput): CoordinateSpace @beehiveCreate(target_type_name: "CoordinateSpace")
     # Update a coordinate space
@@ -123,9 +160,12 @@ exports.typeDefs = `
     # Delete a coordinate space
     deleteCoordinateSpace(space_id: ID): DeleteStatusResponse @beehiveDelete(target_type_name: "CoordinateSpace")
 
-
-    # Sets the static Position of a Device in the CoordinateSpace
+    # Create a new position assignment
     createPositionAssignment(positionAssignment: PositionAssignmentInput!): PositionAssignment @beehiveCreate(target_type_name: "PositionAssignment")
+    # Update a position assignment
+    updatePositionAssignment(position_assignment_id: ID!, positionAssignment: PositionAssignmentInput): PositionAssignment @beehiveUpdate(target_type_name: "PositionAssignment")
+    # Delete a position assignment
+    deletePositionAssignment(position_assignment_id: ID): DeleteStatusResponse @beehiveDelete(target_type_name: "PositionAssignment")
   }
 
 
