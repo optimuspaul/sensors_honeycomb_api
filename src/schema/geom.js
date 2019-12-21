@@ -1,7 +1,5 @@
 exports.typeDefs = `
 
-  union GeometricObject = SensorInstallation | CoordinateSpace
-
   interface Tuple {
     x: Float!
     y: Float!
@@ -31,19 +29,67 @@ exports.typeDefs = `
     z: Float!
   }
 
-  # this needs to be looked at more closely. Not sure I have all the values, I think distortion is in there too.
-  type CameraParameters {
-    camera_matrix: [Float!]
-    distortion_coeffs: [Float!]
-  }
-
-  type ExtrinsicCalibration {
+  type IntrinsicCalibration @beehiveTable(table_name: "intrinsiccalibrations", pk_column: "intrinsic_calibration_id") {
+    intrinsic_calibration_id: ID!
     start: Datetime!
     end: Datetime
-    translation: Tuple!
-    rotation: Tuple!
-    # list of the objects involved, must be exactly two
-    objects: [GeometricObject!]
+    sensor_installation: SensorInstallation! @beehiveRelation(target_type_name: "SensorInstallation")
+    camera_matrix: [[Float!]!]!
+    distortion_coefficients: [Float!]!
+  }
+
+  type IntrinsicCalibrationList {
+    data: [IntrinsicCalibration!]!
+    page_info: PageInfo!
+  }
+
+  input IntrinsicCalibrationInput {
+    start: Datetime!
+    end: Datetime
+    sensor_installation: ID!
+    camera_matrix: [[Float!]!]!
+    distortion_coefficients: [Float!]!
+  }
+
+  input IntrinsicCalibrationUpdateInput {
+    start: Datetime
+    end: Datetime
+    sensor_installation: ID
+    camera_matrix: [[Float!]!]
+    distortion_coefficients: [Float!]
+  }
+
+  type ExtrinsicCalibration @beehiveTable(table_name: "extrinsiccalibrations", pk_column: "extrinsic_calibration_id") {
+    extrinsic_calibration_id: ID!
+    start: Datetime!
+    end: Datetime
+    sensor_installation: SensorInstallation! @beehiveRelation(target_type_name: "SensorInstallation")
+    coordinate_space: CoordinateSpace! @beehiveRelation(target_type_name: "CoordinateSpace")
+    translation_vector: [Float!]!
+    rotation_vector: [Float!]!
+  }
+
+  type ExtrinsicCalibrationList {
+    data: [ExtrinsicCalibration!]!
+    page_info: PageInfo!
+  }
+
+  input ExtrinsicCalibrationInput {
+    start: Datetime!
+    end: Datetime
+    sensor_installation: ID!
+    coordinate_space: ID!
+    translation_vector: [Float!]!
+    rotation_vector: [Float!]!
+  }
+
+  input ExtrinsicCalibrationUpdateInput {
+    start: Datetime
+    end: Datetime
+    sensor_installation: ID
+    coordinate_space: ID
+    translation_vector: [Float!]
+    rotation_vector: [Float!]
   }
 
   type CoordinateSpace @beehiveTable(table_name: "spaces", pk_column: "space_id") {
@@ -159,6 +205,24 @@ exports.typeDefs = `
 
   extend type Query {
 
+    # Get the list of intrinsic calibrations
+    intrinsicCalibrations(page: PaginationInput): IntrinsicCalibrationList @beehiveList(target_type_name: "IntrinsicCalibration")
+    # Get an intrinsic calibration
+    getIntrinsicCalibration(intrinsic_calibration_id: ID!): IntrinsicCalibration @beehiveGet(target_type_name: "IntrinsicCalibration")
+    # Find instrinsic calibrations based on one or more of their properties
+    findIntrinsicCalibrations(sensor_installation: ID, page: PaginationInput): IntrinsicCalibrationList @beehiveSimpleQuery(target_type_name: "IntrinsicCalibration")
+    # Find intrinsic calibrations using a complex query
+    searchIntrinsicCalibrations(query: QueryExpression!, page: PaginationInput): IntrinsicCalibrationList @beehiveQuery(target_type_name: "IntrinsicCalibration")
+
+    # Get the list of extrinsic calibrations
+    extrinsicCalibrations(page: PaginationInput): ExtrinsicCalibrationList @beehiveList(target_type_name: "ExtrinsicCalibration")
+    # Get an extrinsic calibration
+    getExtrinsicCalibration(extrinsic_calibration_id: ID!): ExtrinsicCalibration @beehiveGet(target_type_name: "ExtrinsicCalibration")
+    # Find extrinsic calibrations based on one or more of their properties
+    findExtrinsicCalibrations(sensor_installation: ID, coordinate_space: ID, page: PaginationInput): ExtrinsicCalibrationList @beehiveSimpleQuery(target_type_name: "ExtrinsicCalibration")
+    # Find extrinsic calibrations using a complex query
+    searchExtrinsicCalibrations(query: QueryExpression!, page: PaginationInput): ExtrinsicCalibrationList @beehiveQuery(target_type_name: "ExtrinsicCalibration")
+
     # Get the list of coordinate spaces
     coordinateSpaces(page: PaginationInput): CoordinateSpaceList @beehiveList(target_type_name: "CoordinateSpace")
     # Get a coordinate space
@@ -192,6 +256,20 @@ exports.typeDefs = `
   }
 
   extend type Mutation {
+    # Create a new instrinsic calibration
+    createIntrinsicCalibration(intrinsicCalibration: IntrinsicCalibrationInput): IntrinsicCalibration @beehiveCreate(target_type_name: "IntrinsicCalibration")
+    # Update an intrinsic calibration
+    updateIntrinsicCalibration(intrinsic_calibration_id: ID!, intrinsicCalibration: IntrinsicCalibrationUpdateInput): IntrinsicCalibration @beehiveUpdate(target_type_name: "IntrinsicCalibration")
+    # Delete an intrinsic calibration
+    deleteIntrinsicCalibration(intrinsic_calibration_id: ID): DeleteStatusResponse @beehiveDelete(target_type_name: "IntrinsicCalibration")
+
+    # Create a new extrinsic calibration
+    createExtrinsicCalibration(extrinsicCalibration: ExtrinsicCalibrationInput): ExtrinsicCalibration @beehiveCreate(target_type_name: "ExtrinsicCalibration")
+    # Update an extrinsic calibration
+    updateExtrinsicCalibration(extrinsic_calibration_id: ID!, extrinsicCalibration: ExtrinsicCalibrationUpdateInput): ExtrinsicCalibration @beehiveUpdate(target_type_name: "ExtrinsicCalibration")
+    # Delete an extrinsic calibration
+    deleteExtrinsicCalibration(extrinsic_calibration_id: ID): DeleteStatusResponse @beehiveDelete(target_type_name: "ExtrinsicCalibration")
+
     # Create a new coordinate space
     createCoordinateSpace(coordinateSpace: CoordinateSpaceInput): CoordinateSpace @beehiveCreate(target_type_name: "CoordinateSpace")
     # Update a coordinate space
