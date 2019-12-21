@@ -134,6 +134,7 @@ exports.typeDefs = `
     model_variant_name: String
     keypoint_names: [String!]!
     keypoint_descriptions: [String!]
+    keypoint_connectors: [[Int!]!]
   }
 
   type PoseModelList {
@@ -146,6 +147,7 @@ exports.typeDefs = `
     model_variant_name: String
     keypoint_names: [String!]!
     keypoint_descriptions: [String!]
+    keypoint_connectors: [[Int!]!]
   }
 
   input PoseModelUpdateInput {
@@ -153,6 +155,7 @@ exports.typeDefs = `
     model_variant_name: String
     keypoint_names: [String!]
     keypoint_descriptions: [String!]
+    keypoint_connectors: [[Int!]!]
   }
 
   type Keypoint {
