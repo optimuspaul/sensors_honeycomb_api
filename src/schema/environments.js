@@ -134,6 +134,43 @@ exports.typeDefs = `
     end: Datetime
   }
 
+  type EntityAssignment @beehiveAssignmentType(table_name: "entityassignments", assigned_field: "device", assignee_field: "entity", exclusive: true, pk_column: "entity_assignment_id") {
+    entity_assignment_id: ID!
+    entity_type: EntityType!
+    entity: Entity! @beehiveUnionResolver(target_types: ["Person", "Material"])
+    device: Device! @beehiveRelation(target_type_name: "Device")
+    start: Datetime!
+    end: Datetime
+  }
+
+  type EntityAssignmentList {
+    data: [EntityAssignment!]!
+    page_info: PageInfo!
+  }
+
+  input EntityAssignmentInput {
+    entity_type: EntityType!
+    entity: ID!
+    device: ID!
+    start: Datetime!
+    end: Datetime
+  }
+
+  input EntityAssignmentUpdateInput {
+    entity_type: EntityType
+    entity: ID
+    device: ID
+    start: Datetime
+    end: Datetime
+  }
+
+  union Entity @beehiveUnion = Person | Material
+
+  enum EntityType {
+    PERSON
+    MATERIAL
+  }
+
   extend type Query {
     # Get the list of environments
     environments(page: PaginationInput): EnvironmentList @beehiveList(target_type_name: "Environment")
@@ -154,6 +191,16 @@ exports.typeDefs = `
     findPersons(name: String, first_name: String, last_name: String, short_name: String, person_type: PersonType, transparent_classroom_id: Int, page: PaginationInput): PersonList @beehiveSimpleQuery(target_type_name: "Person")
     # Find people using a complex query
     searchPersons(query: QueryExpression!, page: PaginationInput): PersonList @beehiveQuery(target_type_name: "Person")
+
+    # Get the list of entity assignments
+    entityAssignments(page: PaginationInput): EntityAssignmentList @beehiveList(target_type_name: "EntityAssignment")
+    # Get an entity assignment
+    getEntityAssignment(entity_assignment_id: ID!): EntityAssignment @beehiveGet(target_type_name: "EntityAssignment")
+    # Find entity assignments based on one or more of their properties
+    findEntityAssignments(entity_type: EntityType, entity: ID, device: ID, page: PaginationInput): EntityAssignmentList @beehiveSimpleQuery(target_type_name: "EntityAssignment")
+    # Find entity assignments using a complex query
+    searchEntityAssignments(query: QueryExpression!, page: PaginationInput): EntityAssignmentList @beehiveQuery(target_type_name: "EntityAssignment")
+
   }
 
   extend type Mutation {
@@ -180,6 +227,14 @@ exports.typeDefs = `
     updatePerson(person_id: ID!, person: PersonUpdateInput): Person @beehiveUpdate(target_type_name: "Person")
     # Delete a person
     deletePerson(person_id: ID): DeleteStatusResponse @beehiveDelete(target_type_name: "Person")
+
+    # Assign device to entity
+    assignToEntity(entityAssignment: EntityAssignmentInput): EntityAssignment @beehiveCreate(target_type_name: "EntityAssignment")
+    # Update an entity assignment
+    updateEntityAssignment(entity_assignment_id: ID!, entityAssignment: EntityAssignmentUpdateInput): EntityAssignment @beehiveUpdate(target_type_name: "EntityAssignment")
+    # Delete an entity assignment
+    deleteEntityAssignment(entity_assignment_id: ID): DeleteStatusResponse @beehiveDelete(target_type_name: "EntityAssignment")
+
   }
 
 `
