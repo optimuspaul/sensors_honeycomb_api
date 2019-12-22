@@ -58,7 +58,7 @@ type MaterialInteraction @beehiveTable(table_name: "material_interactions", pk_c
     # Source of the interaction information (ground truth or inference)
     source_type: SourceType!
     # Person that is the subject of the interaction
-    person: Person! @beehiveRelation(target_type_name: "Person")
+    person: Person @beehiveRelation(target_type_name: "Person")
     # Material the person is interacting with
     material: Material! @beehiveRelation(target_type_name: "Material")
     # Start time of the interaction
@@ -84,7 +84,7 @@ type MaterialInteractionList {
 
 input MaterialInteractionInput {
     source_type: SourceType!
-    person: ID!
+    person: ID
     material: ID!
     codes: [ObservationCode!]
     start: Datetime!
@@ -186,7 +186,7 @@ type TrayInteraction @beehiveTable(table_name: "tray_interactions", pk_column: "
     # Source of the interaction information (ground truth or inference)
     source_type: SourceType!
     # Person that is the subject of the interaction
-    person: Person! @beehiveRelation(target_type_name: "Person")
+    person: Person @beehiveRelation(target_type_name: "Person")
     # Tray the person is interacting with
     tray: Tray! @beehiveRelation(target_type_name: "Tray")
     # Start time of the interaction
@@ -206,7 +206,7 @@ type TrayInteractionList {
 
 input TrayInteractionInput {
     source_type: SourceType!
-    person: ID!
+    person: ID
     tray: ID!
     start: Datetime!
     end: Datetime
