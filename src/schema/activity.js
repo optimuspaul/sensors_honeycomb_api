@@ -51,16 +51,16 @@ input TrayUpdateInput {
   description: String
 }
 
-union Interaction @beehiveUnion = MaterialInteraction | SocialInteraction
+union Interaction @beehiveUnion = MaterialInteraction | SocialInteraction | TrayInteraction
 
 type MaterialInteraction @beehiveTable(table_name: "material_interactions", pk_column: "material_interaction_id") {
     material_interaction_id: ID!
     # Source of the interaction information (ground truth or inference)
     source_type: SourceType!
     # Person that is the subject of the interaction
-    subject: Person! @beehiveRelation(target_type_name: "Person")
+    person: Person! @beehiveRelation(target_type_name: "Person")
     # Material the person is interacting with
-    object: Material! @beehiveRelation(target_type_name: "Material")
+    material: Material! @beehiveRelation(target_type_name: "Material")
     # Start time of the interaction
     start: Datetime!
     # End time of the interaction
@@ -84,8 +84,8 @@ type MaterialInteractionList {
 
 input MaterialInteractionInput {
     source_type: SourceType!
-    subject: ID!
-    object: ID!
+    person: ID!
+    material: ID!
     codes: [ObservationCode!]
     start: Datetime!
     end: Datetime
@@ -97,8 +97,8 @@ input MaterialInteractionInput {
 
 input MaterialInteractionUpdateInput {
     source_type: SourceType
-    subject: ID
-    object: ID
+    person: ID
+    material: ID
     codes: [ObservationCode!]
     start: Datetime
     end: Datetime
@@ -181,12 +181,63 @@ enum EngagementType {
     Other
 }
 
+type TrayInteraction @beehiveTable(table_name: "tray_interactions", pk_column: "tray_interaction_id") {
+    tray_interaction_id: ID!
+    # Source of the interaction information (ground truth or inference)
+    source_type: SourceType!
+    # Person that is the subject of the interaction
+    person: Person! @beehiveRelation(target_type_name: "Person")
+    # Tray the person is interacting with
+    tray: Tray! @beehiveRelation(target_type_name: "Tray")
+    # Start time of the interaction
+    start: Datetime!
+    # End time of the interaction
+    end: Datetime
+    # Type of tray interaction
+    interaction_type: TrayInteractionType
+    # Validations
+    validations: [InteractionValidation!] @beehiveRelation(target_type_name: "InteractionValidation")
+}
+
+type TrayInteractionList {
+    data: [TrayInteraction!]!
+    page_info: PageInfo!
+}
+
+input TrayInteractionInput {
+    source_type: SourceType!
+    person: ID!
+    tray: ID!
+    start: Datetime!
+    end: Datetime
+    interaction_type: TrayInteractionType
+    validations: [ID!]
+}
+
+input TrayInteractionUpdateInput {
+    source_type: SourceType
+    person: ID
+    tray: ID
+    start: Datetime
+    end: Datetime
+    interaction_type: TrayInteractionType
+    validations: [ID!]
+}
+
+enum TrayInteractionType {
+    CARRYING_FROM_SHELF
+    CARRYING_TO_SHELF
+    CARRYING_UNKNOWN
+    NEXT_TO
+    OTHER
+}
+
 type SocialInteraction @beehiveTable(table_name: "social_interactions", pk_column: "social_interaction_id") {
     social_interaction_id: ID!
     # Source of the interaction information (ground truth or inference)
     source_type: SourceType!
     # People engaged in the interaction
-    subjects: [Person!]! @beehiveRelation(target_type_name: "Person")
+    persons: [Person!]! @beehiveRelation(target_type_name: "Person")
     # Start time of the interaction
     start: Datetime!
     # End time of the interaction
@@ -202,7 +253,7 @@ type SocialInteractionList {
 
 input SocialInteractionInput {
     source_type: SourceType!
-    subjects: [ID!]!
+    persons: [ID!]!
     start: Datetime!
     end: Datetime
     validations: [ID!]
@@ -210,7 +261,7 @@ input SocialInteractionInput {
 
 input SocialInteractionUpdateInput {
     source_type: SourceType
-    subjects: [ID!]
+    persons: [ID!]
     start: Datetime
     end: Datetime
     validations: [ID!]
@@ -218,7 +269,7 @@ input SocialInteractionUpdateInput {
 
 type InteractionValidation @beehiveTable(table_name: "interaction_validations", pk_column: "interaction_validation_id") {
     interaction_validation_id: ID!
-    interaction: Interaction! @beehiveUnionResolver(target_types: ["MaterialInteraction", "SocialInteraction"])
+    interaction: Interaction! @beehiveUnionResolver(target_types: ["MaterialInteraction", "SocialInteraction", "TrayInteraction"])
     validator: Person! @beehiveRelation(target_type_name: "Person")
     validated_at: Datetime
     quality_of_interaction: Int
@@ -271,16 +322,25 @@ extend type Query {
     # Get a material interaction (DEPRECATED; use getMaterialInteraction)
     materialInteraction(material_interaction_id: ID!): MaterialInteraction! @beehiveGet(target_type_name: "MaterialInteraction")
     # Find material interactions based on one or more of their properties
-    findMaterialInteractions(subject: ID, object: ID, codes: ObservationCode, concentration: ConcentrationInformationInput, engagementType: EngagementType, page: PaginationInput): MaterialInteractionList @beehiveSimpleQuery(target_type_name: "MaterialInteraction")
+    findMaterialInteractions(person: ID, material: ID, codes: ObservationCode, concentration: ConcentrationInformationInput, engagementType: EngagementType, page: PaginationInput): MaterialInteractionList @beehiveSimpleQuery(target_type_name: "MaterialInteraction")
     # Find material interactions using a complex query
     searchMaterialInteractions(query: QueryExpression!, page: PaginationInput): MaterialInteractionList @beehiveQuery(target_type_name: "MaterialInteraction")
+
+    # Get the list of tray interactions
+    trayInteractions(page: PaginationInput): TrayInteractionList @beehiveList(target_type_name: "TrayInteraction")
+    # Get a tray interaction
+    getTrayInteraction(tray_interaction_id: ID!): TrayInteraction @beehiveGet(target_type_name: "TrayInteraction")
+    # Find tray interactions based on one or more of their properties
+    findTrayInteractions(person: ID, tray: ID, interaction_type: TrayInteractionType, page: PaginationInput): TrayInteractionList @beehiveSimpleQuery(target_type_name: "TrayInteraction")
+    # Find tray interactions using a complex query
+    searchTrayInteractions(query: QueryExpression!, page: PaginationInput): TrayInteractionList @beehiveQuery(target_type_name: "TrayInteraction")
 
     # Get the list of social interactions
     socialInteractions(page: PaginationInput): SocialInteractionList @beehiveList(target_type_name: "SocialInteraction")
     # Get a social interaction
     getSocialInteraction(social_interaction_id: ID!): SocialInteraction @beehiveGet(target_type_name: "SocialInteraction")
     # Find social interactions based on one or more of their properties
-    findSocialInteractions(source_type: SourceType, subjects: [ID!], validations: [ID!], page: PaginationInput): SocialInteractionList @beehiveSimpleQuery(target_type_name: "SocialInteraction")
+    findSocialInteractions(source_type: SourceType, persons: [ID!], validations: [ID!], page: PaginationInput): SocialInteractionList @beehiveSimpleQuery(target_type_name: "SocialInteraction")
     # Find social interactions using a complex query
     searchSocialInteractions(query: QueryExpression!, page: PaginationInput): SocialInteractionList @beehiveQuery(target_type_name: "SocialInteraction")
 
@@ -315,6 +375,13 @@ extend type Mutation {
     updateMaterialInteraction(material_interaction_id: ID!, materialInteraction: MaterialInteractionUpdateInput): MaterialInteraction @beehiveUpdate(target_type_name: "MaterialInteraction")
     # Delete a material interaction
     deleteMaterialInteraction(material_interaction_id: ID): DeleteStatusResponse @beehiveDelete(target_type_name: "MaterialInteraction")
+
+    # Create a new tray interaction
+    createTrayInteraction(trayInteraction: TrayInteractionInput): TrayInteraction @beehiveCreate(target_type_name: "TrayInteraction")
+    # Update a tray interaction
+    updateTrayInteraction(tray_interaction_id: ID!, trayInteraction: TrayInteractionUpdateInput): TrayInteraction @beehiveUpdate(target_type_name: "TrayInteraction")
+    # Delete a tray interaction
+    deleteTrayInteraction(tray_interaction_id: ID): DeleteStatusResponse @beehiveDelete(target_type_name: "TrayInteraction")
 
     # Create a new social interaction
     createSocialInteraction(socialInteraction: SocialInteractionInput): SocialInteraction @beehiveCreate(target_type_name: "SocialInteraction")
