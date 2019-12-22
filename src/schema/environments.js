@@ -138,7 +138,7 @@ exports.typeDefs = `
   type EntityAssignment @beehiveAssignmentType(table_name: "entityassignments", assigned_field: "device", assignee_field: "entity", exclusive: true, pk_column: "entity_assignment_id") {
     entity_assignment_id: ID!
     entity_type: EntityType!
-    entity: Entity! @beehiveUnionResolver(target_types: ["Person", "Material"])
+    entity: Entity! @beehiveUnionResolver(target_types: ["Person", "Material", "Tray"])
     device: Device! @beehiveRelation(target_type_name: "Device")
     start: Datetime!
     end: Datetime
@@ -165,11 +165,12 @@ exports.typeDefs = `
     end: Datetime
   }
 
-  union Entity @beehiveUnion = Person | Material
+  union Entity @beehiveUnion = Person | Material | Tray
 
   enum EntityType {
     PERSON
     MATERIAL
+    TRAY
   }
 
   extend type Query {
