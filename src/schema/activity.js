@@ -24,6 +24,33 @@ input MaterialUpdateInput {
     description: String
 }
 
+type Tray @beehiveTable(table_name: "trays", pk_column: "tray_id") {
+    tray_id: ID!
+    name: String
+    part_number: String
+    serial_number: String
+    description: String
+}
+
+type TrayList {
+    data: [Tray!]!
+    page_info: PageInfo!
+}
+
+input TrayInput {
+  name: String
+  part_number: String
+  serial_number: String
+  description: String
+}
+
+input TrayUpdateInput {
+  name: String
+  part_number: String
+  serial_number: String
+  description: String
+}
+
 union Interaction @beehiveUnion = MaterialInteraction | SocialInteraction
 
 type MaterialInteraction @beehiveTable(table_name: "material_interactions", pk_column: "material_interaction_id") {
@@ -228,6 +255,15 @@ extend type Query {
     # Find materials using a complex query
     searchMaterials(query: QueryExpression!, page: PaginationInput): MaterialList @beehiveQuery(target_type_name: "Material")
 
+    # Get the list of trays
+    trays(page: PaginationInput): TrayList @beehiveList(target_type_name: "Tray")
+    # Get a tray
+    getTray(tray_id: ID!): Tray @beehiveGet(target_type_name: "Tray")
+    # Find trays based on one or more of their properties
+    findTrays(name: String, part_number: String, serial_number: String, description: String, page: PaginationInput): TrayList @beehiveSimpleQuery(target_type_name: "Tray")
+    # Find trays using a complex query
+    searchTrays(query: QueryExpression!, page: PaginationInput): TrayList @beehiveQuery(target_type_name: "Tray")
+
     # Get the list of material interactions
     materialInteractions(page: PaginationInput): MaterialInteractionList @beehiveList(target_type_name: "MaterialInteraction")
     # Get a material interaction
@@ -265,6 +301,13 @@ extend type Mutation {
     updateMaterial(material_id: ID!, material: MaterialUpdateInput): Material @beehiveUpdate(target_type_name: "Material")
     # Delete a material
     deleteMaterial(material_id: ID): DeleteStatusResponse @beehiveDelete(target_type_name: "Material")
+
+    # Create a new tray
+    createTray(tray: TrayInput): Tray @beehiveCreate(target_type_name: "Tray")
+    # Update a tray
+    updateTray(tray_id: ID!, tray: TrayUpdateInput): Tray @beehiveUpdate(target_type_name: "Tray")
+    # Delete a tray
+    deleteTray(tray_id: ID): DeleteStatusResponse @beehiveDelete(target_type_name: "Tray")
 
     # Create a new material interaction
     createMaterialInteraction(materialInteraction: MaterialInteractionInput): MaterialInteraction @beehiveCreate(target_type_name: "MaterialInteraction")
