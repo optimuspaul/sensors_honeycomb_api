@@ -21,6 +21,7 @@ exports.typeDefs = `
     name: String
     first_name: String
     last_name: String
+    nickname: String
     short_name: String
     person_type: PersonType
     transparent_classroom_id: Int
@@ -109,6 +110,7 @@ exports.typeDefs = `
     name: String
     first_name: String
     last_name: String
+    nickname: String
     short_name: String
     person_type: PersonType
     transparent_classroom_id: Int
@@ -118,6 +120,7 @@ exports.typeDefs = `
     name: String
     first_name: String
     last_name: String
+    nickname: String
     short_name: String
     person_type: PersonType
     transparent_classroom_id: Int
@@ -190,7 +193,7 @@ exports.typeDefs = `
     # Get a person
     getPerson(person_id: ID!): Person @beehiveGet(target_type_name: "Person")
     # Find people based on one or more of their properties
-    findPersons(name: String, first_name: String, last_name: String, short_name: String, person_type: PersonType, transparent_classroom_id: Int, page: PaginationInput): PersonList @beehiveSimpleQuery(target_type_name: "Person")
+    findPersons(name: String, first_name: String, last_name: String, nickname: String, short_name: String, person_type: PersonType, transparent_classroom_id: Int, page: PaginationInput): PersonList @beehiveSimpleQuery(target_type_name: "Person")
     # Find people using a complex query
     searchPersons(query: QueryExpression!, page: PaginationInput): PersonList @beehiveQuery(target_type_name: "Person")
 
