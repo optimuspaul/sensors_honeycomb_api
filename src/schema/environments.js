@@ -42,6 +42,7 @@ exports.typeDefs = `
   enum AssignableTypeEnum {
     PERSON
     DEVICE
+    MATERIAL
   }
 
   type Layout @beehiveAssignmentType(table_name: "layouts", assigned_field: "environment", exclusive: true, pk_column: "layout_id") {
@@ -77,12 +78,12 @@ exports.typeDefs = `
       end: Datetime
   }
 
-  union Assignable @beehiveUnion = Device | Person
+  union Assignable @beehiveUnion = Device | Person | Material
 
   type Assignment @beehiveAssignmentType(table_name: "assignments", assigned_field: "assigned", assignee_field: "environment", exclusive: true, pk_column: "assignment_id") {
     assignment_id: ID!
     environment: Environment! @beehiveRelation(target_type_name: "Environment")
-    assigned: Assignable! @beehiveUnionResolver(target_types: ["Device", "Person"])
+    assigned: Assignable! @beehiveUnionResolver(target_types: ["Device", "Person", "Material"])
     assigned_type: AssignableTypeEnum!
     start: Datetime!
     end: Datetime
