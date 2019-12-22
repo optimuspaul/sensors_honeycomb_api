@@ -288,7 +288,7 @@ exports.typeDefs = `
     deletePoseModel(pose_model_id: ID): DeleteStatusResponse @beehiveDelete(target_type_name: "PoseModel")
 
     # Create a new position assignment
-    createPositionAssignment(positionAssignment: PositionAssignmentInput!): PositionAssignment @beehiveCreate(target_type_name: "PositionAssignment")
+    assignToPosition(positionAssignment: PositionAssignmentInput!): PositionAssignment @beehiveCreate(target_type_name: "PositionAssignment")
     # Update a position assignment
     updatePositionAssignment(position_assignment_id: ID!, positionAssignment: PositionAssignmentUpdateInput): PositionAssignment @beehiveUpdate(target_type_name: "PositionAssignment")
     # Delete a position assignment
