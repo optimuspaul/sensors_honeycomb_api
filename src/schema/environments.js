@@ -43,6 +43,7 @@ exports.typeDefs = `
     PERSON
     DEVICE
     MATERIAL
+    TRAY
   }
 
   type Layout @beehiveAssignmentType(table_name: "layouts", assigned_field: "environment", exclusive: true, pk_column: "layout_id") {
@@ -78,12 +79,12 @@ exports.typeDefs = `
       end: Datetime
   }
 
-  union Assignable @beehiveUnion = Device | Person | Material
+  union Assignable @beehiveUnion = Device | Person | Material | Tray
 
   type Assignment @beehiveAssignmentType(table_name: "assignments", assigned_field: "assigned", assignee_field: "environment", exclusive: true, pk_column: "assignment_id") {
     assignment_id: ID!
     environment: Environment! @beehiveRelation(target_type_name: "Environment")
-    assigned: Assignable! @beehiveUnionResolver(target_types: ["Device", "Person", "Material"])
+    assigned: Assignable! @beehiveUnionResolver(target_types: ["Device", "Person", "Material", "Tray"])
     assigned_type: AssignableTypeEnum!
     start: Datetime!
     end: Datetime
