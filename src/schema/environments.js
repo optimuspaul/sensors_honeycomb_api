@@ -176,6 +176,33 @@ exports.typeDefs = `
     TRAY
   }
 
+  type MaterialAssignment @beehiveAssignmentType(table_name: "materialassignments", assigned_field: "tray", assignee_field: "material", exclusive: true, pk_column: "material_assignment_id") {
+    material_assignment_id: ID!
+    material: Material! @beehiveRelation(target_type_name: "Material")
+    tray: Tray! @beehiveRelation(target_type_name: "Tray")
+    start: Datetime!
+    end: Datetime
+  }
+
+  type MaterialAssignmentList {
+    data: [MaterialAssignment!]!
+    page_info: PageInfo!
+  }
+
+  input MaterialAssignmentInput {
+    material: ID!
+    tray: ID!
+    start: Datetime!
+    end: Datetime
+  }
+
+  input MaterialAssignmentUpdateInput {
+    material: ID
+    tray: ID
+    start: Datetime
+    end: Datetime
+  }
+
   extend type Query {
     # Get the list of environments
     environments(page: PaginationInput): EnvironmentList @beehiveList(target_type_name: "Environment")
@@ -206,6 +233,15 @@ exports.typeDefs = `
     # Find entity assignments using a complex query
     searchEntityAssignments(query: QueryExpression!, page: PaginationInput): EntityAssignmentList @beehiveQuery(target_type_name: "EntityAssignment")
 
+    # Get the list of material assignments
+    materialAssignments(page: PaginationInput): MaterialAssignmentList @beehiveList(target_type_name: "MaterialAssignment")
+    # Get a material assignment
+    getMaterialAssignment(material_assignment_id: ID!): MaterialAssignment @beehiveGet(target_type_name: "MaterialAssignment")
+    # Find material assignments based on one or more of their properties
+    findMaterialAssignments(material: ID, tray: ID, page: PaginationInput): MaterialAssignmentList @beehiveSimpleQuery(target_type_name: "MaterialAssignment")
+    # Find material assignments using a complex query
+    searchMaterialAssignments(query: QueryExpression!, page: PaginationInput): MaterialAssignmentList @beehiveQuery(target_type_name: "MaterialAssignment")
+
   }
 
   extend type Mutation {
@@ -216,7 +252,7 @@ exports.typeDefs = `
     # Delete an environment
     deleteEnvironment(environment_id: ID): DeleteStatusResponse @beehiveDelete(target_type_name: "Environment")
 
-    # Assign an assignable to an envionemnt
+    # Assign an assignable to an environment
     assignToEnvironment(assignment: AssignmentInput): Assignment @beehiveCreate(target_type_name: "Assignment")
 
     # Update an assignment to set the end date/time of the assignment
@@ -239,6 +275,13 @@ exports.typeDefs = `
     updateEntityAssignment(entity_assignment_id: ID!, entityAssignment: EntityAssignmentUpdateInput): EntityAssignment @beehiveUpdate(target_type_name: "EntityAssignment")
     # Delete an entity assignment
     deleteEntityAssignment(entity_assignment_id: ID): DeleteStatusResponse @beehiveDelete(target_type_name: "EntityAssignment")
+
+    # Assign tray to material
+    assignToMaterial(materialAssignment: MaterialAssignmentInput): MaterialAssignment @beehiveCreate(target_type_name: "MaterialAssignment")
+    # Update a material assignment
+    updateMaterialAssignment(material_assignment_id: ID!, materialAssignment: MaterialAssignmentUpdateInput): MaterialAssignment @beehiveUpdate(target_type_name: "MaterialAssignment")
+    # Delete a material assignment
+    deleteMaterialAssignment(material_assignment_id: ID): DeleteStatusResponse @beehiveDelete(target_type_name: "MaterialAssignment")
 
   }
 
