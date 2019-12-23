@@ -114,7 +114,7 @@ async function createCoordinateSpace(uri) {
                 createPositionAssignment(positionAssignment: {
                         device: "${device_id}",
                         coordinate_space: "${space_id}",
-                        locaton: {x: 0, y: 0, z: 1.37},
+                        location: {x: 0, y: 0, z: 1.37},
                         description: "Top of the Pops",
                         start: "2019-10-10T14:00:00.000Z"
                 }) {
@@ -131,7 +131,7 @@ async function createCoordinateSpace(uri) {
                             name
                         }
                     }
-                    locaton {
+                    location {
                         x
                         y
                         z
@@ -168,7 +168,7 @@ async function createCoordinateSpace(uri) {
                                 name
                             }
                         }
-                        locaton {
+                        location {
                             x
                             y
                             z
@@ -192,6 +192,6 @@ async function createCoordinateSpace(uri) {
 
 
 exports.all = async function(uri) {
-    createEnvironment(uri)
-    createCoordinateSpace(uri)
+    // createEnvironment(uri)
+    // createCoordinateSpace(uri)
 }
