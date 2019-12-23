@@ -76,6 +76,7 @@ async function createCoordinateSpace(uri) {
                   createCoordinateSpace(coordinateSpace: {
                     name: "normal",
                     environment: "${environment_id}",
+                    axis_names: ["x", "y", "x"]
                     start: "2019-10-10T14:00:00.000Z"
                   }) {
                     space_id
@@ -84,6 +85,7 @@ async function createCoordinateSpace(uri) {
                         environment_id
                         name
                     }
+                    axis_names
                     start
                     end
                   }
@@ -111,17 +113,19 @@ async function createCoordinateSpace(uri) {
                     assignment_id
                 }
 
-                createPositionAssignment(positionAssignment: {
-                        device: "${device_id}",
+                assignToPosition(positionAssignment: {
+                        assigned: "${device_id}",
                         coordinate_space: "${space_id}",
-                        location: {x: 0, y: 0, z: 1.37},
+                        coordinates: [1.0, 2.0, 3.0],
                         description: "Top of the Pops",
                         start: "2019-10-10T14:00:00.000Z"
                 }) {
                     position_assignment_id
-                    device {
-                        device_id
-                        name
+                    assigned {
+                        ... on Device {
+                          device_id
+                          name
+                        }
                     }
                     coordinate_space {
                         space_id
@@ -131,11 +135,7 @@ async function createCoordinateSpace(uri) {
                             name
                         }
                     }
-                    location {
-                        x
-                        y
-                        z
-                    }
+                    coordinates
                     description
                     start
                     end
@@ -150,7 +150,7 @@ async function createCoordinateSpace(uri) {
         expect(positionQueryResponse.createPositionAssignment.start).to.equal("2019-10-10T14:00:00.000Z")
         expect(positionQueryResponse.createPositionAssignment.coordinate_space.name).to.equal("normal")
         expect(positionQueryResponse.createPositionAssignment.coordinate_space.environment.name).to.equal("Firmament Montessori")
-        expect(positionQueryResponse.createPositionAssignment.device.name).to.equal("camera-1")
+        expect(positionQueryResponse.createPositionAssignment.assigned.name).to.equal("camera-1")
         const position_assignment_id = positionQueryResponse.createPositionAssignment.position_assignment_id
 
         const devicePosQuery = `
@@ -167,12 +167,9 @@ async function createCoordinateSpace(uri) {
                                 environment_id
                                 name
                             }
+                            axis_names
                         }
-                        location {
-                            x
-                            y
-                            z
-                        }
+                        coordinates
                         description
                         start
                         end
@@ -186,7 +183,7 @@ async function createCoordinateSpace(uri) {
         expect(devicePosQueryResponse.getDevice.positions.length).to.equal(1)
         expect(devicePosQueryResponse.getDevice.positions[0].position_assignment_id).to.equal(position_assignment_id)
 
-        
+
     })
 }
 

@@ -21,6 +21,7 @@ exports.typeDefs = `
     name: String
     first_name: String
     last_name: String
+    nickname: String
     short_name: String
     person_type: PersonType
     transparent_classroom_id: Int
@@ -42,6 +43,8 @@ exports.typeDefs = `
   enum AssignableTypeEnum {
     PERSON
     DEVICE
+    MATERIAL
+    TRAY
   }
 
   type Layout @beehiveAssignmentType(table_name: "layouts", assigned_field: "environment", exclusive: true, pk_column: "layout_id") {
@@ -77,12 +80,12 @@ exports.typeDefs = `
       end: Datetime
   }
 
-  union Assignable @beehiveUnion = Device | Person
+  union Assignable @beehiveUnion = Device | Person | Material | Tray
 
   type Assignment @beehiveAssignmentType(table_name: "assignments", assigned_field: "assigned", assignee_field: "environment", exclusive: true, pk_column: "assignment_id") {
     assignment_id: ID!
     environment: Environment! @beehiveRelation(target_type_name: "Environment")
-    assigned: Assignable! @beehiveUnionResolver(target_types: ["Device", "Person"])
+    assigned: Assignable! @beehiveUnionResolver(target_types: ["Device", "Person", "Material", "Tray"])
     assigned_type: AssignableTypeEnum!
     start: Datetime!
     end: Datetime
@@ -107,6 +110,7 @@ exports.typeDefs = `
     name: String
     first_name: String
     last_name: String
+    nickname: String
     short_name: String
     person_type: PersonType
     transparent_classroom_id: Int
@@ -116,6 +120,7 @@ exports.typeDefs = `
     name: String
     first_name: String
     last_name: String
+    nickname: String
     short_name: String
     person_type: PersonType
     transparent_classroom_id: Int
@@ -130,6 +135,71 @@ exports.typeDefs = `
   }
 
   input AssignmentUpdateInput {
+    end: Datetime
+  }
+
+  type EntityAssignment @beehiveAssignmentType(table_name: "entityassignments", assigned_field: "device", assignee_field: "entity", exclusive: true, pk_column: "entity_assignment_id") {
+    entity_assignment_id: ID!
+    entity_type: EntityType!
+    entity: Entity! @beehiveUnionResolver(target_types: ["Person", "Material", "Tray"])
+    device: Device! @beehiveRelation(target_type_name: "Device")
+    start: Datetime!
+    end: Datetime
+  }
+
+  type EntityAssignmentList {
+    data: [EntityAssignment!]!
+    page_info: PageInfo!
+  }
+
+  input EntityAssignmentInput {
+    entity_type: EntityType!
+    entity: ID!
+    device: ID!
+    start: Datetime!
+    end: Datetime
+  }
+
+  input EntityAssignmentUpdateInput {
+    entity_type: EntityType
+    entity: ID
+    device: ID
+    start: Datetime
+    end: Datetime
+  }
+
+  union Entity @beehiveUnion = Person | Material | Tray
+
+  enum EntityType {
+    PERSON
+    MATERIAL
+    TRAY
+  }
+
+  type MaterialAssignment @beehiveAssignmentType(table_name: "materialassignments", assigned_field: "tray", assignee_field: "material", exclusive: true, pk_column: "material_assignment_id") {
+    material_assignment_id: ID!
+    material: Material! @beehiveRelation(target_type_name: "Material")
+    tray: Tray! @beehiveRelation(target_type_name: "Tray")
+    start: Datetime!
+    end: Datetime
+  }
+
+  type MaterialAssignmentList {
+    data: [MaterialAssignment!]!
+    page_info: PageInfo!
+  }
+
+  input MaterialAssignmentInput {
+    material: ID!
+    tray: ID!
+    start: Datetime!
+    end: Datetime
+  }
+
+  input MaterialAssignmentUpdateInput {
+    material: ID
+    tray: ID
+    start: Datetime
     end: Datetime
   }
 
@@ -150,9 +220,28 @@ exports.typeDefs = `
     # Get a person
     getPerson(person_id: ID!): Person @beehiveGet(target_type_name: "Person")
     # Find people based on one or more of their properties
-    findPersons(name: String, first_name: String, last_name: String, short_name: String, person_type: PersonType, transparent_classroom_id: Int, page: PaginationInput): PersonList @beehiveSimpleQuery(target_type_name: "Person")
+    findPersons(name: String, first_name: String, last_name: String, nickname: String, short_name: String, person_type: PersonType, transparent_classroom_id: Int, page: PaginationInput): PersonList @beehiveSimpleQuery(target_type_name: "Person")
     # Find people using a complex query
     searchPersons(query: QueryExpression!, page: PaginationInput): PersonList @beehiveQuery(target_type_name: "Person")
+
+    # Get the list of entity assignments
+    entityAssignments(page: PaginationInput): EntityAssignmentList @beehiveList(target_type_name: "EntityAssignment")
+    # Get an entity assignment
+    getEntityAssignment(entity_assignment_id: ID!): EntityAssignment @beehiveGet(target_type_name: "EntityAssignment")
+    # Find entity assignments based on one or more of their properties
+    findEntityAssignments(entity_type: EntityType, entity: ID, device: ID, page: PaginationInput): EntityAssignmentList @beehiveSimpleQuery(target_type_name: "EntityAssignment")
+    # Find entity assignments using a complex query
+    searchEntityAssignments(query: QueryExpression!, page: PaginationInput): EntityAssignmentList @beehiveQuery(target_type_name: "EntityAssignment")
+
+    # Get the list of material assignments
+    materialAssignments(page: PaginationInput): MaterialAssignmentList @beehiveList(target_type_name: "MaterialAssignment")
+    # Get a material assignment
+    getMaterialAssignment(material_assignment_id: ID!): MaterialAssignment @beehiveGet(target_type_name: "MaterialAssignment")
+    # Find material assignments based on one or more of their properties
+    findMaterialAssignments(material: ID, tray: ID, page: PaginationInput): MaterialAssignmentList @beehiveSimpleQuery(target_type_name: "MaterialAssignment")
+    # Find material assignments using a complex query
+    searchMaterialAssignments(query: QueryExpression!, page: PaginationInput): MaterialAssignmentList @beehiveQuery(target_type_name: "MaterialAssignment")
+
   }
 
   extend type Mutation {
@@ -163,7 +252,7 @@ exports.typeDefs = `
     # Delete an environment
     deleteEnvironment(environment_id: ID): DeleteStatusResponse @beehiveDelete(target_type_name: "Environment")
 
-    # Assign an assignable to an envionemnt
+    # Assign an assignable to an environment
     assignToEnvironment(assignment: AssignmentInput): Assignment @beehiveCreate(target_type_name: "Assignment")
 
     # Update an assignment to set the end date/time of the assignment
@@ -179,6 +268,21 @@ exports.typeDefs = `
     updatePerson(person_id: ID!, person: PersonUpdateInput): Person @beehiveUpdate(target_type_name: "Person")
     # Delete a person
     deletePerson(person_id: ID): DeleteStatusResponse @beehiveDelete(target_type_name: "Person")
+
+    # Assign device to entity
+    assignToEntity(entityAssignment: EntityAssignmentInput): EntityAssignment @beehiveCreate(target_type_name: "EntityAssignment")
+    # Update an entity assignment
+    updateEntityAssignment(entity_assignment_id: ID!, entityAssignment: EntityAssignmentUpdateInput): EntityAssignment @beehiveUpdate(target_type_name: "EntityAssignment")
+    # Delete an entity assignment
+    deleteEntityAssignment(entity_assignment_id: ID): DeleteStatusResponse @beehiveDelete(target_type_name: "EntityAssignment")
+
+    # Assign tray to material
+    assignToMaterial(materialAssignment: MaterialAssignmentInput): MaterialAssignment @beehiveCreate(target_type_name: "MaterialAssignment")
+    # Update a material assignment
+    updateMaterialAssignment(material_assignment_id: ID!, materialAssignment: MaterialAssignmentUpdateInput): MaterialAssignment @beehiveUpdate(target_type_name: "MaterialAssignment")
+    # Delete a material assignment
+    deleteMaterialAssignment(material_assignment_id: ID): DeleteStatusResponse @beehiveDelete(target_type_name: "MaterialAssignment")
+
   }
 
 `
