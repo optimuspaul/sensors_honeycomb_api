@@ -74,7 +74,7 @@ type MaterialInteraction @beehiveTable(table_name: "material_interactions", pk_c
     # Type of engagement
     engagement_type: EngagementType
     # Validations
-    validations: [InteractionValidation!] @beehiveRelation(target_type_name: "InteractionValidation")
+    validations: [InteractionValidation!] @beehiveRelationFilter(target_type_name: "InteractionValidation", target_field_name: "interaction")
 }
 
 type MaterialInteractionList {
@@ -196,7 +196,7 @@ type TrayInteraction @beehiveTable(table_name: "tray_interactions", pk_column: "
     # Type of tray interaction
     interaction_type: TrayInteractionType
     # Validations
-    validations: [InteractionValidation!] @beehiveRelation(target_type_name: "InteractionValidation")
+    validations: [InteractionValidation!] @beehiveRelationFilter(target_type_name: "InteractionValidation", target_field_name: "interaction")
 }
 
 type TrayInteractionList {
@@ -243,7 +243,7 @@ type SocialInteraction @beehiveTable(table_name: "social_interactions", pk_colum
     # End time of the interaction
     end: Datetime
     # Validations
-    validations: [InteractionValidation!] @beehiveRelation(target_type_name: "InteractionValidation")
+    validations: [InteractionValidation!] @beehiveRelationFilter(target_type_name: "InteractionValidation", target_field_name: "interaction")
 }
 
 type SocialInteractionList {
