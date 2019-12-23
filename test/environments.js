@@ -158,7 +158,6 @@ async function createCoordinateSpace(uri) {
                 getDevice(device_id: "${device_id}") {
                     device_id
                     name
-                    }
                 }
             }
         `
