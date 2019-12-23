@@ -158,21 +158,6 @@ async function createCoordinateSpace(uri) {
                 getDevice(device_id: "${device_id}") {
                     device_id
                     name
-                    positions(current: true) {
-                        position_assignment_id
-                        coordinate_space {
-                            space_id
-                            name
-                            environment {
-                                environment_id
-                                name
-                            }
-                            axis_names
-                        }
-                        coordinates
-                        description
-                        start
-                        end
                     }
                 }
             }
@@ -180,8 +165,6 @@ async function createCoordinateSpace(uri) {
         var devicePosQueryResponse = await request(uri, devicePosQuery)
         expect(devicePosQueryResponse).to.not.equal(null)
         expect(devicePosQueryResponse.getDevice.device_id).to.equal(device_id)
-        expect(devicePosQueryResponse.getDevice.positions.length).to.equal(1)
-        expect(devicePosQueryResponse.getDevice.positions[0].position_assignment_id).to.equal(position_assignment_id)
 
 
     })
