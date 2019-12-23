@@ -168,7 +168,7 @@ exports.typeDefs = `
     quality: Float
   }
 
-  type PositionAssignment @beehiveAssignmentType(table_name: "position_assignments", assigned_field: "assignment", exclusive: true, pk_column: "position_assignment_id") {
+  type PositionAssignment @beehiveTable(table_name: "position_assignments", pk_column: "position_assignment_id") {
     position_assignment_id: ID!
     assignment: Assignment! @beehiveRelation(target_type_name: "Assignment")
     coordinate_space: CoordinateSpace! @beehiveRelation(target_type_name: "CoordinateSpace")
