@@ -76,6 +76,7 @@ async function createCoordinateSpace(uri) {
                   createCoordinateSpace(coordinateSpace: {
                     name: "normal",
                     environment: "${environment_id}",
+                    axis_names: ["x", "y", "x"]
                     start: "2019-10-10T14:00:00.000Z"
                   }) {
                     space_id
@@ -84,6 +85,7 @@ async function createCoordinateSpace(uri) {
                         environment_id
                         name
                     }
+                    axis_names
                     start
                     end
                   }
@@ -111,10 +113,10 @@ async function createCoordinateSpace(uri) {
                     assignment_id
                 }
 
-                createPositionAssignment(positionAssignment: {
+                assignToPosition(positionAssignment: {
                         device: "${device_id}",
                         coordinate_space: "${space_id}",
-                        locaton: {x: 0, y: 0, z: 1.37},
+                        coordinates: [1.0, 2.0, 3.0],
                         description: "Top of the Pops",
                         start: "2019-10-10T14:00:00.000Z"
                 }) {
@@ -131,11 +133,7 @@ async function createCoordinateSpace(uri) {
                             name
                         }
                     }
-                    locaton {
-                        x
-                        y
-                        z
-                    }
+                    coordinates
                     description
                     start
                     end
@@ -167,12 +165,9 @@ async function createCoordinateSpace(uri) {
                                 environment_id
                                 name
                             }
+                            axis_names
                         }
-                        locaton {
-                            x
-                            y
-                            z
-                        }
+                        coordinates
                         description
                         start
                         end
@@ -186,7 +181,7 @@ async function createCoordinateSpace(uri) {
         expect(devicePosQueryResponse.getDevice.positions.length).to.equal(1)
         expect(devicePosQueryResponse.getDevice.positions[0].position_assignment_id).to.equal(position_assignment_id)
 
-        
+
     })
 }
 
