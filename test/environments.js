@@ -145,13 +145,13 @@ async function createCoordinateSpace(uri) {
         var positionQueryResponse = await request(uri, positionQuery)
         expect(positionQueryResponse).to.not.equal(null)
         expect(positionQueryResponse.assignToEnvironment.assignment_id).to.not.equal(null)
-        expect(positionQueryResponse.createPositionAssignment.position_assignment_id).to.not.equal(null)
-        expect(positionQueryResponse.createPositionAssignment.description).to.equal("Top of the Pops")
-        expect(positionQueryResponse.createPositionAssignment.start).to.equal("2019-10-10T14:00:00.000Z")
-        expect(positionQueryResponse.createPositionAssignment.coordinate_space.name).to.equal("normal")
-        expect(positionQueryResponse.createPositionAssignment.coordinate_space.environment.name).to.equal("Firmament Montessori")
-        expect(positionQueryResponse.createPositionAssignment.assigned.name).to.equal("camera-1")
-        const position_assignment_id = positionQueryResponse.createPositionAssignment.position_assignment_id
+        expect(positionQueryResponse.assignToPosition.position_assignment_id).to.not.equal(null)
+        expect(positionQueryResponse.assignToPosition.description).to.equal("Top of the Pops")
+        expect(positionQueryResponse.assignToPosition.start).to.equal("2019-10-10T14:00:00.000Z")
+        expect(positionQueryResponse.assignToPosition.coordinate_space.name).to.equal("normal")
+        expect(positionQueryResponse.assignToPosition.coordinate_space.environment.name).to.equal("Firmament Montessori")
+        expect(positionQueryResponse.assignToPosition.assigned.name).to.equal("camera-1")
+        const position_assignment_id = positionQueryResponse.assignToPosition.position_assignment_id
 
         const devicePosQuery = `
             query {
@@ -189,6 +189,6 @@ async function createCoordinateSpace(uri) {
 
 
 exports.all = async function(uri) {
-    // createEnvironment(uri)
-    // createCoordinateSpace(uri)
+    createEnvironment(uri)
+    createCoordinateSpace(uri)
 }
