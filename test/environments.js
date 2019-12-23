@@ -76,7 +76,7 @@ async function createCoordinateSpace(uri) {
                   createCoordinateSpace(coordinateSpace: {
                     name: "normal",
                     environment: "${environment_id}",
-                    axis_names: ["x", "y", "x"]
+                    axis_names: ["x", "y", "x"],
                     start: "2019-10-10T14:00:00.000Z"
                   }) {
                     space_id
