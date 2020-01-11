@@ -170,6 +170,7 @@ exports.typeDefs = `
 
   type PositionAssignment @beehiveTable(table_name: "position_assignments", pk_column: "position_assignment_id") {
     position_assignment_id: ID!
+    assigned_type: AssignableTypeEnum
     assigned: Assignable! @beehiveUnionResolver(target_types: ["Device", "Person", "Material", "Tray"])
     coordinate_space: CoordinateSpace! @beehiveRelation(target_type_name: "CoordinateSpace")
     coordinates: [Float!]!
@@ -184,6 +185,7 @@ exports.typeDefs = `
   }
 
   input PositionAssignmentInput {
+    assigned_type: AssignableTypeEnum
     assigned: ID!
     coordinate_space: ID!
     coordinates: [Float!]!
@@ -193,6 +195,7 @@ exports.typeDefs = `
   }
 
   input PositionAssignmentUpdateInput {
+    assigned_type: AssignableTypeEnum
     assigned: ID
     coordinate_space: ID
     coordinates: [Float!]
@@ -253,7 +256,7 @@ exports.typeDefs = `
     # Get a position assignment
     getPositionAssignment(position_assignment_id: ID!): PositionAssignment @beehiveGet(target_type_name: "PositionAssignment")
     # Find position assignments based on one or more of their properties
-    findPositionAssignments(assigned: ID, coordinate_space: ID, page: PaginationInput): PositionAssignmentList @beehiveSimpleQuery(target_type_name: "PositionAssignment")
+    findPositionAssignments(assigned_type: AssignableTypeEnum, assigned: ID, coordinate_space: ID, page: PaginationInput): PositionAssignmentList @beehiveSimpleQuery(target_type_name: "PositionAssignment")
     # Find position assignments using a complex query
     searchPositionAssignments(query: QueryExpression!, page: PaginationInput): PositionAssignmentList @beehiveQuery(target_type_name: "PositionAssignment")
   }
