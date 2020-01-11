@@ -52,11 +52,18 @@ exports.typeDefs = `
 
   enum DeviceType {
     PI3
+    PI3WITHCAMERA
     PIZERO
+    PIZEROWITHCAMERA
     UWBANCHOR
     UWBTAG
     BLEANCHOR
     BLETAG
+    WEMO
+    CONTROL
+    GATEWAY
+    DECAWAVE
+    TEST
     OTHER
   }
 
