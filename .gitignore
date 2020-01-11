@@ -22,3 +22,5 @@ auth\.py
 *.bak
 
 db_check/
+
+*.log
