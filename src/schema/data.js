@@ -70,22 +70,21 @@ type Position @beehiveTable(
     native_indexes: [
         {name: "created", type: btree, columns: ["created"]},
         {name: "timestamp", type: btree, columns: ["timestamp"]},
-        {name: "associations_ts", type: btree, columns: ["associations", "timestamp"]},
+        {name: "object_ts", type: btree, columns: ["object", "timestamp"]},
         {name: "source_ts", type: btree, columns: ["source", "timestamp"]},
         {name: "source_ts_tags", type: btree, columns: ["source", "timestamp", "tags"]},
         {name: "tags_ts", type: btree, columns: ["tags", "timestamp"]}
     ]
 ) {
     position_id: ID!
-    parents: [Datapoint] @beehiveRelation(target_type_name: "Datapoint")
     # Timestamp that the data was observed, measured, or inferred.
     timestamp: Datetime!
     # Coordinate space in which the position is specified
     coordinate_space: CoordinateSpace! @beehiveRelation(target_type_name: "CoordinateSpace")
+    # Object associated with this position
+    object: Positionable! @beehiveUnionResolver(target_types: ["Device", "Material", "Tray", "Person", "Environment"])
     # Coordinates of the position in the specified coordinate space
     coordinates: [Float!]!
-    # Which objects are associated with this data
-    associations: [Association!] @beehiveUnionResolver(target_types: ["Device", "Environment", "Person", "Material"])
     # duration of the data included in this observation. time should be expressed in milliseconds. If not set then assumed to be a snapshot observation without a duration
     duration: Int
     # where did the data originate
@@ -95,6 +94,8 @@ type Position @beehiveTable(
     tags: [String!]
 }
 
+union Positionable @beehiveUnion = Device | Material |Tray | Person | Environment
+
 type PositionList{
     data: [Position!]
     page_info: PageInfo!
@@ -103,9 +104,8 @@ type PositionList{
 input PositionInput {
     timestamp: Datetime!
     coordinate_space: ID!
+    object: ID!
     coordinates: [Float!]!
-    associations: [ID!]
-    parents: [ID!]
     duration: Int
     source: ID
     source_type: DataSourceType
