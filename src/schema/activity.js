@@ -6,8 +6,10 @@ type Material @beehiveTable(table_name: "material", pk_column: "material_id") {
     transparent_classroom_id: Int
     transparent_classroom_type: TransparentClassroomLessonType
     description: String
-    # Entity assignments associated with this device
+    # Entity assignments associated with this material
     entity_assignments: [EntityAssignment!] @beehiveAssignmentFilter(target_type_name: "EntityAssignment", assignee_field: "entity")
+    # Material assignments associated with this material
+    material_assignments: [MaterialAssignment!] @beehiveAssignmentFilter(target_type_name: "MaterialAssignment", assignee_field: "material")
 }
 
 type MaterialList {
@@ -41,8 +43,10 @@ type Tray @beehiveTable(table_name: "trays", pk_column: "tray_id") {
     part_number: String
     serial_number: String
     description: String
-    # Entity assignments associated with this device
+    # Entity assignments associated with this tray
     entity_assignments: [EntityAssignment!] @beehiveAssignmentFilter(target_type_name: "EntityAssignment", assignee_field: "entity")
+    # Material assignments associated with this tray
+    material_assignments: [MaterialAssignment!] @beehiveAssignmentFilter(target_type_name: "MaterialAssignment", assignee_field: "tray")
 }
 
 type TrayList {

@@ -38,7 +38,7 @@ exports.typeDefs = `
     short_name: String
     person_type: PersonType
     transparent_classroom_id: Int
-    # Entity assignments associated with this device
+    # Entity assignments associated with this person
     entity_assignments: [EntityAssignment!] @beehiveAssignmentFilter(target_type_name: "EntityAssignment", assignee_field: "entity")
   }
 
