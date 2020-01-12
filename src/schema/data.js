@@ -62,6 +62,55 @@ input DatapointUpdateInput {
     tags: [String!]
 }
 
+type RadioPing @beehiveTable(
+    table_name: "radiopings",
+    pk_column: "radio_ping_id",
+    table_type: native,
+    native_exclude: ["signal_strength", "time_of_flight"],
+    native_indexes: [
+        {name: "created", type: btree, columns: ["created"]},
+        {name: "timestamp", type: btree, columns: ["timestamp"]},
+        {name: "tag_device_ts", type: btree, columns: ["tag_device", "timestamp"]},
+        {name: "anchor_device_ts", type: btree, columns: ["anchor_device", "timestamp"]},
+        {name: "source_ts", type: btree, columns: ["source", "timestamp"]},
+        {name: "source_ts_tags", type: btree, columns: ["source", "timestamp", "tags"]},
+        {name: "tags_ts", type: btree, columns: ["tags", "timestamp"]}
+    ]
+) {
+    radio_ping_id: ID!
+    # Timestamp that the data was observed, measured, or inferred.
+    timestamp: Datetime!
+    # Tag device associated with this ping
+    tag_device: Device! @beehiveRelation(target_type_name: "Device")
+    # Anchor device associated with this ping
+    anchor_device: Device! @beehiveRelation(target_type_name: "Device")
+    # Signal strength of the ping
+    signal_strength: Float
+    # Time of flight of the ping
+    time_of_flight: Float
+    # where did the data originate
+    source: SourceObject @beehiveUnionResolver(target_types: ["Assignment", "Person", "InferenceExecution", "Environment"])
+    source_type: DataSourceType
+    # tags used to identify datapoints for classification
+    tags: [String!]
+}
+
+type RadioPingList{
+    data: [RadioPing!]
+    page_info: PageInfo!
+}
+
+input RadioPingInput {
+    timestamp: Datetime!
+    tag_device: ID!
+    anchor_device: ID!
+    signal_strength: Float
+    time_of_flight: Float
+    source: ID
+    source_type: DataSourceType
+    tags: [String!]
+}
+
 type Position @beehiveTable(
     table_name: "positions",
     pk_column: "position_id",
@@ -217,6 +266,13 @@ extend type Query {
     # Find datapoints using a complex query
     searchDatapoints(query: QueryExpression!, page: PaginationInput): DatapointList @beehiveQuery(target_type_name: "Datapoint")
 
+    # Get the list of radio pings
+    radioPings(page: PaginationInput): RadioPingList @beehiveList(target_type_name: "RadioPing")
+    # Get a radio ping
+    getRadioPing(radio_ping_id: ID!): RadioPing @beehiveGet(target_type_name: "RadioPing")
+    # Find positions using a complex query
+    searchRadioPings(query: QueryExpression!, page: PaginationInput): RadioPingList @beehiveQuery(target_type_name: "RadioPing")
+
     # Get the list of positions
     positions(page: PaginationInput): PositionList @beehiveList(target_type_name: "Position")
     # Get a position
@@ -246,6 +302,11 @@ extend type Mutation {
     createDatapoint(datapoint: DatapointInput): Datapoint @beehiveCreate(target_type_name: "Datapoint", s3_file_fields: ["file"])
     # Delete a datapoint
     deleteDatapoint(data_id: ID): DeleteStatusResponse @beehiveDelete(target_type_name: "Datapoint")
+
+    # Create a new radio ping
+    createRadioPing(radioPing: RadioPingInput): RadioPing @beehiveCreate(target_type_name: "RadioPing")
+    # Delete a radio ping
+    deleteRadioPing(radio_ping_id: ID): DeleteStatusResponse @beehiveDelete(target_type_name: "RadioPing")
 
     # Create a new position
     createPosition(position: PositionInput): Position @beehiveCreate(target_type_name: "Position")
