@@ -24,6 +24,8 @@ exports.typeDefs = `
     configurations: [DeviceConfiguration!] @beehiveAssignmentFilter(target_type_name: "DeviceConfiguration", assignee_field: "device")
     # Environment assignments associated with this device
     assignments: [Assignment!] @beehiveAssignmentFilter(target_type_name: "Assignment", assignee_field: "assigned")
+    # Entity assignments associated with this device
+    entity_assignments: [EntityAssignment!] @beehiveAssignmentFilter(target_type_name: "EntityAssignment", assignee_field: "device")
     # Radio pings associated with this device acting as an anchor
     radio_pings_as_anchor: [RadioPing!] @beehiveRelationFilter(target_type_name: "RadioPing", target_field_name: "anchor_device")
     # Radio pings associated with this device acting as a tag
