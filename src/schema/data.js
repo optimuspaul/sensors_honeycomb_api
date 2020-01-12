@@ -81,17 +81,18 @@ type RadioPing @beehiveTable(
     # Timestamp that the data was observed, measured, or inferred.
     timestamp: Datetime!
     # Tag device associated with this ping
-    tag_device: Device! @beehiveRelation(target_type_name: "Device")
+    tag_device: Device! @beehiveRelation(target_type_name: "Device", target_field_name: "radio_pings_as_tag")
     # Anchor device associated with this ping
-    anchor_device: Device! @beehiveRelation(target_type_name: "Device")
+    anchor_device: Device! @beehiveRelation(target_type_name: "Device", target_field_name: "radio_pings_as_anchor")
     # Signal strength of the ping
     signal_strength: Float
     # Time of flight of the ping
     time_of_flight: Float
-    # where did the data originate
+    # Source of the data
     source: SourceObject @beehiveUnionResolver(target_types: ["Assignment", "Person", "InferenceExecution", "Environment"])
+    # Source type of the data source
     source_type: DataSourceType
-    # tags used to identify datapoints for classification
+    # Tags used to identify datapoints for classification
     tags: [String!]
 }
 
