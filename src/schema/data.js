@@ -127,7 +127,6 @@ type Pose @beehiveTable(
     ]
 ) {
     pose_id: ID!
-    parents: [Datapoint] @beehiveRelation(target_type_name: "Datapoint")
     # Timestamp that the data was observed, measured, or inferred.
     timestamp: Datetime!
     # Coordinate space in which the keypoints are specified
@@ -153,7 +152,6 @@ type PoseList{
 }
 
 input PoseInput {
-    parents: [ID!]
     timestamp: Datetime!
     coordinate_space: ID!
     pose_model: ID!
