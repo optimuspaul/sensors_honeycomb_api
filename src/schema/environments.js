@@ -106,7 +106,7 @@ exports.typeDefs = `
     assigned_type: AssignableTypeEnum!
     start: Datetime!
     end: Datetime
-    data: [Datapoint!] @beehiveRelationFilter(target_type_name: "Datapoint", target_field_name: "observer")
+    data: [Datapoint!] @beehiveRelationFilter(target_type_name: "Datapoint", target_field_name: "source")
   }
 
   type AssignmentList {
