@@ -36,6 +36,8 @@ exports.typeDefs = `
     device: Device! @beehiveRelation(target_type_name: "Device")
     camera_matrix: [[Float!]!]!
     distortion_coefficients: [Float!]!
+    image_width: Int!
+    image_height: Int!
   }
 
   type IntrinsicCalibrationList {
@@ -49,6 +51,8 @@ exports.typeDefs = `
     device: ID!
     camera_matrix: [[Float!]!]!
     distortion_coefficients: [Float!]!
+    image_width: Int!
+    image_height: Int!
   }
 
   input IntrinsicCalibrationUpdateInput {
@@ -57,6 +61,8 @@ exports.typeDefs = `
     device: ID
     camera_matrix: [[Float!]!]
     distortion_coefficients: [Float!]
+    image_width: Int
+    image_height: Int
   }
 
   type ExtrinsicCalibration @beehiveAssignmentType(table_name: "extrinsiccalibrations", assigned_field: "device", exclusive: true, pk_column: "extrinsic_calibration_id") {
