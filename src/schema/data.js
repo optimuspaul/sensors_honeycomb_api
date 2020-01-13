@@ -116,7 +116,7 @@ type Position @beehiveTable(
     table_name: "positions",
     pk_column: "position_id",
     table_type: native,
-    native_exclude: ["coordinates"],
+    native_exclude: ["coordinates", "duration"],
     native_indexes: [
         {name: "created", type: btree, columns: ["created"]},
         {name: "timestamp", type: btree, columns: ["timestamp"]},
@@ -166,7 +166,7 @@ type Pose @beehiveTable(
     table_name: "poses",
     pk_column: "pose_id",
     table_type: native,
-    native_exclude: ["keypoints"],
+    native_exclude: ["keypoints", "duration"],
     native_indexes: [
         {name: "created", type: btree, columns: ["created"]},
         {name: "timestamp", type: btree, columns: ["timestamp"]},
