@@ -46,6 +46,10 @@ exports.typeDefs = `
     material_interactions: [MaterialInteraction!] @beehiveRelationFilter(target_type_name: "MaterialInteraction", target_field_name: "person")
     # Tray interactions associated with this person
     tray_interactions: [TrayInteraction!] @beehiveRelationFilter(target_type_name: "TrayInteraction", target_field_name: "person")
+    # 3D poses associated with this person
+    poses3d: [Pose3D!] @beehiveRelationFilter(target_type_name: "Pose3D", target_field_name: "person")
+    # 2D poses associated with this person
+    poses2d: [Pose2D!] @beehiveRelationFilter(target_type_name: "Pose2D", target_field_name: "person")
   }
 
   type PersonList {

@@ -36,6 +36,8 @@ exports.typeDefs = `
     radio_pings_as_anchor: [RadioPing!] @beehiveRelationFilter(target_type_name: "RadioPing", target_field_name: "anchor_device")
     # Radio pings associated with this device acting as a tag
     radio_pings_as_tag: [RadioPing!] @beehiveRelationFilter(target_type_name: "RadioPing", target_field_name: "tag_device")
+    # 2D poses associated with this device
+    poses2d: [Pose2D!] @beehiveRelationFilter(target_type_name: "Pose2D", target_field_name: "camera")
   }
 
   type DeviceList {
