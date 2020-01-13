@@ -81,9 +81,9 @@ type RadioPing @beehiveTable(
     # Timestamp that the data was observed, measured, or inferred.
     timestamp: Datetime!
     # Tag device associated with this ping
-    tag_device: Device! @beehiveRelation(target_type_name: "Device", target_field_name: "radio_pings_as_tag")
+    tag_device: Device! @beehiveRelation(target_type_name: "Device")
     # Anchor device associated with this ping
-    anchor_device: Device! @beehiveRelation(target_type_name: "Device", target_field_name: "radio_pings_as_anchor")
+    anchor_device: Device! @beehiveRelation(target_type_name: "Device")
     # Signal strength of the ping
     signal_strength: Float
     # Time of flight of the ping
