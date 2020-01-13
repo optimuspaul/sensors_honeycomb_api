@@ -62,30 +62,79 @@ input DatapointUpdateInput {
     tags: [String!]
 }
 
+type RadioPing @beehiveTable(
+    table_name: "radiopings",
+    pk_column: "radio_ping_id",
+    table_type: native,
+    native_exclude: ["signal_strength", "time_of_flight"],
+    native_indexes: [
+        {name: "created", type: btree, columns: ["created"]},
+        {name: "timestamp", type: btree, columns: ["timestamp"]},
+        {name: "tag_device_ts", type: btree, columns: ["tag_device", "timestamp"]},
+        {name: "anchor_device_ts", type: btree, columns: ["anchor_device", "timestamp"]},
+        {name: "source_ts", type: btree, columns: ["source", "timestamp"]},
+        {name: "source_ts_tags", type: btree, columns: ["source", "timestamp", "tags"]},
+        {name: "tags_ts", type: btree, columns: ["tags", "timestamp"]}
+    ]
+) {
+    radio_ping_id: ID!
+    # Timestamp that the data was observed, measured, or inferred.
+    timestamp: Datetime!
+    # Tag device associated with this ping
+    tag_device: Device! @beehiveRelation(target_type_name: "Device")
+    # Anchor device associated with this ping
+    anchor_device: Device! @beehiveRelation(target_type_name: "Device")
+    # Signal strength of the ping
+    signal_strength: Float
+    # Time of flight of the ping
+    time_of_flight: Float
+    # Source of the data
+    source: SourceObject @beehiveUnionResolver(target_types: ["Assignment", "Person", "InferenceExecution", "Environment"])
+    # Source type of the data source
+    source_type: DataSourceType
+    # Tags used to identify datapoints for classification
+    tags: [String!]
+}
+
+type RadioPingList{
+    data: [RadioPing!]
+    page_info: PageInfo!
+}
+
+input RadioPingInput {
+    timestamp: Datetime!
+    tag_device: ID!
+    anchor_device: ID!
+    signal_strength: Float
+    time_of_flight: Float
+    source: ID
+    source_type: DataSourceType
+    tags: [String!]
+}
+
 type Position @beehiveTable(
     table_name: "positions",
     pk_column: "position_id",
     table_type: native,
-    native_exclude: ["coordinates"],
+    native_exclude: ["coordinates", "duration"],
     native_indexes: [
         {name: "created", type: btree, columns: ["created"]},
         {name: "timestamp", type: btree, columns: ["timestamp"]},
-        {name: "associations_ts", type: btree, columns: ["associations", "timestamp"]},
+        {name: "object_ts", type: btree, columns: ["object", "timestamp"]},
         {name: "source_ts", type: btree, columns: ["source", "timestamp"]},
         {name: "source_ts_tags", type: btree, columns: ["source", "timestamp", "tags"]},
         {name: "tags_ts", type: btree, columns: ["tags", "timestamp"]}
     ]
 ) {
     position_id: ID!
-    parents: [Datapoint] @beehiveRelation(target_type_name: "Datapoint")
     # Timestamp that the data was observed, measured, or inferred.
     timestamp: Datetime!
     # Coordinate space in which the position is specified
     coordinate_space: CoordinateSpace! @beehiveRelation(target_type_name: "CoordinateSpace")
+    # Object associated with this position
+    object: Positionable! @beehiveUnionResolver(target_types: ["Device", "Material", "Tray", "Person", "Environment"])
     # Coordinates of the position in the specified coordinate space
     coordinates: [Float!]!
-    # Which objects are associated with this data
-    associations: [Association!] @beehiveUnionResolver(target_types: ["Device", "Environment", "Person", "Material"])
     # duration of the data included in this observation. time should be expressed in milliseconds. If not set then assumed to be a snapshot observation without a duration
     duration: Int
     # where did the data originate
@@ -95,6 +144,8 @@ type Position @beehiveTable(
     tags: [String!]
 }
 
+union Positionable @beehiveUnion = Device | Material |Tray | Person | Environment
+
 type PositionList{
     data: [Position!]
     page_info: PageInfo!
@@ -103,20 +154,19 @@ type PositionList{
 input PositionInput {
     timestamp: Datetime!
     coordinate_space: ID!
+    object: ID!
     coordinates: [Float!]!
-    associations: [ID!]
-    parents: [ID!]
     duration: Int
     source: ID
     source_type: DataSourceType
     tags: [String!]
 }
 
-type Pose @beehiveTable(
-    table_name: "poses",
+type Pose3D @beehiveTable(
+    table_name: "poses3d",
     pk_column: "pose_id",
     table_type: native,
-    native_exclude: ["keypoints"],
+    native_exclude: ["keypoints", "duration"],
     native_indexes: [
         {name: "created", type: btree, columns: ["created"]},
         {name: "timestamp", type: btree, columns: ["timestamp"]},
@@ -127,7 +177,6 @@ type Pose @beehiveTable(
     ]
 ) {
     pose_id: ID!
-    parents: [Datapoint] @beehiveRelation(target_type_name: "Datapoint")
     # Timestamp that the data was observed, measured, or inferred.
     timestamp: Datetime!
     # Coordinate space in which the keypoints are specified
@@ -147,15 +196,65 @@ type Pose @beehiveTable(
     tags: [String!]
 }
 
-type PoseList{
-    data: [Pose!]
+type Pose3DList{
+    data: [Pose3D!]
     page_info: PageInfo!
 }
 
-input PoseInput {
-    parents: [ID!]
+input Pose3DInput {
     timestamp: Datetime!
     coordinate_space: ID!
+    pose_model: ID!
+    keypoints: [KeypointInput!]!
+    person: ID
+    duration: Int
+    source: ID
+    source_type: DataSourceType
+    tags: [String!]
+}
+
+type Pose2D @beehiveTable(
+    table_name: "poses2d",
+    pk_column: "pose_id",
+    table_type: native,
+    native_exclude: ["keypoints", "duration"],
+    native_indexes: [
+        {name: "created", type: btree, columns: ["created"]},
+        {name: "timestamp", type: btree, columns: ["timestamp"]},
+        {name: "person_ts", type: btree, columns: ["person", "timestamp"]},
+        {name: "source_ts", type: btree, columns: ["source", "timestamp"]},
+        {name: "source_ts_tags", type: btree, columns: ["source", "timestamp", "tags"]},
+        {name: "tags_ts", type: btree, columns: ["tags", "timestamp"]}
+    ]
+) {
+    pose_id: ID!
+    # Timestamp that the data was observed, measured, or inferred.
+    timestamp: Datetime!
+    # Camera associated with this pose
+    camera: Device! @beehiveRelation(target_type_name: "Device")
+    # Pose model from which the keypoints are derived
+    pose_model: PoseModel! @beehiveRelation(target_type_name: "PoseModel")
+    # Keypoints of the pose in the specified coordinate space
+    keypoints: [Keypoint!]!
+    # Person associated with this pose
+    person: Person @beehiveRelation(target_type_name: "Person")
+    # duration of the data included in this observation. time should be expressed in milliseconds. If not set then assumed to be a snapshot observation without a duration
+    duration: Int
+    # where did the data originate
+    source: SourceObject @beehiveUnionResolver(target_types: ["Assignment", "Person", "InferenceExecution", "Environment"])
+    source_type: DataSourceType
+    # tags used to identify datapoints for classification
+    tags: [String!]
+}
+
+type Pose2DList{
+    data: [Pose2D!]
+    page_info: PageInfo!
+}
+
+input Pose2DInput {
+    timestamp: Datetime!
+    camera: ID!
     pose_model: ID!
     keypoints: [KeypointInput!]!
     person: ID
@@ -219,6 +318,13 @@ extend type Query {
     # Find datapoints using a complex query
     searchDatapoints(query: QueryExpression!, page: PaginationInput): DatapointList @beehiveQuery(target_type_name: "Datapoint")
 
+    # Get the list of radio pings
+    radioPings(page: PaginationInput): RadioPingList @beehiveList(target_type_name: "RadioPing")
+    # Get a radio ping
+    getRadioPing(radio_ping_id: ID!): RadioPing @beehiveGet(target_type_name: "RadioPing")
+    # Find positions using a complex query
+    searchRadioPings(query: QueryExpression!, page: PaginationInput): RadioPingList @beehiveQuery(target_type_name: "RadioPing")
+
     # Get the list of positions
     positions(page: PaginationInput): PositionList @beehiveList(target_type_name: "Position")
     # Get a position
@@ -226,12 +332,19 @@ extend type Query {
     # Find positions using a complex query
     searchPositions(query: QueryExpression!, page: PaginationInput): PositionList @beehiveQuery(target_type_name: "Position")
 
-    # Get the list of poses
-    poses(page: PaginationInput): PoseList @beehiveList(target_type_name: "Pose")
-    # Get a pose
-    getPose(pose_id: ID!): Pose @beehiveGet(target_type_name: "Pose")
-    # Find poses using a complex query
-    searchPoses(query: QueryExpression!, page: PaginationInput): PoseList @beehiveQuery(target_type_name: "Pose")
+    # Get the list of 3D poses
+    poses3D(page: PaginationInput): Pose3DList @beehiveList(target_type_name: "Pose3D")
+    # Get a 3D pose
+    getPose3D(pose_id: ID!): Pose3D @beehiveGet(target_type_name: "Pose3D")
+    # Find 3D poses using a complex query
+    searchPoses3D(query: QueryExpression!, page: PaginationInput): Pose3DList @beehiveQuery(target_type_name: "Pose3D")
+
+    # Get the list of 2D poses
+    poses2D(page: PaginationInput): Pose2DList @beehiveList(target_type_name: "Pose2D")
+    # Get a 2D pose
+    getPose2D(pose_id: ID!): Pose2D @beehiveGet(target_type_name: "Pose2D")
+    # Find 2D poses using a complex query
+    searchPoses2D(query: QueryExpression!, page: PaginationInput): Pose2DList @beehiveQuery(target_type_name: "Pose2D")
 
     # Get the list of inference executions
     inferenceExecutions(page: PaginationInput): InferenceExecutionList @beehiveList(target_type_name: "InferenceExecution")
@@ -249,15 +362,25 @@ extend type Mutation {
     # Delete a datapoint
     deleteDatapoint(data_id: ID): DeleteStatusResponse @beehiveDelete(target_type_name: "Datapoint")
 
+    # Create a new radio ping
+    createRadioPing(radioPing: RadioPingInput): RadioPing @beehiveCreate(target_type_name: "RadioPing")
+    # Delete a radio ping
+    deleteRadioPing(radio_ping_id: ID): DeleteStatusResponse @beehiveDelete(target_type_name: "RadioPing")
+
     # Create a new position
     createPosition(position: PositionInput): Position @beehiveCreate(target_type_name: "Position")
     # Delete a position
     deletePosition(position_id: ID): DeleteStatusResponse @beehiveDelete(target_type_name: "Position")
 
-    # Create a new pose
-    createPose(pose: PoseInput): Pose @beehiveCreate(target_type_name: "Pose")
-    # Delete a pose
-    deletePose(pose_id: ID): DeleteStatusResponse @beehiveDelete(target_type_name: "Pose")
+    # Create a new 3D pose
+    createPose3D(pose3D: Pose3DInput): Pose3D @beehiveCreate(target_type_name: "Pose3D")
+    # Delete a 3D pose
+    deletePose3D(pose_id: ID): DeleteStatusResponse @beehiveDelete(target_type_name: "Pose3D")
+
+    # Create a new 2D pose
+    createPose2D(pose2D: Pose2DInput): Pose2D @beehiveCreate(target_type_name: "Pose2D")
+    # Delete a 2D pose
+    deletePose2D(pose_id: ID): DeleteStatusResponse @beehiveDelete(target_type_name: "Pose2D")
 
     tagDatapoint(data_id: ID!, tags: [String!]!): Datapoint! @beehiveListFieldAppend(target_type_name: "Datapoint", field_name: "tags", input_field_name: "tags")
     untagDatapoint(data_id: ID!, tags: [String!]!): Datapoint! @beehiveListFieldDelete(target_type_name: "Datapoint", field_name: "tags", input_field_name: "tags")

@@ -10,11 +10,24 @@ exports.typeDefs = `
     layouts: [Layout!] @beehiveAssignmentFilter(target_type_name: "Layout", assignee_field: "environment")
   }
 
-
   type EnvironmentList {
     data: [Environment!]!
     page_info: PageInfo!
-}
+  }
+
+  input EnvironmentInput {
+    name: String!
+    transparent_classroom_id: Int
+    description: String
+    location: String
+  }
+
+  input EnvironmentUpdateInput {
+    name: String
+    transparent_classroom_id: Int
+    description: String
+    location: String
+  }
 
   type Person @beehiveTable(table_name: "persons", pk_column: "person_id") {
     person_id: ID!
@@ -25,6 +38,18 @@ exports.typeDefs = `
     short_name: String
     person_type: PersonType
     transparent_classroom_id: Int
+    # Position assignments associated with this device
+    position_assignments: [PositionAssignment!] @beehiveAssignmentFilter(target_type_name: "PositionAssignment", assignee_field: "assigned")
+    # Entity assignments associated with this person
+    entity_assignments: [EntityAssignment!] @beehiveAssignmentFilter(target_type_name: "EntityAssignment", assignee_field: "entity")
+    # Material interactions associated with this person
+    material_interactions: [MaterialInteraction!] @beehiveRelationFilter(target_type_name: "MaterialInteraction", target_field_name: "person")
+    # Tray interactions associated with this person
+    tray_interactions: [TrayInteraction!] @beehiveRelationFilter(target_type_name: "TrayInteraction", target_field_name: "person")
+    # 3D poses associated with this person
+    poses3d: [Pose3D!] @beehiveRelationFilter(target_type_name: "Pose3D", target_field_name: "person")
+    # 2D poses associated with this person
+    poses2d: [Pose2D!] @beehiveRelationFilter(target_type_name: "Pose2D", target_field_name: "person")
   }
 
   type PersonList {
@@ -89,21 +114,28 @@ exports.typeDefs = `
     assigned_type: AssignableTypeEnum!
     start: Datetime!
     end: Datetime
-    data: [Datapoint!] @beehiveRelationFilter(target_type_name: "Datapoint", target_field_name: "observer")
+    data: [Datapoint!] @beehiveRelationFilter(target_type_name: "Datapoint", target_field_name: "source")
   }
 
-  input EnvironmentInput {
-    name: String!
-    transparent_classroom_id: Int
-    description: String
-    location: String
+  type AssignmentList {
+    data: [Assignment!]!
+    page_info: PageInfo!
   }
 
-  input EnvironmentUpdateInput {
-    name: String
-    transparent_classroom_id: Int
-    description: String
-    location: String
+  input AssignmentInput {
+    environment: ID!
+    assigned_type: AssignableTypeEnum!
+    assigned: ID!
+    start: Datetime
+    end: Datetime
+  }
+
+  input AssignmentUpdateInput {
+    environment: ID
+    assigned_type: AssignableTypeEnum
+    assigned: ID
+    start: Datetime
+    end: Datetime
   }
 
   input PersonInput {
@@ -124,18 +156,6 @@ exports.typeDefs = `
     short_name: String
     person_type: PersonType
     transparent_classroom_id: Int
-  }
-
-  input AssignmentInput {
-    environment: ID!
-    assigned_type: AssignableTypeEnum!
-    assigned: ID!
-    start: Datetime
-    end: Datetime
-  }
-
-  input AssignmentUpdateInput {
-    end: Datetime
   }
 
   type EntityAssignment @beehiveAssignmentType(table_name: "entityassignments", assigned_field: "device", assignee_field: "entity", exclusive: true, pk_column: "entity_assignment_id") {
@@ -215,6 +235,15 @@ exports.typeDefs = `
     # Find environments using a complex query
     searchEnvironments(query: QueryExpression!, page: PaginationInput): EnvironmentList @beehiveQuery(target_type_name: "Environment")
 
+    # Get the list of environment assignments
+    assignments(page: PaginationInput): AssignmentList @beehiveList(target_type_name: "Assignment")
+    # Get an environment assignment
+    getAssignment(assignment_id: ID!): Assignment @beehiveGet(target_type_name: "Assignment")
+    # Find environment assignments based on one or more of their properties
+    findAssignments(assignment_id: ID, environment: ID, assigned: ID, assigned_type: AssignableTypeEnum, page: PaginationInput): AssignmentList @beehiveSimpleQuery(target_type_name: "Assignment")
+    # Find environment assignments using a complex query
+    searchAssignments(query: QueryExpression!, page: PaginationInput): AssignmentList @beehiveQuery(target_type_name: "Assignment")
+
     # Get the list of people
     persons(page: PaginationInput): PersonList @beehiveList(target_type_name: "Person")
     # Get a person
@@ -254,9 +283,12 @@ exports.typeDefs = `
 
     # Assign an assignable to an environment
     assignToEnvironment(assignment: AssignmentInput): Assignment @beehiveCreate(target_type_name: "Assignment")
-
-    # Update an assignment to set the end date/time of the assignment
+    # Update an environment assignment
     updateAssignment(assignment_id: ID!, assignment: AssignmentUpdateInput): Assignment @beehiveUpdate(target_type_name: "Assignment")
+    # Delete an environment assignment
+    deleteAssignment(assignment_id: ID): DeleteStatusResponse @beehiveDelete(target_type_name: "Assignment")
+
+
     # creates a new Layout, which represents the basic shape of an enviroment.
     createLayout(layout: LayoutInput): Layout @beehiveCreate(target_type_name: "Layout")
     # set the end date for a Layout

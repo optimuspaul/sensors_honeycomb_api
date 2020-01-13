@@ -29,13 +29,15 @@ exports.typeDefs = `
     z: Float!
   }
 
-  type IntrinsicCalibration @beehiveTable(table_name: "intrinsiccalibrations", pk_column: "intrinsic_calibration_id") {
+  type IntrinsicCalibration @beehiveAssignmentType(table_name: "intrinsiccalibrations", assigned_field: "device", exclusive: true, pk_column: "intrinsic_calibration_id") {
     intrinsic_calibration_id: ID!
     start: Datetime!
     end: Datetime
-    sensor_installation: SensorInstallation! @beehiveRelation(target_type_name: "SensorInstallation")
+    device: Device! @beehiveRelation(target_type_name: "Device")
     camera_matrix: [[Float!]!]!
     distortion_coefficients: [Float!]!
+    image_width: Int!
+    image_height: Int!
   }
 
   type IntrinsicCalibrationList {
@@ -46,24 +48,28 @@ exports.typeDefs = `
   input IntrinsicCalibrationInput {
     start: Datetime!
     end: Datetime
-    sensor_installation: ID!
+    device: ID!
     camera_matrix: [[Float!]!]!
     distortion_coefficients: [Float!]!
+    image_width: Int!
+    image_height: Int!
   }
 
   input IntrinsicCalibrationUpdateInput {
     start: Datetime
     end: Datetime
-    sensor_installation: ID
+    device: ID
     camera_matrix: [[Float!]!]
     distortion_coefficients: [Float!]
+    image_width: Int
+    image_height: Int
   }
 
-  type ExtrinsicCalibration @beehiveTable(table_name: "extrinsiccalibrations", pk_column: "extrinsic_calibration_id") {
+  type ExtrinsicCalibration @beehiveAssignmentType(table_name: "extrinsiccalibrations", assigned_field: "device", exclusive: true, pk_column: "extrinsic_calibration_id") {
     extrinsic_calibration_id: ID!
     start: Datetime!
     end: Datetime
-    sensor_installation: SensorInstallation! @beehiveRelation(target_type_name: "SensorInstallation")
+    device: Device! @beehiveRelation(target_type_name: "Device")
     coordinate_space: CoordinateSpace! @beehiveRelation(target_type_name: "CoordinateSpace")
     translation_vector: [Float!]!
     rotation_vector: [Float!]!
@@ -77,7 +83,7 @@ exports.typeDefs = `
   input ExtrinsicCalibrationInput {
     start: Datetime!
     end: Datetime
-    sensor_installation: ID!
+    device: ID!
     coordinate_space: ID!
     translation_vector: [Float!]!
     rotation_vector: [Float!]!
@@ -86,7 +92,7 @@ exports.typeDefs = `
   input ExtrinsicCalibrationUpdateInput {
     start: Datetime
     end: Datetime
-    sensor_installation: ID
+    device: ID
     coordinate_space: ID
     translation_vector: [Float!]
     rotation_vector: [Float!]
@@ -168,13 +174,14 @@ exports.typeDefs = `
     quality: Float
   }
 
-  type PositionAssignment @beehiveTable(table_name: "position_assignments", pk_column: "position_assignment_id") {
+  type PositionAssignment @beehiveAssignmentType(table_name: "position_assignments", assigned_field: "assigned", exclusive: true, pk_column: "position_assignment_id") {
     position_assignment_id: ID!
+    assigned_type: AssignableTypeEnum
     assigned: Assignable! @beehiveUnionResolver(target_types: ["Device", "Person", "Material", "Tray"])
     coordinate_space: CoordinateSpace! @beehiveRelation(target_type_name: "CoordinateSpace")
     coordinates: [Float!]!
     description: String
-    start: Datetime
+    start: Datetime!
     end: Datetime
   }
 
@@ -184,6 +191,7 @@ exports.typeDefs = `
   }
 
   input PositionAssignmentInput {
+    assigned_type: AssignableTypeEnum
     assigned: ID!
     coordinate_space: ID!
     coordinates: [Float!]!
@@ -193,6 +201,7 @@ exports.typeDefs = `
   }
 
   input PositionAssignmentUpdateInput {
+    assigned_type: AssignableTypeEnum
     assigned: ID
     coordinate_space: ID
     coordinates: [Float!]
@@ -212,8 +221,8 @@ exports.typeDefs = `
     intrinsicCalibrations(page: PaginationInput): IntrinsicCalibrationList @beehiveList(target_type_name: "IntrinsicCalibration")
     # Get an intrinsic calibration
     getIntrinsicCalibration(intrinsic_calibration_id: ID!): IntrinsicCalibration @beehiveGet(target_type_name: "IntrinsicCalibration")
-    # Find instrinsic calibrations based on one or more of their properties
-    findIntrinsicCalibrations(sensor_installation: ID, page: PaginationInput): IntrinsicCalibrationList @beehiveSimpleQuery(target_type_name: "IntrinsicCalibration")
+    # Find intrinsic calibrations based on one or more of their properties
+    findIntrinsicCalibrations(device: ID, page: PaginationInput): IntrinsicCalibrationList @beehiveSimpleQuery(target_type_name: "IntrinsicCalibration")
     # Find intrinsic calibrations using a complex query
     searchIntrinsicCalibrations(query: QueryExpression!, page: PaginationInput): IntrinsicCalibrationList @beehiveQuery(target_type_name: "IntrinsicCalibration")
 
@@ -222,7 +231,7 @@ exports.typeDefs = `
     # Get an extrinsic calibration
     getExtrinsicCalibration(extrinsic_calibration_id: ID!): ExtrinsicCalibration @beehiveGet(target_type_name: "ExtrinsicCalibration")
     # Find extrinsic calibrations based on one or more of their properties
-    findExtrinsicCalibrations(sensor_installation: ID, coordinate_space: ID, page: PaginationInput): ExtrinsicCalibrationList @beehiveSimpleQuery(target_type_name: "ExtrinsicCalibration")
+    findExtrinsicCalibrations(device: ID, coordinate_space: ID, page: PaginationInput): ExtrinsicCalibrationList @beehiveSimpleQuery(target_type_name: "ExtrinsicCalibration")
     # Find extrinsic calibrations using a complex query
     searchExtrinsicCalibrations(query: QueryExpression!, page: PaginationInput): ExtrinsicCalibrationList @beehiveQuery(target_type_name: "ExtrinsicCalibration")
 
@@ -253,7 +262,7 @@ exports.typeDefs = `
     # Get a position assignment
     getPositionAssignment(position_assignment_id: ID!): PositionAssignment @beehiveGet(target_type_name: "PositionAssignment")
     # Find position assignments based on one or more of their properties
-    findPositionAssignments(assigned: ID, coordinate_space: ID, page: PaginationInput): PositionAssignmentList @beehiveSimpleQuery(target_type_name: "PositionAssignment")
+    findPositionAssignments(assigned_type: AssignableTypeEnum, assigned: ID, coordinate_space: ID, page: PaginationInput): PositionAssignmentList @beehiveSimpleQuery(target_type_name: "PositionAssignment")
     # Find position assignments using a complex query
     searchPositionAssignments(query: QueryExpression!, page: PaginationInput): PositionAssignmentList @beehiveQuery(target_type_name: "PositionAssignment")
   }

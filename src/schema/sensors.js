@@ -10,17 +10,34 @@ exports.typeDefs = `
     device_type: DeviceType
     # A name for the device.
     name: String
-    # tag_id is the information printed on an identifier label on the device itself
+    # The tag_id is the information printed on an identifier label on the device itself
     tag_id: String
-    # A serial number specific to the device, could be a manufacturer id or a wildflower assigner number that is unique to the device.
+    # A serial number specific to the device, could be a manufacturer ID or a Wildflower assigner number that is unique to the device
     serial_number: String
-    # mac address(s) associated with the network interface(s) of the device
+    # The mac address(s) associated with the network interface(s) of the device
     mac_address: [String!]
-    # a long description for the device.
+    # A long description for the device
     description: String
+    # Sensors installed on this device
     sensors: [SensorInstallation!]! @beehiveRelation(target_type_name: "SensorInstallation", target_field_name: "device")
+    # Configurations associated with this device
     configurations: [DeviceConfiguration!] @beehiveAssignmentFilter(target_type_name: "DeviceConfiguration", assignee_field: "device")
+    # Environment assignments associated with this device
     assignments: [Assignment!] @beehiveAssignmentFilter(target_type_name: "Assignment", assignee_field: "assigned")
+    # Position assignments associated with this device
+    position_assignments: [PositionAssignment!] @beehiveAssignmentFilter(target_type_name: "PositionAssignment", assignee_field: "assigned")
+    # Intrinsic calibration data associated with this device
+    intrinsic_calibrations: [IntrinsicCalibration!] @beehiveAssignmentFilter(target_type_name: "IntrinsicCalibration", assignee_field: "device")
+    # Extrinsic calibration data associated with this device
+    extrinsic_calibrations: [ExtrinsicCalibration!] @beehiveAssignmentFilter(target_type_name: "ExtrinsicCalibration", assignee_field: "device")
+    # Entity assignments associated with this device
+    entity_assignments: [EntityAssignment!] @beehiveAssignmentFilter(target_type_name: "EntityAssignment", assignee_field: "device")
+    # Radio pings associated with this device acting as an anchor
+    radio_pings_as_anchor: [RadioPing!] @beehiveRelationFilter(target_type_name: "RadioPing", target_field_name: "anchor_device")
+    # Radio pings associated with this device acting as a tag
+    radio_pings_as_tag: [RadioPing!] @beehiveRelationFilter(target_type_name: "RadioPing", target_field_name: "tag_device")
+    # 2D poses associated with this device
+    poses2d: [Pose2D!] @beehiveRelationFilter(target_type_name: "Pose2D", target_field_name: "camera")
   }
 
   type DeviceList {
@@ -52,11 +69,18 @@ exports.typeDefs = `
 
   enum DeviceType {
     PI3
+    PI3WITHCAMERA
     PIZERO
+    PIZEROWITHCAMERA
     UWBANCHOR
     UWBTAG
     BLEANCHOR
     BLETAG
+    WEMO
+    CONTROL
+    GATEWAY
+    DECAWAVE
+    TEST
     OTHER
   }
 
