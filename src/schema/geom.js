@@ -29,7 +29,7 @@ exports.typeDefs = `
     z: Float!
   }
 
-  type IntrinsicCalibration @beehiveTable(table_name: "intrinsiccalibrations", pk_column: "intrinsic_calibration_id") {
+  type IntrinsicCalibration @beehiveAssignmentType(table_name: "intrinsiccalibrations", assigned_field: "device", exclusive: true, pk_column: "intrinsic_calibration_id") {
     intrinsic_calibration_id: ID!
     start: Datetime!
     end: Datetime
@@ -59,7 +59,7 @@ exports.typeDefs = `
     distortion_coefficients: [Float!]
   }
 
-  type ExtrinsicCalibration @beehiveTable(table_name: "extrinsiccalibrations", pk_column: "extrinsic_calibration_id") {
+  type ExtrinsicCalibration @beehiveAssignmentType(table_name: "extrinsiccalibrations", assigned_field: "device", exclusive: true, pk_column: "extrinsic_calibration_id") {
     extrinsic_calibration_id: ID!
     start: Datetime!
     end: Datetime

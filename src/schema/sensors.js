@@ -26,6 +26,10 @@ exports.typeDefs = `
     assignments: [Assignment!] @beehiveAssignmentFilter(target_type_name: "Assignment", assignee_field: "assigned")
     # Position assignments associated with this device
     position_assignments: [PositionAssignment!] @beehiveAssignmentFilter(target_type_name: "PositionAssignment", assignee_field: "assigned")
+    # Intrinsic calibration data associated with this device
+    intrinsic_calibrations: [IntrinsicCalibration!] @beehiveAssignmentFilter(target_type_name: "IntrinsicCalibration", assignee_field: "device")
+    # Extrinsic calibration data associated with this device
+    extrinsic_calibrations: [ExtrinsicCalibration!] @beehiveAssignmentFilter(target_type_name: "ExtrinsicCalibration", assignee_field: "device")
     # Entity assignments associated with this device
     entity_assignments: [EntityAssignment!] @beehiveAssignmentFilter(target_type_name: "EntityAssignment", assignee_field: "device")
     # Radio pings associated with this device acting as an anchor
