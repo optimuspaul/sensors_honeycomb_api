@@ -12,6 +12,8 @@ type Material @beehiveTable(table_name: "material", pk_column: "material_id") {
     entity_assignments: [EntityAssignment!] @beehiveAssignmentFilter(target_type_name: "EntityAssignment", assignee_field: "entity")
     # Material assignments associated with this material
     material_assignments: [MaterialAssignment!] @beehiveAssignmentFilter(target_type_name: "MaterialAssignment", assignee_field: "material")
+    # Material interactions associated with this material
+    material_interactions: [MaterialInteraction!] @beehiveRelationFilter(target_type_name: "MaterialInteraction", target_field_name: "material")
 }
 
 type MaterialList {
@@ -51,6 +53,8 @@ type Tray @beehiveTable(table_name: "trays", pk_column: "tray_id") {
     entity_assignments: [EntityAssignment!] @beehiveAssignmentFilter(target_type_name: "EntityAssignment", assignee_field: "entity")
     # Material assignments associated with this tray
     material_assignments: [MaterialAssignment!] @beehiveAssignmentFilter(target_type_name: "MaterialAssignment", assignee_field: "tray")
+    # Tray interactions associated with this tray
+    tray_interactions: [TrayInteraction!] @beehiveRelationFilter(target_type_name: "TrayInteraction", target_field_name: "tray")
 }
 
 type TrayList {
