@@ -162,8 +162,8 @@ input PositionInput {
     tags: [String!]
 }
 
-type Pose @beehiveTable(
-    table_name: "poses",
+type Pose3D @beehiveTable(
+    table_name: "poses3d",
     pk_column: "pose_id",
     table_type: native,
     native_exclude: ["keypoints", "duration"],
@@ -196,12 +196,12 @@ type Pose @beehiveTable(
     tags: [String!]
 }
 
-type PoseList{
-    data: [Pose!]
+type Pose3DList{
+    data: [Pose3D!]
     page_info: PageInfo!
 }
 
-input PoseInput {
+input Pose3DInput {
     timestamp: Datetime!
     coordinate_space: ID!
     pose_model: ID!
@@ -281,12 +281,12 @@ extend type Query {
     # Find positions using a complex query
     searchPositions(query: QueryExpression!, page: PaginationInput): PositionList @beehiveQuery(target_type_name: "Position")
 
-    # Get the list of poses
-    poses(page: PaginationInput): PoseList @beehiveList(target_type_name: "Pose")
-    # Get a pose
-    getPose(pose_id: ID!): Pose @beehiveGet(target_type_name: "Pose")
-    # Find poses using a complex query
-    searchPoses(query: QueryExpression!, page: PaginationInput): PoseList @beehiveQuery(target_type_name: "Pose")
+    # Get the list of 3D poses
+    poses3D(page: PaginationInput): Pose3DList @beehiveList(target_type_name: "Pose3D")
+    # Get a 3D pose
+    getPose3D(pose_id: ID!): Pose3D @beehiveGet(target_type_name: "Pose3D")
+    # Find 3D poses using a complex query
+    searchPoses3D(query: QueryExpression!, page: PaginationInput): Pose3DList @beehiveQuery(target_type_name: "Pose3D")
 
     # Get the list of inference executions
     inferenceExecutions(page: PaginationInput): InferenceExecutionList @beehiveList(target_type_name: "InferenceExecution")
@@ -314,10 +314,10 @@ extend type Mutation {
     # Delete a position
     deletePosition(position_id: ID): DeleteStatusResponse @beehiveDelete(target_type_name: "Position")
 
-    # Create a new pose
-    createPose(pose: PoseInput): Pose @beehiveCreate(target_type_name: "Pose")
-    # Delete a pose
-    deletePose(pose_id: ID): DeleteStatusResponse @beehiveDelete(target_type_name: "Pose")
+    # Create a new 3D pose
+    createPose3D(pose3D: Pose3DInput): Pose3D @beehiveCreate(target_type_name: "Pose3D")
+    # Delete a 3D pose
+    deletePose3D(pose_id: ID): DeleteStatusResponse @beehiveDelete(target_type_name: "Pose3D")
 
     tagDatapoint(data_id: ID!, tags: [String!]!): Datapoint! @beehiveListFieldAppend(target_type_name: "Datapoint", field_name: "tags", input_field_name: "tags")
     untagDatapoint(data_id: ID!, tags: [String!]!): Datapoint! @beehiveListFieldDelete(target_type_name: "Datapoint", field_name: "tags", input_field_name: "tags")
