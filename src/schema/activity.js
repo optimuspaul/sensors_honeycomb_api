@@ -76,7 +76,7 @@ input TrayUpdateInput {
   description: String
 }
 
-union Interaction @beehiveUnion = MaterialInteraction | SocialInteraction | TrayInteraction
+union Interaction @beehiveUnion = MaterialInteraction | TrayInteraction
 
 type MaterialInteraction @beehiveTable(table_name: "material_interactions", pk_column: "material_interaction_id") {
     material_interaction_id: ID!
@@ -257,44 +257,9 @@ enum TrayInteractionType {
     OTHER
 }
 
-type SocialInteraction @beehiveTable(table_name: "social_interactions", pk_column: "social_interaction_id") {
-    social_interaction_id: ID!
-    # Source of the interaction information (ground truth or inference)
-    source_type: SourceType!
-    # People engaged in the interaction
-    persons: [Person!]! @beehiveRelation(target_type_name: "Person")
-    # Start time of the interaction
-    start: Datetime!
-    # End time of the interaction
-    end: Datetime
-    # Validations
-    validations: [InteractionValidation!] @beehiveRelation(target_type_name: "InteractionValidation", target_field_name: "interaction")
-}
-
-type SocialInteractionList {
-    data: [SocialInteraction!]!
-    page_info: PageInfo!
-}
-
-input SocialInteractionInput {
-    source_type: SourceType!
-    persons: [ID!]!
-    start: Datetime!
-    end: Datetime
-    validations: [ID!]
-}
-
-input SocialInteractionUpdateInput {
-    source_type: SourceType
-    persons: [ID!]
-    start: Datetime
-    end: Datetime
-    validations: [ID!]
-}
-
 type InteractionValidation @beehiveTable(table_name: "interaction_validations", pk_column: "interaction_validation_id") {
     interaction_validation_id: ID!
-    interaction: Interaction! @beehiveUnionResolver(target_types: ["MaterialInteraction", "SocialInteraction", "TrayInteraction"])
+    interaction: Interaction! @beehiveUnionResolver(target_types: ["MaterialInteraction", "TrayInteraction"])
     validator: Person! @beehiveRelation(target_type_name: "Person")
     validated_at: Datetime
     quality_of_interaction: Int
@@ -360,15 +325,6 @@ extend type Query {
     # Find tray interactions using a complex query
     searchTrayInteractions(query: QueryExpression!, page: PaginationInput): TrayInteractionList @beehiveQuery(target_type_name: "TrayInteraction")
 
-    # Get the list of social interactions
-    socialInteractions(page: PaginationInput): SocialInteractionList @beehiveList(target_type_name: "SocialInteraction")
-    # Get a social interaction
-    getSocialInteraction(social_interaction_id: ID!): SocialInteraction @beehiveGet(target_type_name: "SocialInteraction")
-    # Find social interactions based on one or more of their properties
-    findSocialInteractions(source_type: SourceType, persons: [ID!], validations: [ID!], page: PaginationInput): SocialInteractionList @beehiveSimpleQuery(target_type_name: "SocialInteraction")
-    # Find social interactions using a complex query
-    searchSocialInteractions(query: QueryExpression!, page: PaginationInput): SocialInteractionList @beehiveQuery(target_type_name: "SocialInteraction")
-
     # Get the list of interaction validations
     interactionValidations(page: PaginationInput): InteractionValidationList @beehiveList(target_type_name: "InteractionValidation")
     # Get an interaction validation
@@ -407,13 +363,6 @@ extend type Mutation {
     updateTrayInteraction(tray_interaction_id: ID!, trayInteraction: TrayInteractionUpdateInput): TrayInteraction @beehiveUpdate(target_type_name: "TrayInteraction")
     # Delete a tray interaction
     deleteTrayInteraction(tray_interaction_id: ID): DeleteStatusResponse @beehiveDelete(target_type_name: "TrayInteraction")
-
-    # Create a new social interaction
-    createSocialInteraction(socialInteraction: SocialInteractionInput): SocialInteraction @beehiveCreate(target_type_name: "SocialInteraction")
-    # Update a social interaction
-    updateSocialInteraction(social_interaction_id: ID!, socialInteraction: SocialInteractionUpdateInput): SocialInteraction @beehiveUpdate(target_type_name: "SocialInteraction")
-    # Delete a social interaction
-    deleteSocialInteraction(social_interaction_id: ID!): DeleteStatusResponse @beehiveDelete(target_type_name: "SocialInteraction")
 
     # Create a new interaction validation
     createInteractionValidation(interactionValidation: InteractionValidationInput): InteractionValidation @beehiveCreate(target_type_name: "InteractionValidation")
