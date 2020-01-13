@@ -38,8 +38,8 @@ exports.typeDefs = `
     short_name: String
     person_type: PersonType
     transparent_classroom_id: Int
-    # Position assignments associated with this person
-    position_assignments: [PositionAssignment!] @beehiveRelation(target_type_name: "PositionAssignment")
+    # Position assignments associated with this device
+    position_assignments: [PositionAssignment!] @beehiveAssignmentFilter(target_type_name: "PositionAssignment", assignee_field: "assigned")
     # Entity assignments associated with this person
     entity_assignments: [EntityAssignment!] @beehiveAssignmentFilter(target_type_name: "EntityAssignment", assignee_field: "entity")
   }

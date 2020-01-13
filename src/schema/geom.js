@@ -168,14 +168,14 @@ exports.typeDefs = `
     quality: Float
   }
 
-  type PositionAssignment @beehiveTable(table_name: "position_assignments", pk_column: "position_assignment_id") {
+  type PositionAssignment @beehiveAssignmentType(table_name: "position_assignments", assigned_field: "assigned", exclusive: true, pk_column: "position_assignment_id") {
     position_assignment_id: ID!
     assigned_type: AssignableTypeEnum
     assigned: Assignable! @beehiveUnionResolver(target_types: ["Device", "Person", "Material", "Tray"])
     coordinate_space: CoordinateSpace! @beehiveRelation(target_type_name: "CoordinateSpace")
     coordinates: [Float!]!
     description: String
-    start: Datetime
+    start: Datetime!
     end: Datetime
   }
 
