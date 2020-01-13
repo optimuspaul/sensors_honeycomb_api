@@ -213,6 +213,57 @@ input Pose3DInput {
     tags: [String!]
 }
 
+type Pose2D @beehiveTable(
+    table_name: "poses2d",
+    pk_column: "pose_id",
+    table_type: native,
+    native_exclude: ["keypoints", "duration"],
+    native_indexes: [
+        {name: "created", type: btree, columns: ["created"]},
+        {name: "timestamp", type: btree, columns: ["timestamp"]},
+        {name: "person_ts", type: btree, columns: ["person", "timestamp"]},
+        {name: "source_ts", type: btree, columns: ["source", "timestamp"]},
+        {name: "source_ts_tags", type: btree, columns: ["source", "timestamp", "tags"]},
+        {name: "tags_ts", type: btree, columns: ["tags", "timestamp"]}
+    ]
+) {
+    pose_id: ID!
+    # Timestamp that the data was observed, measured, or inferred.
+    timestamp: Datetime!
+    # Camera associated with this pose
+    camera: Device! @beehiveRelation(target_type_name: "Device")
+    # Pose model from which the keypoints are derived
+    pose_model: PoseModel! @beehiveRelation(target_type_name: "PoseModel")
+    # Keypoints of the pose in the specified coordinate space
+    keypoints: [Keypoint!]!
+    # Person associated with this pose
+    person: Person @beehiveRelation(target_type_name: "Person")
+    # duration of the data included in this observation. time should be expressed in milliseconds. If not set then assumed to be a snapshot observation without a duration
+    duration: Int
+    # where did the data originate
+    source: SourceObject @beehiveUnionResolver(target_types: ["Assignment", "Person", "InferenceExecution", "Environment"])
+    source_type: DataSourceType
+    # tags used to identify datapoints for classification
+    tags: [String!]
+}
+
+type Pose2DList{
+    data: [Pose2D!]
+    page_info: PageInfo!
+}
+
+input Pose2DInput {
+    timestamp: Datetime!
+    camera: ID!
+    pose_model: ID!
+    keypoints: [KeypointInput!]!
+    person: ID
+    duration: Int
+    source: ID
+    source_type: DataSourceType
+    tags: [String!]
+}
+
 enum DataSourceType {
     GROUND_TRUTH
     GENERATED_TEST
@@ -288,6 +339,13 @@ extend type Query {
     # Find 3D poses using a complex query
     searchPoses3D(query: QueryExpression!, page: PaginationInput): Pose3DList @beehiveQuery(target_type_name: "Pose3D")
 
+    # Get the list of 2D poses
+    poses2D(page: PaginationInput): Pose2DList @beehiveList(target_type_name: "Pose2D")
+    # Get a 2D pose
+    getPose2D(pose_id: ID!): Pose2D @beehiveGet(target_type_name: "Pose2D")
+    # Find 2D poses using a complex query
+    searchPoses2D(query: QueryExpression!, page: PaginationInput): Pose2DList @beehiveQuery(target_type_name: "Pose2D")
+
     # Get the list of inference executions
     inferenceExecutions(page: PaginationInput): InferenceExecutionList @beehiveList(target_type_name: "InferenceExecution")
     # Get an inference execution
@@ -318,6 +376,11 @@ extend type Mutation {
     createPose3D(pose3D: Pose3DInput): Pose3D @beehiveCreate(target_type_name: "Pose3D")
     # Delete a 3D pose
     deletePose3D(pose_id: ID): DeleteStatusResponse @beehiveDelete(target_type_name: "Pose3D")
+
+    # Create a new 2D pose
+    createPose2D(pose2D: Pose2DInput): Pose2D @beehiveCreate(target_type_name: "Pose2D")
+    # Delete a 2D pose
+    deletePose2D(pose_id: ID): DeleteStatusResponse @beehiveDelete(target_type_name: "Pose2D")
 
     tagDatapoint(data_id: ID!, tags: [String!]!): Datapoint! @beehiveListFieldAppend(target_type_name: "Datapoint", field_name: "tags", input_field_name: "tags")
     untagDatapoint(data_id: ID!, tags: [String!]!): Datapoint! @beehiveListFieldDelete(target_type_name: "Datapoint", field_name: "tags", input_field_name: "tags")
