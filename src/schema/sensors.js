@@ -1,6 +1,6 @@
 exports.typeDefs = `
 
-  # A device is a physical device that in placed in an environment. It contains one or more sensors for collecting data from an environment.
+  # A device is a physical device that in placed in an environment
   type Device @beehiveTable(table_name: "devices", pk_column: "device_id") {
     # Honeycomb assigned identifier for the device.
     device_id: ID!
@@ -18,8 +18,6 @@ exports.typeDefs = `
     mac_address: [String!]
     # A long description for the device
     description: String
-    # Sensors installed on this device
-    sensors: [SensorInstallation!]! @beehiveRelation(target_type_name: "SensorInstallation", target_field_name: "device")
     # Configurations associated with this device
     configurations: [DeviceConfiguration!] @beehiveAssignmentFilter(target_type_name: "DeviceConfiguration", assignee_field: "device")
     # Environment assignments associated with this device
@@ -99,84 +97,6 @@ exports.typeDefs = `
     properties: [PropertyInput!]
   }
 
-  type Sensor @beehiveTable(table_name: "sensors", pk_column: "sensor_id", resolve_type_field: "sensor_type") {
-    sensor_id: ID!
-    part_number: String
-    name: String
-    description: String
-    sensor_type: SensorType
-    version: Int
-    default_config: [Property!]
-  }
-
-  type SensorList {
-    data: [Sensor!]!
-    page_info: PageInfo!
-  }
-
-  input SensorInput {
-    part_number: String
-    name: String
-    description: String
-    sensor_type: SensorType
-    version: Int
-    default_config: [PropertyInput!]
-  }
-
-  input SensorUpdateInput {
-    part_number: String
-    name: String
-    description: String
-    sensor_type: SensorType
-    version: Int
-    default_config: [PropertyInput!]
-  }
-
-  enum SensorType {
-    CAMERA
-    RADIO
-    ACCELEROMETER
-    GYROSCOPE
-    MAGNETOMETER
-    INERTIAL
-  }
-
-  type SensorInstallation @beehiveTable(table_name: "sensor_installations", pk_column: "sensor_install_id") {
-    sensor_install_id: ID!
-    device: Device! @beehiveRelation(target_type_name: "Device")
-    description: String
-    start: Datetime!
-    end: Datetime
-    sensor: Sensor! @beehiveRelation(target_type_name: "Sensor")
-    tag_id: String
-    config: [Property!]
-  }
-
-  type SensorInstallationList {
-    data: [SensorInstallation!]!
-    page_info: PageInfo!
-  }
-
-  input SensorInstallationInput {
-    device: ID!
-    sensor: ID!
-    description: String
-    start: Datetime
-    end: Datetime
-    tag_id: String
-    config: [PropertyInput!]
-  }
-
-  input SensorInstallationUpdateInput {
-    device: ID
-    sensor: ID
-    description: String
-    start: Datetime
-    end: Datetime
-    tag_id: String
-    config: [PropertyInput!]
-  }
-
   extend type Query {
     # Get the list of devices (use of envID argument is DEPRECATED)
     devices(envId: String, page: PaginationInput): DeviceList @beehiveList(target_type_name: "Device")
@@ -191,29 +111,6 @@ exports.typeDefs = `
     # Find devices using a complex query
     searchDevices(query: QueryExpression!, page: PaginationInput): DeviceList @beehiveQuery(target_type_name: "Device")
 
-
-    # Get the list of sensors
-    sensors(page: PaginationInput): SensorList @beehiveList(target_type_name: "Sensor")
-    # Get a sensor
-    getSensor(sensor_id: ID!): Sensor @beehiveGet(target_type_name: "Sensor")
-    # Get a sensor (DEPRECATED; use getSensor instead)
-    sensor(sensor_id: ID): Sensor @beehiveGet(target_type_name: "Sensor")
-    # Find sensors based on one or more of their properties
-    findSensors(part_number: String, name: String, sensor_type: SensorType, version: Int, page: PaginationInput): SensorList @beehiveSimpleQuery(target_type_name: "Sensor")
-    # Find a sensor based on one or more of it's properties (DEPRECATED; use findSensors instead)
-    findSensor(name: String, version: Int): SensorList! @beehiveSimpleQuery(target_type_name: "Sensor")
-    # Find sensors using a complex query
-    searchSensors(query: QueryExpression!, page: PaginationInput): SensorList @beehiveQuery(target_type_name: "Sensor")
-
-    # Get the list of sensor installations
-    sensorInstallations(page: PaginationInput): SensorInstallationList @beehiveList(target_type_name: "SensorInstallation")
-    # Get a sensor installation
-    getSensorInstallation(sensor_install_id: ID!): SensorInstallation @beehiveGet(target_type_name: "SensorInstallation")
-    # Find sensor installations based on one or more of their properties
-    findSensorInstallations(device: ID, sensor: ID, description: String, tag_id: String, page: PaginationInput): SensorInstallationList @beehiveSimpleQuery(target_type_name: "SensorInstallation")
-    # Find sensor installations using a complex query
-    searchSensorInstallations(query: QueryExpression!, page: PaginationInput): SensorInstallationList @beehiveQuery(target_type_name: "SensorInstallation")
-
   }
 
   extend type Mutation {
@@ -223,22 +120,6 @@ exports.typeDefs = `
     updateDevice(device_id: ID!, device: DeviceUpdateInput): Device @beehiveUpdate(target_type_name: "Device")
     # Delete a device
     deleteDevice(device_id: ID): DeleteStatusResponse @beehiveDelete(target_type_name: "Device")
-
-    # Create a new sensor
-    createSensor(sensor: SensorInput): Sensor @beehiveCreate(target_type_name: "Sensor")
-    # Update a sensor
-    updateSensor(sensor_id: ID!, sensor: SensorUpdateInput): Sensor @beehiveUpdate(target_type_name: "Sensor")
-    # Delete a sensor
-    deleteSensor(sensor_id: ID): DeleteStatusResponse @beehiveDelete(target_type_name: "Sensor")
-
-    # Create a sensor installation, adding to the sensors list on a Device
-    addSensorToDevice(sensorInstallation: SensorInstallationInput): SensorInstallation @beehiveCreate(target_type_name: "SensorInstallation")
-    # Update a sensor installation
-    updateSensorInstallation(sensor_install_id: ID!, sensorInstallation: SensorInstallationUpdateInput): SensorInstallation @beehiveUpdate(target_type_name: "SensorInstallation")
-    # Update the config for a sensorInstallation (DEPRECATED; use updateSensorInstallation instead)
-    updateSensorInstall(sensor_install_id: ID, sensorInstallation: SensorInstallationUpdateInput): SensorInstallation @beehiveUpdate(target_type_name: "SensorInstallation")
-    # Delete a sensor installation
-    deleteSensorInstallation(sensor_install_id: ID): DeleteStatusResponse @beehiveDelete(target_type_name: "SensorInstallation")
 
     # sets the device configuration
     setDeviceConfiguration(deviceConfiguration: DeviceConfigurationInput): DeviceConfiguration @beehiveCreate(target_type_name: "DeviceConfiguration")
