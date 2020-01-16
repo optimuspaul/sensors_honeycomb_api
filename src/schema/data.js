@@ -235,7 +235,6 @@ type Pose2D @beehiveTable(
     camera: Device! @beehiveRelation(target_type_name: "Device")
     # label of track assigned by pose tracking inference
     track_label: String
-    # label of track assigned by pose tracking inference
     # Pose model from which the keypoints are derived
     pose_model: PoseModel! @beehiveRelation(target_type_name: "PoseModel")
     # Keypoints of the pose in the specified coordinate space
