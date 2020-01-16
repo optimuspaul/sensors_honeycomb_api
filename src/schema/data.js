@@ -224,6 +224,8 @@ type Pose2D @beehiveTable(
         {name: "person_ts", type: btree, columns: ["person", "timestamp"]},
         {name: "source_ts", type: btree, columns: ["source", "timestamp"]},
         {name: "source_ts_tags", type: btree, columns: ["source", "timestamp", "tags"]},
+        {name: "source_ts_track_label", type: btree, columns: ["source", "timestamp", "track_label"]},
+        {name: "ts_track_inference_track_label", type: btree, columns: ["timestamp", "track_inference", "track_label"]},
         {name: "tags_ts", type: btree, columns: ["tags", "timestamp"]}
     ]
 ) {
@@ -232,6 +234,10 @@ type Pose2D @beehiveTable(
     timestamp: Datetime!
     # Camera associated with this pose
     camera: Device! @beehiveRelation(target_type_name: "Device")
+    # label of track assigned by pose tracking inference
+    track_label: String
+    # label of track assigned by pose tracking inference
+    track_inference: InferenceExecution @beehiveRelation(target_type_name: "InferenceExecution")
     # Pose model from which the keypoints are derived
     pose_model: PoseModel! @beehiveRelation(target_type_name: "PoseModel")
     # Keypoints of the pose in the specified coordinate space
