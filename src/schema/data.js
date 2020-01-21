@@ -31,6 +31,10 @@ type Datapoint @beehiveTable(
     source_type: DataSourceType
     # tags used to identify datapoints for classification
     tags: [String!]
+    # 2D poses associated with this datapoint
+    poses2d: [Pose2D!] @beehiveRelationFilter(target_type_name: "Pose2D", target_field_name: "datapoint")
+    # 3D poses associated with this datapoint
+    poses3d: [Pose3D!] @beehiveRelationFilter(target_type_name: "Pose3D", target_field_name: "datapoint")
 }
 
 type DatapointList{
@@ -194,6 +198,8 @@ type Pose3D @beehiveTable(
     source_type: DataSourceType
     # tags used to identify datapoints for classification
     tags: [String!]
+    # datapoint (typically a video) that was the source of this pose
+    datapoint: Datapoint @beehiveRelation(target_type_name: "Datapoint")
 }
 
 type Pose3DList{
@@ -211,6 +217,7 @@ input Pose3DInput {
     source: ID
     source_type: DataSourceType
     tags: [String!]
+    datapoint: ID
 }
 
 type Pose2D @beehiveTable(
@@ -248,6 +255,8 @@ type Pose2D @beehiveTable(
     source_type: DataSourceType
     # tags used to identify datapoints for classification
     tags: [String!]
+    # datapoint (typically a video) that was the source of this pose
+    datapoint: Datapoint @beehiveRelation(target_type_name: "Datapoint")
 }
 
 type Pose2DList{
@@ -265,6 +274,7 @@ input Pose2DInput {
     source: ID
     source_type: DataSourceType
     tags: [String!]
+    datapoint: ID
 }
 
 enum DataSourceType {
