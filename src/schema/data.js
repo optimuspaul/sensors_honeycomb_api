@@ -189,6 +189,8 @@ type Pose3D @beehiveTable(
     pose_model: PoseModel! @beehiveRelation(target_type_name: "PoseModel")
     # Keypoints of the pose in the specified coordinate space
     keypoints: [Keypoint!]!
+    # Quality of the pose
+    quality: Float
     # Person associated with this pose
     person: Person @beehiveRelation(target_type_name: "Person")
     # duration of the data included in this observation. time should be expressed in milliseconds. If not set then assumed to be a snapshot observation without a duration
@@ -212,6 +214,7 @@ input Pose3DInput {
     coordinate_space: ID!
     pose_model: ID!
     keypoints: [KeypointInput!]!
+    quality: Float
     person: ID
     duration: Int
     source: ID
@@ -246,6 +249,8 @@ type Pose2D @beehiveTable(
     pose_model: PoseModel! @beehiveRelation(target_type_name: "PoseModel")
     # Keypoints of the pose in the specified coordinate space
     keypoints: [Keypoint!]!
+    # Quality of the pose
+    quality: Float
     # Person associated with this pose
     person: Person @beehiveRelation(target_type_name: "Person")
     # duration of the data included in this observation. time should be expressed in milliseconds. If not set then assumed to be a snapshot observation without a duration
@@ -269,6 +274,7 @@ input Pose2DInput {
     camera: ID!
     pose_model: ID!
     keypoints: [KeypointInput!]!
+    quality: Float
     person: ID
     duration: Int
     source: ID
