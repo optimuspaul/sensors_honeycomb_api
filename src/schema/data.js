@@ -31,6 +31,10 @@ type Datapoint @beehiveTable(
     source_type: DataSourceType
     # tags used to identify datapoints for classification
     tags: [String!]
+    # 2D poses associated with this datapoint
+    poses2d: [Pose2D!] @beehiveRelationFilter(target_type_name: "Pose2D", target_field_name: "datapoint")
+    # 3D poses associated with this datapoint
+    poses3d: [Pose3D!] @beehiveRelationFilter(target_type_name: "Pose3D", target_field_name: "datapoint")
 }
 
 type DatapointList{
@@ -173,6 +177,7 @@ type Pose3D @beehiveTable(
         {name: "person_ts", type: btree, columns: ["person", "timestamp"]},
         {name: "source_ts", type: btree, columns: ["source", "timestamp"]},
         {name: "source_ts_tags", type: btree, columns: ["source", "timestamp", "tags"]},
+        {name: "source_ts_track_label", type: btree, columns: ["source", "timestamp", "track_label"]},
         {name: "tags_ts", type: btree, columns: ["tags", "timestamp"]}
     ]
 ) {
@@ -183,8 +188,12 @@ type Pose3D @beehiveTable(
     coordinate_space: CoordinateSpace! @beehiveRelation(target_type_name: "CoordinateSpace")
     # Pose model from which the keypoints are derived
     pose_model: PoseModel! @beehiveRelation(target_type_name: "PoseModel")
+    # Label of track assigned by pose tracking inference
+    track_label: String
     # Keypoints of the pose in the specified coordinate space
     keypoints: [Keypoint!]!
+    # Quality of the pose
+    quality: Float
     # Person associated with this pose
     person: Person @beehiveRelation(target_type_name: "Person")
     # duration of the data included in this observation. time should be expressed in milliseconds. If not set then assumed to be a snapshot observation without a duration
@@ -194,6 +203,8 @@ type Pose3D @beehiveTable(
     source_type: DataSourceType
     # tags used to identify datapoints for classification
     tags: [String!]
+    # datapoint (typically a video) that was the source of this pose
+    datapoint: Datapoint @beehiveRelation(target_type_name: "Datapoint")
 }
 
 type Pose3DList{
@@ -205,12 +216,15 @@ input Pose3DInput {
     timestamp: Datetime!
     coordinate_space: ID!
     pose_model: ID!
+    track_label: String
     keypoints: [KeypointInput!]!
+    quality: Float
     person: ID
     duration: Int
     source: ID
     source_type: DataSourceType
     tags: [String!]
+    datapoint: ID
 }
 
 type Pose2D @beehiveTable(
@@ -233,12 +247,14 @@ type Pose2D @beehiveTable(
     timestamp: Datetime!
     # Camera associated with this pose
     camera: Device! @beehiveRelation(target_type_name: "Device")
-    # label of track assigned by pose tracking inference
+    # Label of track assigned by pose tracking inference
     track_label: String
     # Pose model from which the keypoints are derived
     pose_model: PoseModel! @beehiveRelation(target_type_name: "PoseModel")
     # Keypoints of the pose in the specified coordinate space
     keypoints: [Keypoint!]!
+    # Quality of the pose
+    quality: Float
     # Person associated with this pose
     person: Person @beehiveRelation(target_type_name: "Person")
     # duration of the data included in this observation. time should be expressed in milliseconds. If not set then assumed to be a snapshot observation without a duration
@@ -248,6 +264,8 @@ type Pose2D @beehiveTable(
     source_type: DataSourceType
     # tags used to identify datapoints for classification
     tags: [String!]
+    # datapoint (typically a video) that was the source of this pose
+    datapoint: Datapoint @beehiveRelation(target_type_name: "Datapoint")
 }
 
 type Pose2DList{
@@ -258,13 +276,16 @@ type Pose2DList{
 input Pose2DInput {
     timestamp: Datetime!
     camera: ID!
+    track_label: String
     pose_model: ID!
     keypoints: [KeypointInput!]!
+    quality: Float
     person: ID
     duration: Int
     source: ID
     source_type: DataSourceType
     tags: [String!]
+    datapoint: ID
 }
 
 enum DataSourceType {
