@@ -198,6 +198,8 @@ type Pose3D @beehiveTable(
     person: Person @beehiveRelation(target_type_name: "Person")
     # duration of the data included in this observation. time should be expressed in milliseconds. If not set then assumed to be a snapshot observation without a duration
     duration: Int
+    # 2D poses that inform this 3D pose
+    poses_2d: [String]
     # where did the data originate
     source: SourceObject @beehiveUnionResolver(target_types: ["Assignment", "Person", "InferenceExecution", "Environment"])
     source_type: DataSourceType
@@ -221,6 +223,7 @@ input Pose3DInput {
     quality: Float
     person: ID
     duration: Int
+    poses_2d: [String]
     source: ID
     source_type: DataSourceType
     tags: [String!]
