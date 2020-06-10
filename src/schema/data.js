@@ -318,6 +318,36 @@ input Pose2DInput {
     datapoint: ID
 }
 
+type PoseTrack2D @beehiveTable(
+    table_name: "posetracks2d",
+    pk_column: "pose_track_id",
+    table_type: native,
+    native_indexes: [
+        {name: "created", type: btree, columns: ["created"]},
+    ]
+) {
+    pose_track_id: ID!
+    # 2D poses that are part of this track
+    poses_2d: [String]
+    # Label of track assigned by pose tracking inference
+    track_label: String
+    # where did the data originate
+    source: SourceObject @beehiveUnionResolver(target_types: ["Assignment", "Person", "InferenceExecution", "Environment"])
+    source_type: DataSourceType
+}
+
+type PoseTrack2DList{
+    data: [PoseTrack2D!]
+    page_info: PageInfo!
+}
+
+input PoseTrack2DInput {
+    poses_2d: [ID]
+    track_label: String
+    source: ID
+    source_type: DataSourceType
+}
+
 enum DataSourceType {
     GROUND_TRUTH
     GENERATED_TEST
@@ -407,6 +437,13 @@ extend type Query {
     # Find 2D poses using a complex query
     searchPoses2D(query: QueryExpression!, page: PaginationInput): Pose2DList @beehiveQuery(target_type_name: "Pose2D")
 
+    # Get the list of 2D pose tracks
+    poseTracks2D(page: PaginationInput): PoseTrack2DList @beehiveList(target_type_name: "PoseTrack2D")
+    # Get a 2D pose track
+    getPoseTrack2D(pose_track_id: ID!): PoseTrack2D @beehiveGet(target_type_name: "PoseTrack2D")
+    # Find 2D pose tracks using a complex query
+    searchPoseTracks2D(query: QueryExpression!, page: PaginationInput): PoseTrack2DList @beehiveQuery(target_type_name: "PoseTrack2D")
+
     # Get the list of inference executions
     inferenceExecutions(page: PaginationInput): InferenceExecutionList @beehiveList(target_type_name: "InferenceExecution")
     # Get an inference execution
@@ -447,6 +484,11 @@ extend type Mutation {
     createPose2D(pose2D: Pose2DInput): Pose2D @beehiveCreate(target_type_name: "Pose2D")
     # Delete a 2D pose
     deletePose2D(pose_id: ID): DeleteStatusResponse @beehiveDelete(target_type_name: "Pose2D")
+
+    # Create a new 2D pose track
+    createPoseTrack2D(poseTrack2D: PoseTrack2DInput): PoseTrack2D @beehiveCreate(target_type_name: "PoseTrack2D")
+    # Delete a 2D pose track
+    deletePoseTrack2D(pose_track_id: ID): DeleteStatusResponse @beehiveDelete(target_type_name: "PoseTrack2D")
 
     tagDatapoint(data_id: ID!, tags: [String!]!): Datapoint! @beehiveListFieldAppend(target_type_name: "Datapoint", field_name: "tags", input_field_name: "tags")
     untagDatapoint(data_id: ID!, tags: [String!]!): Datapoint! @beehiveListFieldDelete(target_type_name: "Datapoint", field_name: "tags", input_field_name: "tags")
