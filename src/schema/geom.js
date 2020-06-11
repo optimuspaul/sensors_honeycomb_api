@@ -165,12 +165,12 @@ exports.typeDefs = `
   }
 
   type Keypoint {
-    coordinates: [Float!]!
+    coordinates: [Float]!
     quality: Float
   }
 
   input KeypointInput {
-    coordinates: [Float!]!
+    coordinates: [Float]!
     quality: Float
   }
 
