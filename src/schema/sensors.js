@@ -1,7 +1,7 @@
 exports.typeDefs = `
 
   # A device is a physical device that in placed in an environment
-  type Device @beehiveTable(table_name: "devices", pk_column: "device_id") {
+  type Device {
     # Honeycomb assigned identifier for the device.
     device_id: ID!
     # A part number for tracking models of devices
@@ -19,51 +19,25 @@ exports.typeDefs = `
     # A long description for the device
     description: String
     # Configurations associated with this device
-    configurations: [DeviceConfiguration!] @beehiveAssignmentFilter(target_type_name: "DeviceConfiguration", assignee_field: "device")
+    configurations: [DeviceConfiguration!]
     # Environment assignments associated with this device
-    assignments: [Assignment!] @beehiveAssignmentFilter(target_type_name: "Assignment", assignee_field: "assigned")
+    # assignments: [Assignment!]
     # Position assignments associated with this device
-    position_assignments: [PositionAssignment!] @beehiveAssignmentFilter(target_type_name: "PositionAssignment", assignee_field: "assigned")
+    # position_assignments: [PositionAssignment!]
     # Intrinsic calibration data associated with this device
-    intrinsic_calibrations: [IntrinsicCalibration!] @beehiveAssignmentFilter(target_type_name: "IntrinsicCalibration", assignee_field: "device")
+    intrinsic_calibrations: [IntrinsicCalibration!]
     # Extrinsic calibration data associated with this device
-    extrinsic_calibrations: [ExtrinsicCalibration!] @beehiveAssignmentFilter(target_type_name: "ExtrinsicCalibration", assignee_field: "device")
+    extrinsic_calibrations: [ExtrinsicCalibration!]
     # Entity assignments associated with this device
-    entity_assignments: [EntityAssignment!] @beehiveAssignmentFilter(target_type_name: "EntityAssignment", assignee_field: "device")
+    entity_assignments: [EntityAssignment!]
     # Radio pings associated with this device acting as an anchor
-    radio_pings_as_anchor: [RadioPing!] @beehiveRelationFilter(target_type_name: "RadioPing", target_field_name: "anchor_device")
+    radio_pings_as_anchor: [RadioPing!]
     # Radio pings associated with this device acting as a tag
-    radio_pings_as_tag: [RadioPing!] @beehiveRelationFilter(target_type_name: "RadioPing", target_field_name: "tag_device")
+    radio_pings_as_tag: [RadioPing!]
     # 2D poses associated with this device
-    poses2d: [Pose2D!] @beehiveRelationFilter(target_type_name: "Pose2D", target_field_name: "camera")
+    poses2d: [Pose2D!]
   }
 
-  type DeviceList {
-    data: [Device!]
-    page_info: PageInfo!
-  }
-
-  input DeviceInput {
-    name: String
-    description: String
-    part_number: String
-    device_type: DeviceType
-    tag_id: String
-    # A serial number specific to the device, could be a manufacturer id or a wildflower assigner number that is unique to the device.
-    serial_number: String
-    # mac address(s) associated with the network interface(s) of the device
-    mac_address: [String!]
-  }
-
-  input DeviceUpdateInput {
-    name: String
-    description: String
-    part_number: String
-    device_type: DeviceType
-    tag_id: String
-    serial_number: String
-    mac_address: [String!]
-  }
 
   enum DeviceType {
     PI3
@@ -82,47 +56,12 @@ exports.typeDefs = `
     OTHER
   }
 
-  type DeviceConfiguration @beehiveAssignmentType(table_name: "device_configurations", assigned_field: "device", exclusive: true, pk_column: "device_configuration_id") {
+  type DeviceConfiguration {
     device_configuration_id: ID!
-    device: Device! @beehiveRelation(target_type_name: "Device")
-    start: Datetime!
-    end: Datetime
+    device: Device!
+    start: DateTime!
+    end: DateTime
     properties: [Property!]
-  }
-
-  input DeviceConfigurationInput {
-    device: ID!
-    start: Datetime!
-    end: Datetime
-    properties: [PropertyInput!]
-  }
-
-  extend type Query {
-    # Get the list of devices (use of envID argument is DEPRECATED)
-    devices(envId: String, page: PaginationInput): DeviceList @beehiveList(target_type_name: "Device")
-    # Get a device
-    getDevice(device_id: ID!): Device @beehiveGet(target_type_name: "Device")
-    # Get a device (DEPRECATED; use getDevice instead)
-    device(device_id: ID): Device @beehiveGet(target_type_name: "Device")
-    # Find devices based on one or more of their properties
-    findDevices(part_number: String, device_type: DeviceType, name: String, tag_id: String, serial_number: String, page: PaginationInput): DeviceList @beehiveSimpleQuery(target_type_name: "Device")
-    # Find devices based on one or more of their properties (DEPRECATED; use findDevices instead)
-    findDevice(name: String, part_number: String): DeviceList! @beehiveSimpleQuery(target_type_name: "Device")
-    # Find devices using a complex query
-    searchDevices(query: QueryExpression!, page: PaginationInput): DeviceList @beehiveQuery(target_type_name: "Device")
-
-  }
-
-  extend type Mutation {
-    # Create a new device
-    createDevice(device: DeviceInput): Device @beehiveCreate(target_type_name: "Device")
-    # Update a device
-    updateDevice(device_id: ID!, device: DeviceUpdateInput): Device @beehiveUpdate(target_type_name: "Device")
-    # Delete a device
-    deleteDevice(device_id: ID): DeleteStatusResponse @beehiveDelete(target_type_name: "Device")
-
-    # sets the device configuration
-    setDeviceConfiguration(deviceConfiguration: DeviceConfigurationInput): DeviceConfiguration @beehiveCreate(target_type_name: "DeviceConfiguration")
   }
 
 `

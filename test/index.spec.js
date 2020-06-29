@@ -112,4 +112,3 @@ describe('Honeycomb general suite', function() {
     })
 
 })
-

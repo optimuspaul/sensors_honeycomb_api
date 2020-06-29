@@ -15,54 +15,20 @@ services:
         source: ./minio-data
         target: /data
 
-  postgres:
-    # image: wildflowerschools/docker-postgres:10.4-alpine-v5
-    image: postgres:10.4
+  neo4j:
+    image: "neo4j:4.0.5"
     restart: always
+    command: "neo4j"
+    ports:
+      - 7687:7687
+      - 7474:7474
     environment:
-      POSTGRES_PASSWORD: iamaninsecurepassword
-      POSTGRES_USER: honeycomb_user
-      POSTGRES_DB: honeycomb
-      # WALE_S3_PREFIX: s3://wildflower-db-backups/honeycomb/archives/
-      # AWS_REGION: us-east-2
-      # RESTORE_FROM_BACKUP: LATEST
+      NEO4J_AUTH: none
+      NEO4JLABS_PLUGINS: '["apoc"]'
     volumes:
       - type: bind
-        source: ./
-        target: /app
-
-
-  redis:
-    image: redis:5.0.2
-    restart: always
-
-  # proton-pack-service:
-  #   image: wildflowerschools/redis-proton-pack:service-0.2.0-py3.7
-  #   restart: always
-  #   depends_on:
-  #     - redis
-  #   environment:
-  #     ENVIRONMENT: local
-  #     PROTON_PACK_REDIS_HOST: redis
-  #     SPY_LOG_LOGGER: json-clean
-  #     SPY_LOG_LEVEL: DEBUG
-  #     SPY_SHOW_META: "False"
-  #   ports:
-  #     - 5000:5000
-
-  # proton-pack-worker:
-  #   image: wildflowerschools/redis-proton-pack:worker-0.2.0-py3.7
-  #   depends_on:
-  #     - redis
-  #   environment:
-  #     ENVIRONMENT: local
-  #     PROTON_PACK_REDIS_HOST: redis
-  #     STREAM: honeycomb
-  #     CONSUMER: copland
-  #     CONSUMERID: copland-01
-  #     SPY_LOG_LOGGER: json-clean
-  #     SPY_LOG_LEVEL: DEBUG
-  #     SPY_SHOW_META: "False"
+        source: ./neo-data
+        target: /data
 
   honeycomb-service:
     build:
@@ -70,20 +36,11 @@ services:
       dockerfile: build/local/Dockerfile
     depends_on:
       - minio
-      - postgres
+      - neo4j
     environment:
       NODE_ENV: docker-compose
       ENV: local
-      PGPASSWORD: iamaninsecurepassword
-      PGUSER: honeycomb_user
-      PGDATABASE: honeycomb
-      PGHOST: postgres
-      AWS_S3_ENDPOINT: http://minio:9000
-      AWS_ACCESS_KEY: myaccesskey
-      AWS_SECRET_KEY: mysecret
-      S3_MINIO: "true"
-      BEEHIVE_ENABLE_EVENTS: "no"
-      # PROTON_PACK_STREAM_URI: http://proton-pack-service:5000/streams/honeycomb
+      NEO_URI: neo4j://neo4j
     ports:
       - 4000:4000
     command: "scripts/setup-and-startup.sh"

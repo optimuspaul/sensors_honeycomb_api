@@ -1,3 +1,5 @@
-const {start} = require("./server")
+const {start} = require("./server");
+require('dotenv').config();
+
 
 start()

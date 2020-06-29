@@ -3,41 +3,42 @@ const cors = require('cors')
 const { ApolloServer, gql } = require('apollo-server-express')
 const { schema } = require("./schema")
 const voyager = require('graphql-voyager/middleware')
-const beehive = require("@wildflowerschools/graphql-beehive")
 const bodyParser = require('body-parser')
 
 const jwt = require('express-jwt')
 const jwks = require('jwks-rsa')
 
+const neo4j = require('neo4j-driver');
+
+
+console.log("process.env.NEO_URI")
+console.log(process.env.NEO_URI)
+
+const driver = neo4j.driver(
+  "bolt://neo4j",
+  neo4j.auth.basic(process.env.NEO_USERNAME, process.env.NEO_PASSWORD),
+  {encrypted: false}
+);
 
 const server = new ApolloServer({
     playground: true,
     introspection: true,
     schema,
+    context: { driver },
     formatError: error => {
         console.log("---- error ----")
-        // console.log(error);
         console.log(JSON.stringify(error, null, 4));
         console.log("---------------")
         return error;
     },
-    // formatResponse: response => {
-    //     console.log("---- response ----")
-    //     console.log(JSON.stringify(response, null, 4));
-    //     console.log("------------------")
-    //     return response;
-    // },
-    // context: ({ req }) => ({
-    //     authScope: getScope(req.user)
-    // }),
 })
 
 
 const app = express()
 
 app.use(cors())
-app.use(bodyParser.json({limit: '50mb'}));
-app.use(bodyParser.urlencoded({limit: "50mb", extended: true, parameterLimit:50000}));
+app.use(bodyParser.json({limit: '100mb'}));
+app.use(bodyParser.urlencoded({limit: "100mb", extended: true, parameterLimit: 50000}));
 app.options('*', cors())
 
 
@@ -64,10 +65,6 @@ if(process.env.ENVIRONMENT != 'local') {
             jwtCheck(req, res, next)
         }
     })
-    // app.use(function(req, res, next) {
-    //     console.log(req)
-    //     next()
-    // })
 }
 
 app.use(function (err, req, res, next) {
@@ -85,9 +82,6 @@ server.applyMiddleware({ app })
 exports.start = async () => {
     console.log("checking database")
     try {
-        console.log(beehive)
-        await beehive.ensureDatabase(schema)
-        console.log("database checked")
         return app.listen({ port: 4000 }, () =>
           console.log(`🚀 Server ready at http://localhost:4000${server.graphqlPath}`)
         )
@@ -97,5 +91,3 @@ exports.start = async () => {
         console.log("----------------------------")
     }
 }
-
-
