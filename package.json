@@ -44,7 +44,7 @@
         "body-parser": "^1.18.3",
         "cors": "^2.8.5",
         "express": "^4.16.4",
-        "express-jwt": "^5.3.1",
+        "express-jwt": "^6.0.0",
         "graphql": "^14.0.2",
         "graphql-custom-types": "^1.4.0",
         "graphql-directive": "^0.2.1",
