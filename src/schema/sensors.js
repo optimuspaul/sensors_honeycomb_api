@@ -18,16 +18,14 @@ exports.typeDefs = `
     mac_address: [String!]
     # A long description for the device
     description: String
-    # Configurations associated with this device
-    configurations: [DeviceConfiguration!]
     # Environment assignments associated with this device
     # assignments: [Assignment!]
     # Position assignments associated with this device
     # position_assignments: [PositionAssignment!]
     # Intrinsic calibration data associated with this device
-    intrinsic_calibrations: [IntrinsicCalibration!]
+    intrinsic_calibrations: [InCalibrated!]
     # Extrinsic calibration data associated with this device
-    extrinsic_calibrations: [ExtrinsicCalibration!]
+    extrinsic_calibrations: [ExCalibrated!]
     # Entity assignments associated with this device
     entity_assignments: [EntityAssignment!]
     # Radio pings associated with this device acting as an anchor
@@ -54,14 +52,6 @@ exports.typeDefs = `
     DECAWAVE
     TEST
     OTHER
-  }
-
-  type DeviceConfiguration {
-    device_configuration_id: ID!
-    device: Device!
-    start: DateTime!
-    end: DateTime
-    properties: [Property!]
   }
 
 `

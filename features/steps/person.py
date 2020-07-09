@@ -59,12 +59,12 @@ query Person($person_id: ID){
 """
 
 ASSIGN_PERSON_TO_ENVIRONMENT = """
-mutation assignPersonToEnvironment($person_id: ID!, $environment_id: ID!, $start_date: String!) {
-    assignPersonToEnvironment(person_id: $person_id, environment_id: $environment_id, start_date: {formatted: $start_date}) {
-        to {
+mutation AddPersonEnvironments($person_id: ID!, $environment_id: ID!, $start_date: String!) {
+    AddPersonEnvironments(from: {person_id: $person_id}, to: {environment_id: $environment_id}, data: {start: {formatted: $start_date}}) {
+        from {
             name
         }
-        from {
+        to {
             name
         }
         start {
@@ -144,10 +144,10 @@ def step_impl(context, person_id, environment, date):
     client = graphql_client()
     result = client.execute(ASSIGN_PERSON_TO_ENVIRONMENT, {"person_id": person_id, "environment_id": environment, "start_date": date})
     print(result)
-    assignPersonToEnvironment = result.get("assignPersonToEnvironment")
-    assert assignPersonToEnvironment['to']['name'] is not None
-    assert assignPersonToEnvironment['from']['name'] is not None
-    assert assignPersonToEnvironment['start']["formatted"][:-1] == date[:-9]
+    AddPersonEnvironments = result.get("AddPersonEnvironments")
+    assert AddPersonEnvironments['to']['name'] is not None
+    assert AddPersonEnvironments['from']['name'] is not None
+    assert AddPersonEnvironments['start']["formatted"][:-1] == date[:-9]
 
 
 @then(u'the `(?P<environment>[0-9]*)` has `(?P<num>[0-9]*)` person assignments at  `(?P<date>.*)`')

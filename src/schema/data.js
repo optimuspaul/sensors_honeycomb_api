@@ -1,9 +1,7 @@
 exports.typeDefs = `
 
-type Datapoint {
-    data_id: ID!
-    parents: [Datapoint] @relation(name: "parent_of", direction: "IN")
-    children: [Datapoint] @relation(name: "parent_of", direction: "out")
+type Video {
+    video_id: ID!
     # format of the data
     format: String
     # Data stored on S3 #### TODO # REDO this for Neo #####
@@ -12,16 +10,15 @@ type Datapoint {
     timestamp: DateTime!
     # Which objects are associated with this data
     associations: [Association!] @relation(name: "associated_with", direction: "IN")
-    # duration of the data included in this observation. time should be expressed in milliseconds. If not set then assumed to be a snapshot observation without a duration
+    # duration of the data included in this observation. time should be expressed in milliseconds.
     duration: Int
     # where did the data originate
-    source: SourceObject
-    source_type: DataSourceType
+    device: Device!
     # tags used to identify datapoints for classification
     tags: [String!]
-    # 2D poses associated with this datapoint
+    # 2D poses associated with this video
     poses2d: [Pose2D!] @relation(name: "inferred_from", direction: "IN")
-    # 3D poses associated with this datapoint
+    # 3D poses associated with this video
     poses3d: [Pose3D!] @relation(name: "reconstructed_with", direction: "IN")
 }
 
@@ -39,9 +36,7 @@ type RadioPing {
     time_of_flight: Float
     # Source of the data
     source: SourceObject
-    # Source type of the data source
-    source_type: DataSourceType
-    # Tags used to identify datapoints for classification
+    category: DataCategory
     tags: [String!]
 }
 
@@ -57,12 +52,11 @@ type Position {
     coordinates: [Float!]!
     # where did the data originate
     source: SourceObject
-    source_type: DataSourceType
-    # tags used to identify datapoints for classification
+    category: DataCategory
     tags: [String!]
 }
 
-union Positionable = Device | Material |Tray | Person | Environment
+union Positionable = Device | Material | Tray | Person | Environment
 
 type Pose3D {
     pose_id: ID!
@@ -82,8 +76,7 @@ type Pose3D {
     person: Person
     # where did the data originate
     source: SourceObject
-    source_type: DataSourceType
-    # tags used to identify datapoints for classification
+    category: DataCategory
     tags: [String!]
 }
 
@@ -105,14 +98,13 @@ type Pose2D {
     person: Person
     # where did the data originate
     source: SourceObject
-    source_type: DataSourceType
-    # tags used to identify datapoints for classification
+    category: DataCategory
     tags: [String!]
-    # datapoint (typically a video) that was the source of this pose
-    datapoint: Datapoint
+    # video that was the source of this pose
+    video: Video
 }
 
-enum DataSourceType {
+enum DataCategory {
     GROUND_TRUTH
     GENERATED_TEST
     MEASURED
@@ -125,8 +117,8 @@ type InferenceExecution {
     notes: String
     model: String
     version: String
-    data_sources: [Datapoint!]
-    data_results: [Datapoint!]
+    # data_sources: [Datapoint!]
+    # data_results: [Datapoint!]
     execution_start: DateTime!
 }
 

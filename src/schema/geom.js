@@ -11,23 +11,41 @@ exports.typeDefs = `
 
   type IntrinsicCalibration {
     intrinsic_calibration_id: ID!
-    start: DateTime!
-    end: DateTime
-    device: Device!
+    device: [InCalibrated!]
     camera_matrix: Matrix @relation(name:"DefinedBy", direction: "OUT")
     distortion_coefficients: [Float!]!
     image_width: Int!
     image_height: Int!
   }
 
+
+  type InCalibrated @relation(name: "InCalibrated") {
+      from: Device!
+      to: IntrinsicCalibration!
+      start: DateTime!
+      end: DateTime
+  }
+
+  type ExCalibrated @relation(name: "ExCalibrated") {
+      from: Device!
+      to: ExtrinsicCalibration!
+      start: DateTime!
+      end: DateTime
+  }
+
   type ExtrinsicCalibration {
     extrinsic_calibration_id: ID!
-    start: DateTime!
-    end: DateTime
-    device: Device!
-    coordinate_space: CoordinateSpace! @relation(name:"InSpace", direction: "OUT")
+    device: [ExCalibrated]!
+    coordinate_space: [InSpace!]
     translation_vector: [Float!]!
     rotation_vector: [Float!]!
+  }
+
+  type InSpace @relation(name: "InSpace") {
+      from: ExtrinsicCalibration!
+      to: CoordinateSpace!
+      start: DateTime!
+      end: DateTime
   }
 
   type CoordinateSpace {
@@ -39,7 +57,7 @@ exports.typeDefs = `
     environment: Environment!
     start: DateTime!
     end: DateTime
-    extrinsic_calibrations: [ExtrinsicCalibration!] @relation(name:"InSpace", direction: "IN")
+    extrinsic_calibrations: [ExtrinsicCalibration!]
   }
 
   type PoseModel {
@@ -57,22 +75,5 @@ exports.typeDefs = `
     quality: Float
   }
 
-  type Position @relation(name: "Position") {
-    from: Assignable!
-    to: CoordinateSpace!
-    coordinates: [Float!]!
-    description: String
-    start: DateTime!
-    end: DateTime
-  }
-
-  scalar Keypoint2D
-  scalar Keypoint3D
-
-  type Blob {
-      id: ID
-      keypoints2D: [Keypoint2D!]
-      keypoints3D: [Keypoint3D!]
-  }
 
 `;

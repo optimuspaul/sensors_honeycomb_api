@@ -8,6 +8,10 @@ exports.typeDefs = `
     location: String
     # Person assignments
     persons: [PersonAssignment!]
+    # Device Assignments
+    device_assignments: [DeviceAssignment!]
+    # Device Assignments
+    tray_assignments: [TrayAssignment!]
   }
 
   type Person {
@@ -54,15 +58,22 @@ exports.typeDefs = `
     end: DateTime
   }
 
+  type PersonAssignment @relation(name: "PersonAssignment") {
+    to: Environment!
+    from: Person!
+    start: DateTime!
+    end: DateTime
+  }
 
-    type PersonAssignment @relation(name: "PersonAssignment") {
-      to: Environment!
-      from: Person!
-      start: DateTime!
-      end: DateTime
-    }
 
-  type EntityAssignment {
+  type TrayAssignment @relation(name: "TrayAssignment") {
+    to: Environment!
+    from: Tray!
+    start: DateTime!
+    end: DateTime
+  }
+
+  type EntityAssignment @relation(name: "EntityAssignment") {
     entity_assignment_id: ID!
     entity_type: EntityType!
     entity: Entity!
@@ -79,7 +90,7 @@ exports.typeDefs = `
     TRAY
   }
 
-  type MaterialAssignment {
+  type MaterialAssignment @relation(name: "MaterialAssignment") {
     material_assignment_id: ID!
     material: Material!
     tray: Tray!

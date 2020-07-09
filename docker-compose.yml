@@ -50,5 +50,18 @@ services:
         target: /app
       - node-modules:/app/node_modules
 
+
+  postgres:
+    image: "wildflowerschools/docker-postgres:10.4-debian-v6"
+    restart: always
+    ports:
+      - 5432:5432
+    env_file:
+        - post.env
+    volumes:
+      - type: bind
+        source: /data/postgres-restore
+        target: /var/lib/postgresql/data
+
 volumes:
   node-modules:

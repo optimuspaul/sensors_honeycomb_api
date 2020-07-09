@@ -1,52 +1,21 @@
-const common = require("./common")
 const sensors = require("./sensors")
 const geom = require("./geom")
 const datapoints = require("./data")
 const activity = require("./activity")
 const environments = require("./environments")
-const { makeAugmentedSchema, extractQueryResult } = require('neo4j-graphql-js');
-const { Keypoint2D, Keypoint3D } = require('../scalars');
+const { makeAugmentedSchema, neo4jgraphql, cypherMutation } = require('neo4j-graphql-js');
 const neo4j = require('neo4j-driver');
-const temporal_util = require('/app/node_modules/neo4j-driver/lib/internal/temporal-util');
 const {_} = require('lodash');
 const util = require('util')
+
+// horrible hacks because they are not exported but probaboy should be
+const { extractQueryResult } = require('/app/node_modules/neo4j-graphql-js/dist/utils');
 
 
 const rootDefs = `
 
-type Mutation {
-    assignPersonToEnvironment(person_id: ID!, environment_id: ID!, start_date: _Neo4jDateInput): PersonAssignment
-}
-
 `
-function fixInt(field) {
-    return field.inSafeRange() ? field.toNumber() : field.toString();
-}
 
-
-function cleanObj(obj) {
-    return _.cloneDeepWith(obj, field => {
-        if (neo4j.isInt(field)) {
-            // See: https://neo4j.com/docs/api/javascript-driver/current/class/src/v1/integer.js~Integer.html
-            return fixInt(field);
-        } else if(neo4j.isDateTime(field)) {
-            console.log(`found a datetime ${field.toString()}`)
-            return {
-                year: fixInt(field.year),
-                month: fixInt(field.month),
-                day: fixInt(field.day),
-                hour: fixInt(field.hour),
-                minute: fixInt(field.minute),
-                second: fixInt(field.second),
-                microsecond: 0, // TODO - make this right
-                millisecond: 0, // TODO - make this right
-                nanosecond: fixInt(field.nanosecond),
-                timezone: temporal_util.timeZoneOffsetToIsoString(field.timeZoneOffsetSeconds),
-                formatted: field.toString(),
-            }
-        }
-    });
-}
 
 
 const logger = { log: e => console.log(e) }
@@ -54,7 +23,6 @@ const logger = { log: e => console.log(e) }
 const schema = makeAugmentedSchema({
   typeDefs: [
     rootDefs,
-    common.typeDefs,
     geom.typeDefs,
     sensors.typeDefs,
     environments.typeDefs,
@@ -62,50 +30,46 @@ const schema = makeAugmentedSchema({
     activity.typeDefs,
 ].join(""),
   resolvers: {
-      Keypoint2D: Keypoint2D,
-      Keypoint3D: Keypoint3D,
-    Person: {
-        name: async (obj, args, context, info) => {
-            if(obj.name) {
-                return obj.name
-            }
-            if(obj.first_name && obj.surnames) {
-                return obj.first_name + " " + obj.surnames.join(" ")
-            }
-            if(obj.first_name) {
-                return obj.first_name
-            }
-            return ""
-        }
-    },
     Mutation: {
-        assignPersonToEnvironment: async (obj, args, context, info) => {
+        AddEnvironmentDevice_assignments: async(obj, args, context, info) => {
             const session = context.driver.session()
             try {
-                console.log("======================================================")
-                console.log(args)
-                console.log("======================================================")
-                if(args.start_date.formatted) {
-                    args.start_date = args.start_date.formatted
-                }
+                let mutation = cypherMutation(args, context, info)
                 await session.run(
-                  'MATCH (:Person{person_id: $person_id})-[r:PersonAssignment]->(:Environment) WHERE r.end IS NULL SET r.end = datetime($start_date);',
+                  'MATCH (:Device{device_id: $from.device_id})-[r:DeviceAssignment]->(e:Environment) WHERE r.end IS NULL AND r.start <> datetime($data.start) AND e.environment_id <> $to.environment_id SET r.end = datetime($data.start);',
                     args
                 )
-                console.log("======================================================")
-                const result = await session.run(`MATCH (person:Person{person_id: $person_id}),(env:Environment{environment_id: $environment_id})
-                    MERGE (person)-[r:PersonAssignment{ start: datetime($start_date) }]->(env)
-                    ON MATCH SET r.end = NULL
-                    RETURN person, r, env;`,
+                const result = await session.run(mutation[0], mutation[1])
+                return extractQueryResult(result, info.returnType)
+            } finally {
+                await session.close()
+            }
+        },
+        AddExtrinsicCalibrationCoordinate_space: async(obj, args, context, info) => {
+            const session = context.driver.session()
+            try {
+                let mutation = cypherMutation(args, context, info)
+                await session.run(
+                  'MATCH (e:ExtrinsicCalibration)-[r:InSpace]->(:CoordinateSpace{space_id: $to.space_id}) WHERE r.end IS NULL AND r.start <> datetime($data.start) AND e.extrinsic_calibration_id <> $from.extrinsic_calibration_id SET r.end = datetime($data.start);',
                     args
                 )
-                let obj = result.records[0].get('r').properties
-                obj['to'] = result.records[0].get('env').properties
-                obj['from'] = result.records[0].get('person').properties
-                obj['end'] = null
-                obj = cleanObj(obj);
-                console.log(util.inspect(result.records[0].get('r'), {showHidden: false, depth: null}))
-                return obj
+                const result = await session.run(mutation[0], mutation[1])
+                return extractQueryResult(result, info.returnType)
+            } finally {
+                await session.close()
+            }
+        },
+        AddPersonEnvironments: async (obj, args, context, info) => {
+            const session = context.driver.session()
+            try {
+                let mutation = cypherMutation(args, context, info)
+                await session.run(
+                  'MATCH (:Person{person_id: $from.person_id})-[r:PersonAssignment]->(e:Environment) WHERE r.end IS NULL AND r.start <> datetime($data.start) AND e.environment_id <> $to.environment_id SET r.end = datetime($data.start);',
+                    args
+                )
+                const result = await session.run(mutation[0], mutation[1])
+                return extractQueryResult(result, info.returnType);
+
             } finally {
                 await session.close()
             }

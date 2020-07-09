@@ -16,7 +16,7 @@ Feature: ExtrinsicCalibration
   Scenario: CoordinateSpace operations
     Given a clean database
     Given a list of CoordinateSpaces
-        | space_id | name | axis_names | origin_description | axis_descriptions | start |
+        | id:space_id | s:name | sl:axis_names | s:origin_description | sl:axis_descriptions | s:start |
         | 20000010 | casual cartesian | x,y,z | to the right of the coffee machine, next to the donuts | runs west to front door,runs south,positive is up | 2020-12-01T00:00:00.000+0000 |
         | 20000011 | formal cartesian | x,y,z | to the left of the coffee machine, next to the sugarbowl | runs west to front door,runs south,positive is up | 2020-12-07T00:00:00.000+0000 |
      Then there are `2` CoordinateSpaces
@@ -24,15 +24,15 @@ Feature: ExtrinsicCalibration
   Scenario: ExtrinsicCalibration operations
     Given a clean database
     Given a list of ExtrinsicCalibrations
-        | extrinsic_calibration_id | translation_vector | rotation_vector | start |
-        | 1110001 | 0,0,0 | 0,1,0 | 2020-01-01T00:00:00Z |
-        | 1110002 | 0,2.1,0 | 0,-0.28,0 | 2020-01-01T00:00:00Z |
-        | 1110003 | 1.02,0,0 | 0,1.04,0 | 2020-01-01T00:00:00Z |
+        | id:extrinsic_calibration_id | fl:translation_vector | fl:rotation_vector |
+        | 1110001 | 0,0,0 | 0,1,0 |
+        | 1110002 | 0,2.1,0 | 0,-0.28,0 |
+        | 1110003 | 1.02,0,0 | 0,1.04,0 |
     Given a list of CoordinateSpaces
-        | space_id | name | axis_names | origin_description | axis_descriptions | start |
+        | id:space_id | s:name | sl:axis_names | s:origin_description | sl:axis_descriptions | s:start |
         | 20000011 | formal cartesian | x,y,z | to the left of the coffee machine, next to the sugarbowl | runs west to front door,runs south,positive is up | 2020-12-07T00:00:00.000+0000 |
-     When ExtrinsicCalibration `1110001` is linked to `20000011` space
-     When ExtrinsicCalibration `1110002` is linked to `20000011` space
-     When ExtrinsicCalibration `1110003` is linked to `20000011` space
+     When ExtrinsicCalibration `1110001` is linked to `20000011` space starting `2020-01-01T00:00:00Z`
+     When ExtrinsicCalibration `1110002` is linked to `20000011` space starting `2020-01-01T00:00:00Z`
+     When ExtrinsicCalibration `1110003` is linked to `20000011` space starting `2020-01-01T00:00:00Z`
      Then there are `3` ExtrinsicCalibrations
      Then ExtrinsicCalibration `1110002` has a rotation_vector of `0,-0.28,0` and is linked to `20000011` space

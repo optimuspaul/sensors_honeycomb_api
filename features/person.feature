@@ -17,7 +17,7 @@ Feature: Person
   Given a list of persons
     | person_id | first_name | surnames | nickname | short_name | person_type | transparent_classroom_id |
     | 001       | Paul       | DeCoursey | optimuspaul | pd     | OTHER   | 23 |
-    | 002       | Dave       | DeCoursey | optimuspaul | pd     | OTHER   | 43 |
+    | 002       | Dave       | DeCoursey | optimuspaul | dd     | OTHER   | 43 |
   Given a list of environments
       | environment_id | name | description |
       | 100001 | wildflower | wildflower school |
