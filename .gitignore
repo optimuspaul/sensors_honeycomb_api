@@ -25,10 +25,11 @@ db_check/
 
 *.log
 
-features/steps/__pycache__/
+__pycache__/
 
 neo-data/databases/
 neo-data/transactions/
 local*
 
 *.env
+*.pyc
