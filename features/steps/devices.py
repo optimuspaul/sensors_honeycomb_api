@@ -162,3 +162,10 @@ def step_impl(context, environment, num, date):
     envs = result.get("Environment")
     envs.should.have.length_of(1)
     envs[0].get("device_assignments").should.have.length_of(int(num))
+
+
+
+
+@when(u'When device `300120001` is positioned in `20000010` starting `2020-01-01T00:00:00Z` at `0.0`, `1.34`')
+def step_impl(context, device, space, start, x, y, z):
+    pass

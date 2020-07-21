@@ -27,8 +27,6 @@ exports.typeDefs = `
     transparent_classroom_id: Int
     # Environment assignments
     environments: [PersonAssignment!]
-    # Position assignments associated with this device
-    positions: [Position!]
     # Entity assignments associated with this person
     entity_assignments: [EntityAssignment!]
     # Material interactions associated with this person
@@ -39,6 +37,7 @@ exports.typeDefs = `
     poses3d: [Pose3D!]
     # 2D poses associated with this person
     poses2d: [Pose2D!]
+    positions: [Position!] @relation(name: "Position", direction: "OUT")
   }
 
   enum PersonType {
@@ -49,7 +48,6 @@ exports.typeDefs = `
     OTHER
   }
 
-  union Assignable = Device | Person | Material | Tray
 
   type DeviceAssignment @relation(name: "DeviceAssignment") {
     to: Environment!
@@ -90,13 +88,6 @@ exports.typeDefs = `
     TRAY
   }
 
-  type MaterialAssignment @relation(name: "MaterialAssignment") {
-    material_assignment_id: ID!
-    material: Material!
-    tray: Tray!
-    start: DateTime!
-    end: DateTime
-  }
 
 
 `

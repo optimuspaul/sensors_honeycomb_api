@@ -1,7 +1,7 @@
 exports.typeDefs = `
 
-  # A device is a physical device that in placed in an environment
-  type Device {
+# A device is a physical device that in placed in an environment
+type Device {
     # Honeycomb assigned identifier for the device.
     device_id: ID!
     # A part number for tracking models of devices
@@ -19,9 +19,9 @@ exports.typeDefs = `
     # A long description for the device
     description: String
     # Environment assignments associated with this device
-    # assignments: [Assignment!]
+    assignments: [DeviceAssignment!]
     # Position assignments associated with this device
-    # position_assignments: [PositionAssignment!]
+    positions: [DevicePosition!]
     # Intrinsic calibration data associated with this device
     intrinsic_calibrations: [InCalibrated!]
     # Extrinsic calibration data associated with this device
@@ -34,10 +34,10 @@ exports.typeDefs = `
     radio_pings_as_tag: [RadioPing!]
     # 2D poses associated with this device
     poses2d: [Pose2D!]
-  }
+}
 
 
-  enum DeviceType {
+enum DeviceType {
     PI3
     PI3WITHCAMERA
     PIZERO
@@ -52,6 +52,6 @@ exports.typeDefs = `
     DECAWAVE
     TEST
     OTHER
-  }
+}
 
 `

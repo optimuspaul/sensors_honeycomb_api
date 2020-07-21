@@ -40,23 +40,34 @@ type RadioPing {
     tags: [String!]
 }
 
-type Position {
-    position_id: ID!
-    # Timestamp that the data was observed, measured, or inferred.
-    timestamp: DateTime!
+type DevicePosition @relation(name: "Position") {
+    device_position_id: ID!
+    start: DateTime!
+    end: DateTime
     # Coordinate space in which the position is specified
-    coordinate_space: CoordinateSpace!
+    to: CoordinateSpace! @relation(name: "PositionedIn", direction: "OUT")
     # Object associated with this position
-    object: Positionable!
+    from: Device!
     # Coordinates of the position in the specified coordinate space
     coordinates: [Float!]!
-    # where did the data originate
-    source: SourceObject
-    category: DataCategory
     tags: [String!]
 }
 
-union Positionable = Device | Material | Tray | Person | Environment
+type Position {
+    position_id: ID!
+    start: DateTime!
+    end: DateTime
+    # Coordinate space in which the position is specified
+    to: CoordinateSpace! @relation(name: "PositionedIn", direction: "OUT")
+    # Object associated with this position
+    from: Positionable!
+    # Coordinates of the position in the specified coordinate space
+    coordinates: [Float!]!
+    tags: [String!]
+}
+
+union Positionable = Person | Material | Tray
+
 
 type Pose3D {
     pose_id: ID!
@@ -74,7 +85,7 @@ type Pose3D {
     quality: Float
     # Person associated with this pose
     person: Person
-    # where did the data originate
+    # where did the data originate1
     source: SourceObject
     category: DataCategory
     tags: [String!]

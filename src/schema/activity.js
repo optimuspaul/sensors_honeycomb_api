@@ -7,11 +7,11 @@ type Material {
     transparent_classroom_type: TransparentClassroomLessonType
     description: String
     # Position assignments associated with this device
-    # position_assignments: [PositionAssignment!] @relation(name: "position_assigned", direction: "OUT")
+    # positions: [Position!]
     # Entity assignments associated with this material
     entity_assignments: [EntityAssignment!] @relation(name: "entity_assigned", direction: "OUT")
     # Material assignments associated with this material
-    material_assignments: [MaterialAssignment!] @relation(name: "material_assigned", direction: "OUT")
+    material_assignments: [MaterialAssignment!]
     # Material interactions associated with this material
     material_interactions: [MaterialInteraction!] @relation(name: "material_interactions", direction: "OUT")
 }
@@ -29,13 +29,21 @@ type Tray {
     serial_number: String
     description: String
     # Position assignments associated with this device
-    # position_assignments: [PositionAssignment!] @relation(name: "position_assigned", direction: "OUT")
+    # positions: [Position!]
     # Entity assignments associated with this tray
     entity_assignments: [EntityAssignment!] @relation(name: "entity_assigned", direction: "OUT")
     # Material assignments associated with this tray
-    material_assignments: [MaterialAssignment!] @relation(name: "material_assignments", direction: "OUT")
+    material_assignments: [MaterialAssignment!]
     # Tray interactions associated with this tray
     tray_interactions: [TrayInteraction!] @relation(name: "tray_interactions", direction: "OUT")
+}
+
+
+type MaterialAssignment @relation(name: "MaterialAssignment") {
+    from: Material!
+    to: Tray!
+    start: DateTime!
+    end: DateTime
 }
 
 union Interaction = MaterialInteraction | TrayInteraction

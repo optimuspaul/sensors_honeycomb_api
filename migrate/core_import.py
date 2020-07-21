@@ -75,3 +75,28 @@ link_device_assignments()
 link_person_assignments()
 
 link_tray_assignments()
+
+link_material_tray_assignments()
+
+
+# extrinsiccalibrations
+# position_assignments
+# posetracks3d
+# inferences
+# datapoints
+# poses3d
+# entityassignments
+# poses2d
+# radiopings
+
+
+# social_interaction - empty
+# material_interaction - empty
+# interaciton_validation - empty
+# posetracks2d - empty
+# positions - empty
+# poses - empty
+# material_interactions - empty
+# interaction_validations - empty
+# social_interactions - empty
+# tray_interactions - empty

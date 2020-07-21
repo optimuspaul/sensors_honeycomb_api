@@ -30,3 +30,5 @@ features/steps/__pycache__/
 neo-data/databases/
 neo-data/transactions/
 local*
+
+*.env

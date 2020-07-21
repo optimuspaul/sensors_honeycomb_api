@@ -106,12 +106,12 @@ def link_matrix_to_intrinsic():
         })
 
 
-def process_assignments(assigned_type, mutation, from_name, to_name):
+def process_assignments(query, mutation, from_name, to_name, legacy_to="environment", legacy_from="assigned"):
     print("-" * 80)
-    print(f"linking {assigned_type}")
+    print(mutation)
     print("-" * 80)
     cur = cursor()
-    cur.execute('select data from honeycomb.assignments where data@>\'{"assigned_type": "' + assigned_type + '"}\'')
+    cur.execute(query)
     rows = cur.fetchall()
     gql = graphql_client()
     gql_query = f"""
@@ -149,29 +149,34 @@ def process_assignments(assigned_type, mutation, from_name, to_name):
         }}"""
     for row in rows:
         data = row[0]
-        print(f"{data.get('assigned')} => {data.get('environment')}")
+        print(f"{data.get(legacy_from)} => {data.get(legacy_to)}")
         if data.get("end") is None:
             gql.execute(gql_query_no_end, {
-                "environment_id": data.get('environment'),
-                from_name: data.get('assigned'),
+                to_name: data.get(legacy_to),
+                from_name: data.get(legacy_from),
                 "start": data.get('start'),
             })
         else:
             gql.execute(gql_query, {
-                "environment_id": data.get('environment'),
-                from_name: data.get('assigned'),
+                to_name: data.get(legacy_to),
+                from_name: data.get(legacy_from),
                 "start": data.get('start'),
                 "end": data.get('end'),
             })
 
 
-
-
 def link_device_assignments():
-    process_assignments("DEVICE", "MergeEnvironmentDevice_assignments", "device_id", "environment_id")
+    query = 'select data from honeycomb.assignments where data@>\'{"assigned_type": "DEVICE"}\''
+    process_assignments(query, "MergeEnvironmentDevice_assignments", "device_id", "environment_id")
 
 def link_person_assignments():
-    process_assignments("PERSON", "MergeEnvironmentPersons", "person_id", "environment_id")
+    query = 'select data from honeycomb.assignments where data@>\'{"assigned_type": "PERSON"}\''
+    process_assignments(query, "MergeEnvironmentPersons", "person_id", "environment_id")
 
 def link_tray_assignments():
-    process_assignments("TRAY", "MergeEnvironmentTray_assignments", "tray_id", "environment_id")
+    query = 'select data from honeycomb.assignments where data@>\'{"assigned_type": "TRAY"}\''
+    process_assignments(query, "MergeEnvironmentTray_assignments", "tray_id", "environment_id")
+
+def link_material_tray_assignments():
+    query = "select data from honeycomb.materialassignments"
+    process_assignments(query, "MergeMaterialMaterial_assignments", "material_id", "tray_id", legacy_to="tray", legacy_from="material")
