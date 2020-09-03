@@ -24,3 +24,11 @@ auth\.py
 db_check/
 
 *.log
+
+*.ipynb
+
+__pycache__/
+
+neo-data/
+
+.env
