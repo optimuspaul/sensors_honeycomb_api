@@ -66,6 +66,8 @@ exports.typeDefs = `
   }
 
   enum DeviceType {
+    PI4
+    PI4WITHCAMERA
     PI3
     PI3WITHCAMERA
     PIZERO
