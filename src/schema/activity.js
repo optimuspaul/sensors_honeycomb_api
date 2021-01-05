@@ -256,6 +256,7 @@ input TrayInteractionUpdateInput {
 enum TrayInteractionType {
     CARRYING_FROM_SHELF
     CARRYING_TO_SHELF
+    CARRYING_FROM_AND_TO_SHELF
     CARRYING_UNKNOWN
     NEXT_TO
     OTHER
