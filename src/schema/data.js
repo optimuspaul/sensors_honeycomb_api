@@ -166,6 +166,99 @@ input PositionInput {
     tags: [String!]
 }
 
+type AccelerometerData @beehiveTable(
+    table_name: "accelerometer_data",
+    pk_column: "accelerometer_data_id",
+    table_type: native,
+    native_exclude: ["data"],
+    native_indexes: [
+        {name: "created", type: btree, columns: ["created"]},
+        {name: "timestamp", type: btree, columns: ["timestamp"]},
+        {name: "device_ts", type: btree, columns: ["device", "timestamp"]}
+    ]
+) {
+    accelerometer_data_id: ID!
+    # Timestamp that the data was measured
+    timestamp: Datetime!
+    # Device associated with this data
+    device: Device! @beehiveRelation(target_type_name: "Device")
+    # Accelerometer data
+    data: [Float!]!
+}
+
+type AccelerometerDataList{
+    data: [AccelerometerData!]
+    page_info: PageInfo!
+}
+
+input AccelerometerDataInput {
+    timestamp: Datetime!
+    device: ID!
+    data: [Float!]!
+}
+
+type GyroscopeData @beehiveTable(
+    table_name: "gyroscope_data",
+    pk_column: "gyroscope_data_id",
+    table_type: native,
+    native_exclude: ["data"],
+    native_indexes: [
+        {name: "created", type: btree, columns: ["created"]},
+        {name: "timestamp", type: btree, columns: ["timestamp"]},
+        {name: "device_ts", type: btree, columns: ["device", "timestamp"]}
+    ]
+) {
+    gyroscope_data_id: ID!
+    # Timestamp that the data was measured
+    timestamp: Datetime!
+    # Device associated with this data
+    device: Device! @beehiveRelation(target_type_name: "Device")
+    # Gyroscope data
+    data: [Float!]!
+}
+
+type GyroscopeDataList{
+    data: [GyroscopeData!]
+    page_info: PageInfo!
+}
+
+input GyroscopeDataInput {
+    timestamp: Datetime!
+    device: ID!
+    data: [Float!]!
+}
+
+type MagnetometerData @beehiveTable(
+    table_name: "magnetometer_data",
+    pk_column: "magnetometer_data_id",
+    table_type: native,
+    native_exclude: ["data"],
+    native_indexes: [
+        {name: "created", type: btree, columns: ["created"]},
+        {name: "timestamp", type: btree, columns: ["timestamp"]},
+        {name: "device_ts", type: btree, columns: ["device", "timestamp"]}
+    ]
+) {
+    magnetometer_data_id: ID!
+    # Timestamp that the data was measured
+    timestamp: Datetime!
+    # Device associated with this data
+    device: Device! @beehiveRelation(target_type_name: "Device")
+    # Magnetometer data
+    data: [Float!]!
+}
+
+type MagnetometerDataList{
+    data: [MagnetometerData!]
+    page_info: PageInfo!
+}
+
+input MagnetometerDataInput {
+    timestamp: Datetime!
+    device: ID!
+    data: [Float!]!
+}
+
 type Pose3D @beehiveTable(
     table_name: "poses3d",
     pk_column: "pose_id",
@@ -608,6 +701,27 @@ extend type Query {
     # Find positions using a complex query
     searchPositions(query: QueryExpression!, page: PaginationInput): PositionList @beehiveQuery(target_type_name: "Position")
 
+    # Get the list of accelerometer data
+    accelerometerData(page: PaginationInput): AccelerometerDataList @beehiveList(target_type_name: "AccelerometerData")
+    # Get a single accelerometer reading
+    getAccelerometerData(accelerometer_data_id: ID!): AccelerometerData @beehiveGet(target_type_name: "AccelerometerData")
+    # Find accelerometer data using a complex query
+    searchAccelerometerData(query: QueryExpression!, page: PaginationInput): AccelerometerDataList @beehiveQuery(target_type_name: "AccelerometerData")
+
+    # Get the list of gyroscope data
+    gyroscopeData(page: PaginationInput): GyroscopeDataList @beehiveList(target_type_name: "GyroscopeData")
+    # Get a single gyroscope reading
+    getGyroscopeData(gyroscope_data_id: ID!): GyroscopeData @beehiveGet(target_type_name: "GyroscopeData")
+    # Find gyroscope data using a complex query
+    searchGyroscopeData(query: QueryExpression!, page: PaginationInput): GyroscopeDataList @beehiveQuery(target_type_name: "GyroscopeData")
+
+    # Get the list of magnetometer data
+    magnetometerData(page: PaginationInput): MagnetometerDataList @beehiveList(target_type_name: "MagnetometerData")
+    # Get a single magnetometer reading
+    getMagnetometerData(magnetometer_data_id: ID!): MagnetometerData @beehiveGet(target_type_name: "MagnetometerData")
+    # Find magnetometer data using a complex query
+    searchMagnetometerData(query: QueryExpression!, page: PaginationInput): MagnetometerDataList @beehiveQuery(target_type_name: "MagnetometerData")
+
     # Get the list of 3D poses
     poses3D(page: PaginationInput): Pose3DList @beehiveList(target_type_name: "Pose3D")
     # Get a 3D pose
@@ -710,6 +824,21 @@ extend type Mutation {
     createPosition(position: PositionInput): Position @beehiveCreate(target_type_name: "Position")
     # Delete a position
     deletePosition(position_id: ID): DeleteStatusResponse @beehiveDelete(target_type_name: "Position")
+
+    # Create a new accelerometer reading
+    createAccelerometerData(accelerometerData: AccelerometerDataInput): AccelerometerData @beehiveCreate(target_type_name: "AccelerometerData")
+    # Delete an accelerometer reading
+    deleteAccelerometerData(accelerometer_data_id: ID): DeleteStatusResponse @beehiveDelete(target_type_name: "AccelerometerData")
+
+    # Create a new gyroscope reading
+    createGyroscopeData(gyroscopeData: GyroscopeDataInput): GyroscopeData @beehiveCreate(target_type_name: "GyroscopeData")
+    # Delete a gyroscope reading
+    deleteGyroscopeData(gyroscope_data_id: ID): DeleteStatusResponse @beehiveDelete(target_type_name: "GyroscopeData")
+
+    # Create a new magnetometer reading
+    createMagnetometerData(magnetometerData: MagnetometerDataInput): MagnetometerData @beehiveCreate(target_type_name: "MagnetometerData")
+    # Delete a magnetometer reading
+    deleteMagnetometerData(magnetometer_data_id: ID): DeleteStatusResponse @beehiveDelete(target_type_name: "MagnetometerData")
 
     # Create a new 3D pose
     createPose3D(pose3D: Pose3DInput): Pose3D @beehiveCreate(target_type_name: "Pose3D")
