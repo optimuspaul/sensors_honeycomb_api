@@ -4,8 +4,10 @@ const geom = require("./geom")
 const datapoints = require("./data")
 const activity = require("./activity")
 const environments = require("./environments")
+const bulkImportRequests = require("./bulkImport")
 const {makeExecutableSchema} = require('graphql-tools')
 const {BeehiveDirectives, BeehiveTypeDefs, BeehiveResolvers, hivePg} = require("@wildflowerschools/graphql-beehive")
+const {CustomBeehiveDirectives, CustomBeehiveTypeDefs} = require('./customTypes')
 
 
 const rootDefs = `
@@ -27,16 +29,20 @@ const rootDefs = `
 
 const logger = { log: e => console.log(e) }
 
+logger.log(Object.assign(BeehiveDirectives, CustomBeehiveDirectives))
+
 const schema = makeExecutableSchema({
   typeDefs: [
     rootDefs,
     BeehiveTypeDefs,
+    CustomBeehiveTypeDefs,
     common.typeDefs,
     geom.typeDefs,
     sensors.typeDefs,
     environments.typeDefs,
     datapoints.typeDefs,
     activity.typeDefs,
+    bulkImportRequests.typeDefs
   ],
   resolvers: [
     BeehiveResolvers,
@@ -50,7 +56,7 @@ const schema = makeExecutableSchema({
       }
     }
   ],
-  schemaDirectives: Object.assign(BeehiveDirectives),
+  schemaDirectives: Object.assign(BeehiveDirectives, CustomBeehiveDirectives),
   resolverValidationOptions: {
     requireResolversForResolveType: false
   },

@@ -81,7 +81,6 @@ app.use('/voyager', voyager.express({ endpointUrl: '/graphql' }))
 server.applyMiddleware({ app })
 
 
-
 exports.start = async () => {
     console.log("checking database")
     try {
