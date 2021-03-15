@@ -166,18 +166,112 @@ input PositionInput {
     tags: [String!]
 }
 
+type AccelerometerData @beehiveTable(
+    table_name: "accelerometer_data",
+    pk_column: "accelerometer_data_id",
+    table_type: native,
+    native_exclude: ["data"],
+    native_indexes: [
+        {name: "created", type: btree, columns: ["created"]},
+        {name: "timestamp", type: btree, columns: ["timestamp"]},
+        {name: "device_ts", type: btree, columns: ["device", "timestamp"]}
+    ]
+) {
+    accelerometer_data_id: ID!
+    # Timestamp that the data was measured
+    timestamp: Datetime!
+    # Device associated with this data
+    device: Device! @beehiveRelation(target_type_name: "Device")
+    # Accelerometer data
+    data: [Float!]!
+}
+
+type AccelerometerDataList{
+    data: [AccelerometerData!]
+    page_info: PageInfo!
+}
+
+input AccelerometerDataInput {
+    timestamp: Datetime!
+    device: ID!
+    data: [Float!]!
+}
+
+type GyroscopeData @beehiveTable(
+    table_name: "gyroscope_data",
+    pk_column: "gyroscope_data_id",
+    table_type: native,
+    native_exclude: ["data"],
+    native_indexes: [
+        {name: "created", type: btree, columns: ["created"]},
+        {name: "timestamp", type: btree, columns: ["timestamp"]},
+        {name: "device_ts", type: btree, columns: ["device", "timestamp"]}
+    ]
+) {
+    gyroscope_data_id: ID!
+    # Timestamp that the data was measured
+    timestamp: Datetime!
+    # Device associated with this data
+    device: Device! @beehiveRelation(target_type_name: "Device")
+    # Gyroscope data
+    data: [Float!]!
+}
+
+type GyroscopeDataList{
+    data: [GyroscopeData!]
+    page_info: PageInfo!
+}
+
+input GyroscopeDataInput {
+    timestamp: Datetime!
+    device: ID!
+    data: [Float!]!
+}
+
+type MagnetometerData @beehiveTable(
+    table_name: "magnetometer_data",
+    pk_column: "magnetometer_data_id",
+    table_type: native,
+    native_exclude: ["data"],
+    native_indexes: [
+        {name: "created", type: btree, columns: ["created"]},
+        {name: "timestamp", type: btree, columns: ["timestamp"]},
+        {name: "device_ts", type: btree, columns: ["device", "timestamp"]}
+    ]
+) {
+    magnetometer_data_id: ID!
+    # Timestamp that the data was measured
+    timestamp: Datetime!
+    # Device associated with this data
+    device: Device! @beehiveRelation(target_type_name: "Device")
+    # Magnetometer data
+    data: [Float!]!
+}
+
+type MagnetometerDataList{
+    data: [MagnetometerData!]
+    page_info: PageInfo!
+}
+
+input MagnetometerDataInput {
+    timestamp: Datetime!
+    device: ID!
+    data: [Float!]!
+}
+
 type Pose3D @beehiveTable(
     table_name: "poses3d",
     pk_column: "pose_id",
     table_type: native,
-    native_exclude: ["keypoints", "duration"],
+    native_exclude: [
+      "keypoints",
+      "duration"
+    ],
     native_indexes: [
         {name: "created", type: btree, columns: ["created"]},
         {name: "timestamp", type: btree, columns: ["timestamp"]},
-        {name: "person_ts", type: btree, columns: ["person", "timestamp"]},
         {name: "source_ts", type: btree, columns: ["source", "timestamp"]},
         {name: "source_ts_tags", type: btree, columns: ["source", "timestamp", "tags"]},
-        {name: "source_ts_track_label", type: btree, columns: ["source", "timestamp", "track_label"]},
         {name: "tags_ts", type: btree, columns: ["tags", "timestamp"]}
     ]
 ) {
@@ -188,21 +282,21 @@ type Pose3D @beehiveTable(
     coordinate_space: CoordinateSpace! @beehiveRelation(target_type_name: "CoordinateSpace")
     # Pose model from which the keypoints are derived
     pose_model: PoseModel! @beehiveRelation(target_type_name: "PoseModel")
-    # Label of track assigned by pose tracking inference
-    track_label: String
     # Keypoints of the pose in the specified coordinate space
     keypoints: [Keypoint!]!
     # Quality of the pose
     quality: Float
-    # Person associated with this pose
-    person: Person @beehiveRelation(target_type_name: "Person")
-    # duration of the data included in this observation. time should be expressed in milliseconds. If not set then assumed to be a snapshot observation without a duration
-    duration: Int
-    # 2D poses that inform this 3D pose
-    poses_2d: [String]
+    # 2D poses associated with this pose
+    poses_2d: [Pose2DPose3DLink!] @beehiveRelationFilter(target_type_name: "Pose2DPose3DLink", target_field_name: "pose_3d")
+    # Pose tracks associated with this pose
+    pose_tracks: [Pose3DPoseTrack3DLink!] @beehiveRelationFilter(target_type_name: "Pose3DPoseTrack3DLink", target_field_name: "pose_3d")
+    # Persons associated with this pose
+    persons: [Pose3DPersonLink!] @beehiveRelationFilter(target_type_name: "Pose3DPersonLink", target_field_name: "pose_3d")
     # where did the data originate
     source: SourceObject @beehiveUnionResolver(target_types: ["Assignment", "Person", "InferenceExecution", "Environment"])
     source_type: DataSourceType
+    # Pose ID generated when data was being processed locally (if any)
+    local_pose_id: String
     # tags used to identify datapoints for classification
     tags: [String!]
     # datapoint (typically a video) that was the source of this pose
@@ -218,14 +312,11 @@ input Pose3DInput {
     timestamp: Datetime!
     coordinate_space: ID!
     pose_model: ID!
-    track_label: String
     keypoints: [KeypointInput!]!
     quality: Float
-    person: ID
-    duration: Int
-    poses_2d: [String]
     source: ID
     source_type: DataSourceType
+    local_pose_id: String
     tags: [String!]
     datapoint: ID
 }
@@ -239,13 +330,17 @@ type PoseTrack3D @beehiveTable(
     ]
 ) {
     pose_track_id: ID!
-    # 3D poses that are part of this track
-    poses_3d: [String]
-    # Label of track assigned by pose tracking inference
+    # Label for this pose track
     track_label: String
+    # 3D poses associated with this pose track
+    poses_3d: [Pose3DPoseTrack3DLink!] @beehiveRelationFilter(target_type_name: "Pose3DPoseTrack3DLink", target_field_name: "pose_track")
+    # Persons associated with this pose track
+    persons: [PoseTrack3DPersonLink!] @beehiveRelationFilter(target_type_name: "PoseTrack3DPersonLink", target_field_name: "pose_track")
     # where did the data originate
     source: SourceObject @beehiveUnionResolver(target_types: ["Assignment", "Person", "InferenceExecution", "Environment"])
     source_type: DataSourceType
+    # Pose track ID generated when data was being processed locally (if any)
+    local_pose_track_id: String
 }
 
 type PoseTrack3DList{
@@ -254,21 +349,23 @@ type PoseTrack3DList{
 }
 
 input PoseTrack3DInput {
-    poses_3d: [ID]
     track_label: String
     source: ID
     source_type: DataSourceType
+    local_pose_track_id: String
 }
 
 type Pose2D @beehiveTable(
     table_name: "poses2d",
     pk_column: "pose_id",
     table_type: native,
-    native_exclude: ["keypoints", "duration"],
+    native_exclude: [
+      "keypoints",
+      "duration"
+    ],
     native_indexes: [
         {name: "created", type: btree, columns: ["created"]},
         {name: "timestamp", type: btree, columns: ["timestamp"]},
-        {name: "person_ts", type: btree, columns: ["person", "timestamp"]},
         {name: "source_ts", type: btree, columns: ["source", "timestamp"]},
         {name: "source_ts_tags", type: btree, columns: ["source", "timestamp", "tags"]},
         {name: "source_ts_track_label", type: btree, columns: ["source", "timestamp", "track_label"]},
@@ -280,21 +377,27 @@ type Pose2D @beehiveTable(
     timestamp: Datetime!
     # Camera associated with this pose
     camera: Device! @beehiveRelation(target_type_name: "Device")
-    # Label of track assigned by pose tracking inference
-    track_label: String
     # Pose model from which the keypoints are derived
     pose_model: PoseModel! @beehiveRelation(target_type_name: "PoseModel")
     # Keypoints of the pose in the specified coordinate space
     keypoints: [Keypoint!]!
     # Quality of the pose
     quality: Float
-    # Person associated with this pose
-    person: Person @beehiveRelation(target_type_name: "Person")
+    # 3D poses associated with this pose
+    poses_3d: [Pose2DPose3DLink!] @beehiveRelationFilter(target_type_name: "Pose2DPose3DLink", target_field_name: "pose_2d")
+    # Pose tracks associated with this pose
+    pose_tracks: [Pose2DPoseTrack2DLink!] @beehiveRelationFilter(target_type_name: "Pose2DPoseTrack2DLink", target_field_name: "pose_2d")
+    # Persons associated with this pose
+    persons: [Pose2DPersonLink!] @beehiveRelationFilter(target_type_name: "Pose2DPersonLink", target_field_name: "pose_2d")
+    # Track label generated during 2D pose detection
+    track_label: String
     # duration of the data included in this observation. time should be expressed in milliseconds. If not set then assumed to be a snapshot observation without a duration
     duration: Int
     # where did the data originate
     source: SourceObject @beehiveUnionResolver(target_types: ["Assignment", "Person", "InferenceExecution", "Environment"])
     source_type: DataSourceType
+    # Pose ID generated when data was being processed locally (if any)
+    local_pose_id: String
     # tags used to identify datapoints for classification
     tags: [String!]
     # datapoint (typically a video) that was the source of this pose
@@ -309,14 +412,14 @@ type Pose2DList{
 input Pose2DInput {
     timestamp: Datetime!
     camera: ID!
-    track_label: String
     pose_model: ID!
     keypoints: [KeypointInput!]!
     quality: Float
-    person: ID
+    track_label: String
     duration: Int
     source: ID
     source_type: DataSourceType
+    local_pose_id: String
     tags: [String!]
     datapoint: ID
 }
@@ -330,13 +433,17 @@ type PoseTrack2D @beehiveTable(
     ]
 ) {
     pose_track_id: ID!
-    # 2D poses that are part of this track
-    poses_2d: [String]
-    # Label of track assigned by pose tracking inference
+    # Label for this pose track
     track_label: String
+    # 2D poses associated with this pose track
+    poses_2d: [Pose2DPoseTrack2DLink!] @beehiveRelationFilter(target_type_name: "Pose2DPoseTrack2DLink", target_field_name: "pose_track")
+    # Persons associated with this pose track
+    persons: [PoseTrack2DPersonLink!] @beehiveRelationFilter(target_type_name: "PoseTrack2DPersonLink", target_field_name: "pose_track")
     # where did the data originate
     source: SourceObject @beehiveUnionResolver(target_types: ["Assignment", "Person", "InferenceExecution", "Environment"])
     source_type: DataSourceType
+    # Pose track ID generated when data was being processed locally (if any)
+    local_pose_track_id: String
 }
 
 type PoseTrack2DList{
@@ -345,10 +452,185 @@ type PoseTrack2DList{
 }
 
 input PoseTrack2DInput {
-    poses_2d: [ID]
     track_label: String
     source: ID
     source_type: DataSourceType
+    local_pose_track_id: String
+}
+
+type Pose2DPose3DLink @beehiveTable(
+    table_name: "pose2dpose3dlinks",
+    pk_column: "link_id",
+    table_type: native,
+    native_indexes: [
+        {name: "created", type: btree, columns: ["created"]},
+    ]
+) {
+    link_id: ID!
+    # Linked 2D pose
+    pose_2d: Pose2D! @beehiveRelation(target_type_name: "Pose2D")
+    # Linked 3D pose
+    pose_3d: Pose3D! @beehiveRelation(target_type_name: "Pose3D")
+}
+
+type Pose2DPose3DLinkList{
+    data: [Pose2DPose3DLink!]
+    page_info: PageInfo!
+}
+
+input Pose2DPose3DLinkInput {
+    pose_2d: ID!
+    pose_3d: ID!
+}
+
+type Pose3DPoseTrack3DLink @beehiveTable(
+    table_name: "pose3dposetrack3dlinks",
+    pk_column: "link_id",
+    table_type: native,
+    native_indexes: [
+        {name: "created", type: btree, columns: ["created"]},
+    ]
+) {
+    link_id: ID!
+    # Linked 3D pose
+    pose_3d: Pose3D! @beehiveRelation(target_type_name: "Pose3D")
+    # Linked 3D pose track
+    pose_track: PoseTrack3D! @beehiveRelation(target_type_name: "PoseTrack3D")
+}
+
+type Pose3DPoseTrack3DLinkList{
+    data: [Pose3DPoseTrack3DLink!]
+    page_info: PageInfo!
+}
+
+input Pose3DPoseTrack3DLinkInput {
+    pose_3d: ID!
+    pose_track: ID!
+}
+
+type Pose3DPersonLink @beehiveTable(
+    table_name: "pose3dpersonlinks",
+    pk_column: "link_id",
+    table_type: native,
+    native_indexes: [
+        {name: "created", type: btree, columns: ["created"]},
+    ]
+) {
+    link_id: ID!
+    # Linked 3D pose
+    pose_3d: Pose3D! @beehiveRelation(target_type_name: "Pose3D")
+    # Linked person
+    person: Person! @beehiveRelation(target_type_name: "Person")
+}
+
+type Pose3DPersonLinkList{
+    data: [Pose3DPersonLink!]
+    page_info: PageInfo!
+}
+
+input Pose3DPersonLinkInput {
+    pose_3d: ID!
+    person: ID!
+}
+
+type PoseTrack3DPersonLink @beehiveTable(
+    table_name: "posetrack3dpersonlinks",
+    pk_column: "link_id",
+    table_type: native,
+    native_indexes: [
+        {name: "created", type: btree, columns: ["created"]},
+    ]
+) {
+    link_id: ID!
+    # Linked 3D pose track
+    pose_track: PoseTrack3D! @beehiveRelation(target_type_name: "PoseTrack3D")
+    # Linked person
+    person: Person! @beehiveRelation(target_type_name: "Person")
+}
+
+type PoseTrack3DPersonLinkList{
+    data: [PoseTrack3DPersonLink!]
+    page_info: PageInfo!
+}
+
+input PoseTrack3DPersonLinkInput {
+    pose_track: ID!
+    person: ID!
+}
+
+type Pose2DPoseTrack2DLink @beehiveTable(
+    table_name: "pose2dposetrack2dlinks",
+    pk_column: "link_id",
+    table_type: native,
+    native_indexes: [
+        {name: "created", type: btree, columns: ["created"]},
+    ]
+) {
+    link_id: ID!
+    # Linked 2D pose
+    pose_2d: Pose2D! @beehiveRelation(target_type_name: "Pose2D")
+    # Linked 2D pose track
+    pose_track: PoseTrack2D! @beehiveRelation(target_type_name: "PoseTrack2D")
+}
+
+type Pose2DPoseTrack2DLinkList{
+    data: [Pose2DPoseTrack2DLink!]
+    page_info: PageInfo!
+}
+
+input Pose2DPoseTrack2DLinkInput {
+    pose_2d: ID!
+    pose_track: ID!
+}
+
+type Pose2DPersonLink @beehiveTable(
+    table_name: "pose2dpersonlinks",
+    pk_column: "link_id",
+    table_type: native,
+    native_indexes: [
+        {name: "created", type: btree, columns: ["created"]},
+    ]
+) {
+    link_id: ID!
+    # Linked 2D pose
+    pose_2d: Pose2D! @beehiveRelation(target_type_name: "Pose2D")
+    # Linked person
+    person: Person! @beehiveRelation(target_type_name: "Person")
+}
+
+type Pose2DPersonLinkList{
+    data: [Pose2DPersonLink!]
+    page_info: PageInfo!
+}
+
+input Pose2DPersonLinkInput {
+    pose_2d: ID!
+    person: ID!
+}
+
+type PoseTrack2DPersonLink @beehiveTable(
+    table_name: "posetrack2dpersonlinks",
+    pk_column: "link_id",
+    table_type: native,
+    native_indexes: [
+        {name: "created", type: btree, columns: ["created"]},
+    ]
+) {
+    link_id: ID!
+    # Linked 2D pose track
+    pose_track: PoseTrack2D! @beehiveRelation(target_type_name: "PoseTrack2D")
+    # Linked person
+    person: Person! @beehiveRelation(target_type_name: "Person")
+}
+
+type PoseTrack2DPersonLinkList{
+    data: [PoseTrack2DPersonLink!]
+    page_info: PageInfo!
+}
+
+input PoseTrack2DPersonLinkInput {
+    pose_track: ID!
+    person: ID!
 }
 
 enum DataSourceType {
@@ -419,6 +701,27 @@ extend type Query {
     # Find positions using a complex query
     searchPositions(query: QueryExpression!, page: PaginationInput): PositionList @beehiveQuery(target_type_name: "Position")
 
+    # Get the list of accelerometer data
+    accelerometerData(page: PaginationInput): AccelerometerDataList @beehiveList(target_type_name: "AccelerometerData")
+    # Get a single accelerometer reading
+    getAccelerometerData(accelerometer_data_id: ID!): AccelerometerData @beehiveGet(target_type_name: "AccelerometerData")
+    # Find accelerometer data using a complex query
+    searchAccelerometerData(query: QueryExpression!, page: PaginationInput): AccelerometerDataList @beehiveQuery(target_type_name: "AccelerometerData")
+
+    # Get the list of gyroscope data
+    gyroscopeData(page: PaginationInput): GyroscopeDataList @beehiveList(target_type_name: "GyroscopeData")
+    # Get a single gyroscope reading
+    getGyroscopeData(gyroscope_data_id: ID!): GyroscopeData @beehiveGet(target_type_name: "GyroscopeData")
+    # Find gyroscope data using a complex query
+    searchGyroscopeData(query: QueryExpression!, page: PaginationInput): GyroscopeDataList @beehiveQuery(target_type_name: "GyroscopeData")
+
+    # Get the list of magnetometer data
+    magnetometerData(page: PaginationInput): MagnetometerDataList @beehiveList(target_type_name: "MagnetometerData")
+    # Get a single magnetometer reading
+    getMagnetometerData(magnetometer_data_id: ID!): MagnetometerData @beehiveGet(target_type_name: "MagnetometerData")
+    # Find magnetometer data using a complex query
+    searchMagnetometerData(query: QueryExpression!, page: PaginationInput): MagnetometerDataList @beehiveQuery(target_type_name: "MagnetometerData")
+
     # Get the list of 3D poses
     poses3D(page: PaginationInput): Pose3DList @beehiveList(target_type_name: "Pose3D")
     # Get a 3D pose
@@ -447,6 +750,55 @@ extend type Query {
     # Find 2D pose tracks using a complex query
     searchPoseTracks2D(query: QueryExpression!, page: PaginationInput): PoseTrack2DList @beehiveQuery(target_type_name: "PoseTrack2D")
 
+    # Get the list of 2D-pose-to-3D-pose links
+    pose2DPose3DLinks(page: PaginationInput): Pose2DPose3DLinkList @beehiveList(target_type_name: "Pose2DPose3DLink")
+    # Get a 2D-pose-to-3D-pose link
+    getPose2DPose3DLink(link_id: ID!): Pose2DPose3DLink @beehiveGet(target_type_name: "Pose2DPose3DLink")
+    # Find 2D-pose-to-3D-pose links using a complex query
+    searchPose2DPose3DLinks(query: QueryExpression!, page: PaginationInput): Pose2DPose3DLinkList @beehiveQuery(target_type_name: "Pose2DPose3DLink")
+
+    # Get the list of 3D-pose-to-3D-pose-track links
+    pose3DPoseTrack3DLinks(page: PaginationInput): Pose3DPoseTrack3DLinkList @beehiveList(target_type_name: "Pose3DPoseTrack3DLink")
+    # Get a 3D-pose-to-3D-pose-track link
+    getPose3DPoseTrack3DLink(link_id: ID!): Pose3DPoseTrack3DLink @beehiveGet(target_type_name: "Pose3DPoseTrack3DLink")
+    # Find 3D-pose-to-3D-pose-track links using a complex query
+    searchPose3DPoseTrack3DLinks(query: QueryExpression!, page: PaginationInput): Pose3DPoseTrack3DLinkList @beehiveQuery(target_type_name: "Pose3DPoseTrack3DLink")
+
+    # Get the list of 3D-pose-to-person links
+    pose3DPersonLinks(page: PaginationInput): Pose3DPersonLinkList @beehiveList(target_type_name: "Pose3DPersonLink")
+    # Get a 3D-pose-to-person link
+    getPose3DPersonLink(link_id: ID!): Pose3DPersonLink @beehiveGet(target_type_name: "Pose3DPersonLink")
+    # Find 3D-pose-to-person links using a complex query
+    searchPose3DPersonLinks(query: QueryExpression!, page: PaginationInput): Pose3DPersonLinkList @beehiveQuery(target_type_name: "Pose3DPersonLink")
+
+    # Get the list of 3D-pose-track-to-person links
+    poseTrack3DPersonLinks(page: PaginationInput): PoseTrack3DPersonLinkList @beehiveList(target_type_name: "PoseTrack3DPersonLink")
+    # Get a 3D-pose-track-to-person link
+    getPoseTrack3DPersonLink(link_id: ID!): PoseTrack3DPersonLink @beehiveGet(target_type_name: "PoseTrack3DPersonLink")
+    # Find 3D-pose-track-to-person links using a complex query
+    searchPoseTrack3DPersonLinks(query: QueryExpression!, page: PaginationInput): PoseTrack3DPersonLinkList @beehiveQuery(target_type_name: "PoseTrack3DPersonLink")
+
+    # Get the list of 2D-pose-to-2D-pose-track links
+    pose2DPoseTrack2DLinks(page: PaginationInput): Pose2DPoseTrack2DLinkList @beehiveList(target_type_name: "Pose2DPoseTrack2DLink")
+    # Get a 2D-pose-to-2D-pose-track link
+    getPose2DPoseTrack2DLink(link_id: ID!): Pose2DPoseTrack2DLink @beehiveGet(target_type_name: "Pose2DPoseTrack2DLink")
+    # Find 2D-pose-to-2D-pose-track links using a complex query
+    searchPose2DPoseTrack2DLinks(query: QueryExpression!, page: PaginationInput): Pose2DPoseTrack2DLinkList @beehiveQuery(target_type_name: "Pose2DPoseTrack2DLink")
+
+    # Get the list of 2D-pose-to-person links
+    pose2DPersonLinks(page: PaginationInput): Pose2DPersonLinkList @beehiveList(target_type_name: "Pose2DPersonLink")
+    # Get a 2D-pose-to-person link
+    getPose2DPersonLink(link_id: ID!): Pose2DPersonLink @beehiveGet(target_type_name: "Pose2DPersonLink")
+    # Find 2D-pose-to-person links using a complex query
+    searchPose2DPersonLinks(query: QueryExpression!, page: PaginationInput): Pose2DPersonLinkList @beehiveQuery(target_type_name: "Pose2DPersonLink")
+
+    # Get the list of 2D-pose-track-to-person links
+    poseTrack2DPersonLinks(page: PaginationInput): PoseTrack2DPersonLinkList @beehiveList(target_type_name: "PoseTrack2DPersonLink")
+    # Get a 2D-pose-track-to-person link
+    getPoseTrack2DPersonLink(link_id: ID!): PoseTrack2DPersonLink @beehiveGet(target_type_name: "PoseTrack2DPersonLink")
+    # Find 2D-pose-track-to-person links using a complex query
+    searchPoseTrack2DPersonLinks(query: QueryExpression!, page: PaginationInput): PoseTrack2DPersonLinkList @beehiveQuery(target_type_name: "PoseTrack2DPersonLink")
+
     # Get the list of inference executions
     inferenceExecutions(page: PaginationInput): InferenceExecutionList @beehiveList(target_type_name: "InferenceExecution")
     # Get an inference execution
@@ -473,6 +825,21 @@ extend type Mutation {
     # Delete a position
     deletePosition(position_id: ID): DeleteStatusResponse @beehiveDelete(target_type_name: "Position")
 
+    # Create a new accelerometer reading
+    createAccelerometerData(accelerometerData: AccelerometerDataInput): AccelerometerData @beehiveCreate(target_type_name: "AccelerometerData")
+    # Delete an accelerometer reading
+    deleteAccelerometerData(accelerometer_data_id: ID): DeleteStatusResponse @beehiveDelete(target_type_name: "AccelerometerData")
+
+    # Create a new gyroscope reading
+    createGyroscopeData(gyroscopeData: GyroscopeDataInput): GyroscopeData @beehiveCreate(target_type_name: "GyroscopeData")
+    # Delete a gyroscope reading
+    deleteGyroscopeData(gyroscope_data_id: ID): DeleteStatusResponse @beehiveDelete(target_type_name: "GyroscopeData")
+
+    # Create a new magnetometer reading
+    createMagnetometerData(magnetometerData: MagnetometerDataInput): MagnetometerData @beehiveCreate(target_type_name: "MagnetometerData")
+    # Delete a magnetometer reading
+    deleteMagnetometerData(magnetometer_data_id: ID): DeleteStatusResponse @beehiveDelete(target_type_name: "MagnetometerData")
+
     # Create a new 3D pose
     createPose3D(pose3D: Pose3DInput): Pose3D @beehiveCreate(target_type_name: "Pose3D")
     # Delete a 3D pose
@@ -492,6 +859,41 @@ extend type Mutation {
     createPoseTrack2D(poseTrack2D: PoseTrack2DInput): PoseTrack2D @beehiveCreate(target_type_name: "PoseTrack2D")
     # Delete a 2D pose track
     deletePoseTrack2D(pose_track_id: ID): DeleteStatusResponse @beehiveDelete(target_type_name: "PoseTrack2D")
+
+    # Create a new 2D-pose-to-3D-pose link
+    createPose2DPose3DLink(pose2DPose3DLink: Pose2DPose3DLinkInput): Pose2DPose3DLink @beehiveCreate(target_type_name: "Pose2DPose3DLink")
+    # Delete a 2D-pose-to-3D-pose link
+    deletePose2DPose3DLink(link_id: ID): DeleteStatusResponse @beehiveDelete(target_type_name: "Pose2DPose3DLink")
+
+    # Create a new 3D-pose-to-3D-pose-track link
+    createPose3DPoseTrack3DLink(pose3DPoseTrack3DLink: Pose3DPoseTrack3DLinkInput): Pose3DPoseTrack3DLink @beehiveCreate(target_type_name: "Pose3DPoseTrack3DLink")
+    # Delete a 3D-pose-to-3D-pose-track link
+    deletePose3DPoseTrack3DLink(link_id: ID): DeleteStatusResponse @beehiveDelete(target_type_name: "Pose3DPoseTrack3DLink")
+
+    # Create a new 3D-pose-to-person link
+    createPose3DPersonLink(pose3DPersonLink: Pose3DPersonLinkInput): Pose3DPersonLink @beehiveCreate(target_type_name: "Pose3DPersonLink")
+    # Delete a 3D-pose-to-person link
+    deletePose3DPersonLink(link_id: ID): DeleteStatusResponse @beehiveDelete(target_type_name: "Pose3DPersonLink")
+
+    # Create a new 3D-pose-track-to-person link
+    createPoseTrack3DPersonLink(poseTrack3DPersonLink: PoseTrack3DPersonLinkInput): PoseTrack3DPersonLink @beehiveCreate(target_type_name: "PoseTrack3DPersonLink")
+    # Delete a 3D-pose-track-to-person link
+    deletePoseTrack3DPersonLink(link_id: ID): DeleteStatusResponse @beehiveDelete(target_type_name: "PoseTrack3DPersonLink")
+
+    # Create a new 2D-pose-to-2D-pose-track link
+    createPose2DPoseTrack2DLink(pose2DPoseTrack2DLink: Pose2DPoseTrack2DLinkInput): Pose2DPoseTrack2DLink @beehiveCreate(target_type_name: "Pose2DPoseTrack2DLink")
+    # Delete a 2D-pose-to-2D-pose-track link
+    deletePose2DPoseTrack2DLink(link_id: ID): DeleteStatusResponse @beehiveDelete(target_type_name: "Pose2DPoseTrack2DLink")
+
+    # Create a new 2D-pose-to-person link
+    createPose2DPersonLink(pose2DPersonLink: Pose2DPersonLinkInput): Pose2DPersonLink @beehiveCreate(target_type_name: "Pose2DPersonLink")
+    # Delete a 2D-pose-to-person link
+    deletePose2DPersonLink(link_id: ID): DeleteStatusResponse @beehiveDelete(target_type_name: "Pose2DPersonLink")
+
+    # Create a new 2D-pose-track-to-person link
+    createPoseTrack2DPersonLink(poseTrack2DPersonLink: PoseTrack2DPersonLinkInput): PoseTrack2DPersonLink @beehiveCreate(target_type_name: "PoseTrack2DPersonLink")
+    # Delete a 2D-pose-track-to-person link
+    deletePoseTrack2DPersonLink(link_id: ID): DeleteStatusResponse @beehiveDelete(target_type_name: "PoseTrack2DPersonLink")
 
     tagDatapoint(data_id: ID!, tags: [String!]!): Datapoint! @beehiveListFieldAppend(target_type_name: "Datapoint", field_name: "tags", input_field_name: "tags")
     untagDatapoint(data_id: ID!, tags: [String!]!): Datapoint! @beehiveListFieldDelete(target_type_name: "Datapoint", field_name: "tags", input_field_name: "tags")
