@@ -11,7 +11,8 @@ type BulkImportRequest @beehiveTable(
   table_type: native,
   native_exclude: ["file"],
   native_indexes: [
-    {name: "created", type: btree, columns: ["created"]}
+    {name: "created", type: btree, columns: ["created"]},
+    {name: "tags", type: btree, columns: ["tags"]}
   ]
 ) {
   bulk_import_id: ID!
@@ -53,6 +54,6 @@ extend type Query {
 
 extend type Mutation {
   # Create a new device
-  createBulkImportRequest(bulkImportRequest: BulkImportRequestInput): BulkImportRequest @beehiveCreate(target_type_name: "BulkImportRequest") @honeycombBackgroundTask(background_task: "BulkImportHandle")  
+  createBulkImportRequest(bulkImportRequest: BulkImportRequestInput): BulkImportRequest @beehiveCreate(target_type_name: "BulkImportRequest", s3_file_fields: ["file"]) @honeycombBackgroundTask(background_task: "BulkImportHandle")  
 }
 `
