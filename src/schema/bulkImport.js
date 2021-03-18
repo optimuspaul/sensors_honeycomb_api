@@ -1,26 +1,29 @@
 exports.typeDefs = `
 enum BulkImportStateType {
+  QUEUED
   RUNNING
   FAILED
   FINISHED
 }
 
 type BulkImportRequest @beehiveTable(
-  table_name: "bulk_imports",
-  pk_column: "bulk_import_id",
+  table_name: "bulk_import_requests",
+  pk_column: "bulk_import_request_id",
   table_type: native,
-  native_exclude: ["file"],
+  # native_exclude: ["file"],
   native_indexes: [
     {name: "created", type: btree, columns: ["created"]},
     {name: "tags", type: btree, columns: ["tags"]}
   ]
 ) {
-  bulk_import_id: ID!
+  bulk_import_request_id: ID!
   name: String!
   # Import file data
-  file: S3File! @s3file(keyPrefix: "bulk-imports", bucketName: "wildflower-honeycomb-bulk-imports-us-east-2", region: "us-east-2")
+  # file: S3File! @s3file(keyPrefix: "bulk-imports", bucketName: "wildflower-honeycomb-bulk-imports-us-east-2-dev", region: "us-east-2")
+  file_url: String!
   # Error file
-  error_file: S3File @s3file(keyPrefix: "bulk-import-errors", bucketName: "wildflower-honeycomb-bulk-imports-us-east-2", region: "us-east-2")
+  error_file_url: String
+  # error_file: S3File @s3file(keyPrefix: "bulk-import-errors", bucketName: "wildflower-honeycomb-bulk-imports-us-east-2-dev", region: "us-east-2")
   # State/status of import
   state: BulkImportStateType
   # Optional environment the bulk import is related to
@@ -34,12 +37,11 @@ type BulkImportRequestList {
   page_info: PageInfo!
 }
 
-input BulkImportRequestInput {
-  name: String!
-  file: S3FileInput!
-  environment: ID 
-  tags: [String!]
-}
+# input BulkImportRequestInput {
+#   name: String!
+#   environment: ID
+#   tags: [String!]
+# }
 
 extend type Query {
   # Get the list of bulk imports
@@ -47,13 +49,13 @@ extend type Query {
   # Get a BulkImportRequest
   getBulkImportRequest(bulk_import_request: ID!): BulkImportRequest @beehiveGet(target_type_name: "BulkImportRequest")
   # Find BulkImportRequests based on one or more of their properties
-  findBulkImportRequests(name: String, environment: ID, state: BulkImportStateType, page: PaginationInput): BulkImportRequestList @beehiveSimpleQuery(target_type_name: "BulkImportRequest")
+  findBulkImportRequests(name: String, environment: ID, file_url: String, state: BulkImportStateType, page: PaginationInput): BulkImportRequestList @beehiveSimpleQuery(target_type_name: "BulkImportRequest")
   # Find BulkImportRequests using a complex query
   searchBulkImportRequests(query: QueryExpression!, page: PaginationInput): BulkImportRequestList @beehiveQuery(target_type_name: "BulkImportRequest")
 }
 
-extend type Mutation {
-  # Create a new device
-  createBulkImportRequest(bulkImportRequest: BulkImportRequestInput): BulkImportRequest @beehiveCreate(target_type_name: "BulkImportRequest", s3_file_fields: ["file"]) @honeycombBackgroundTask(background_task: "BulkImportHandle")  
-}
+# extend type Mutation {
+#   # Create a new device
+#   createBulkImportRequest(bulkImportRequest: BulkImportRequestInput): BulkImportRequest @beehiveCreate(target_type_name: "BulkImportRequest")  
+# }
 `

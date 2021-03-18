@@ -1,7 +1,5 @@
 const {SchemaDirectiveVisitor} = require('graphql-tools')
 
-const {bulkImportHandle} = require("./bulkImportHandle")
-
 exports.CustomBeehiveTypeDefs = `
   directive @honeycombBackgroundTask(background_task: String!) on FIELD_DEFINITION
 `
@@ -14,9 +12,9 @@ class HoneycombBackgroundTaskDirective extends SchemaDirectiveVisitor { //Beehiv
     field.resolve = async function (obj, args, context, info) {
       console.log("In HoneycombBackgroundTaskDirective - field.resolve")
 
-      if (background_task === "BulkImportHandle") {
-        bulkImportHandle()
-      }
+      // if (background_task === "BulkImportHandle") {
+      //   bulkImportHandle()
+      // }
 
       return await resolve.call(this, obj, args, context, info)
     }
