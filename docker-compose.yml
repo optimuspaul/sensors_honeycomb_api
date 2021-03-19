@@ -17,8 +17,13 @@ services:
 
   postgres:
     # image: wildflowerschools/docker-postgres:10.4-alpine-v5
-    image: postgres:10.4
+    #image: postgres:10.4
+    build:
+      context: ./
+      dockerfile: build/local/postgres/Dockerfile
     restart: always
+    ports:
+      - 5432:5432
     environment:
       POSTGRES_PASSWORD: iamaninsecurepassword
       POSTGRES_USER: honeycomb_user
