@@ -22,6 +22,9 @@ steps:
   when:
     branch:
     - master
+    event:
+      exclude:
+      - pull_request
   settings:
     username:
       from_secret: docker_username
