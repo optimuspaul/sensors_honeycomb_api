@@ -19,7 +19,7 @@ steps:
   - cat .tags
 - name: docker
   image: plugins/docker
-   when:
+  when:
     branch:
     - master
   settings:
