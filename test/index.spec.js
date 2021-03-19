@@ -51,7 +51,7 @@ before(async function() {
         var isUp = await status()
         if (isUp) {
             console.log('postgres is already up')
-            return true
+            return null
         }
         var child = run('postgres:10.4', {
           remove: true,
@@ -85,7 +85,9 @@ before(async function() {
 
 after(async function(){
     console.log("shutting down postgres and express")
-    dbContainer.destroy()
+    if(dbContainer) {
+      dbContainer.destroy()
+    }
 })
 
 
@@ -112,4 +114,3 @@ describe('Honeycomb general suite', function() {
     })
 
 })
-

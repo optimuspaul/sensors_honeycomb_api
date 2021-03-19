@@ -21,15 +21,7 @@ const server = new ApolloServer({
         console.log("---------------")
         return error;
     },
-    // formatResponse: response => {
-    //     console.log("---- response ----")
-    //     console.log(JSON.stringify(response, null, 4));
-    //     console.log("------------------")
-    //     return response;
-    // },
-    // context: ({ req }) => ({
-    //     authScope: getScope(req.user)
-    // }),
+    plugins: [beehive.BeehivePlugin],
 })
 
 
@@ -64,10 +56,6 @@ if(process.env.ENVIRONMENT != 'local') {
             jwtCheck(req, res, next)
         }
     })
-    // app.use(function(req, res, next) {
-    //     console.log(req)
-    //     next()
-    // })
 }
 
 app.use(function (err, req, res, next) {
@@ -97,5 +85,3 @@ exports.start = async () => {
         console.log("----------------------------")
     }
 }
-
-
