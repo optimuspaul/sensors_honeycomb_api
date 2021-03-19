@@ -29,8 +29,6 @@ const rootDefs = `
 
 const logger = { log: e => console.log(e) }
 
-logger.log(Object.assign(BeehiveDirectives, CustomBeehiveDirectives))
-
 const schema = makeExecutableSchema({
   typeDefs: [
     rootDefs,

@@ -18,12 +18,10 @@ type BulkImportRequest @beehiveTable(
 ) {
   bulk_import_request_id: ID!
   name: String!
-  # Import file data
-  # file: S3File! @s3file(keyPrefix: "bulk-imports", bucketName: "wildflower-honeycomb-bulk-imports-us-east-2-dev", region: "us-east-2")
+  # Import file
   file_url: String!
   # Error file
   error_file_url: String
-  # error_file: S3File @s3file(keyPrefix: "bulk-import-errors", bucketName: "wildflower-honeycomb-bulk-imports-us-east-2-dev", region: "us-east-2")
   # State/status of import
   state: BulkImportStateType
   # Optional environment the bulk import is related to
@@ -37,12 +35,6 @@ type BulkImportRequestList {
   page_info: PageInfo!
 }
 
-# input BulkImportRequestInput {
-#   name: String!
-#   environment: ID
-#   tags: [String!]
-# }
-
 extend type Query {
   # Get the list of bulk imports
   bulk_import_requests(page: PaginationInput): BulkImportRequestList @beehiveList(target_type_name: "BulkImportRequest")
@@ -53,9 +45,4 @@ extend type Query {
   # Find BulkImportRequests using a complex query
   searchBulkImportRequests(query: QueryExpression!, page: PaginationInput): BulkImportRequestList @beehiveQuery(target_type_name: "BulkImportRequest")
 }
-
-# extend type Mutation {
-#   # Create a new device
-#   createBulkImportRequest(bulkImportRequest: BulkImportRequestInput): BulkImportRequest @beehiveCreate(target_type_name: "BulkImportRequest")  
-# }
 `

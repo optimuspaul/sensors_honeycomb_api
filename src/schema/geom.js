@@ -173,11 +173,6 @@ exports.typeDefs = `
     coordinates: [Float]!
     quality: Float
   }
-  
-  # type S3FileList {
-  #   data: [S3File!]!
-  #   page_info: PageInfo!
-  # }
 
   type PositionAssignment @beehiveAssignmentType(table_name: "position_assignments", assigned_field: "assigned", exclusive: true, pk_column: "position_assignment_id") {
     position_assignment_id: ID!
@@ -270,11 +265,6 @@ exports.typeDefs = `
     findPositionAssignments(assigned_type: AssignableTypeEnum, assigned: ID, coordinate_space: ID, page: PaginationInput): PositionAssignmentList @beehiveSimpleQuery(target_type_name: "PositionAssignment")
     # Find position assignments using a complex query
     searchPositionAssignments(query: QueryExpression!, page: PaginationInput): PositionAssignmentList @beehiveQuery(target_type_name: "PositionAssignment")
-    
-    # Get the list of S# Files
-    # s3Files(page: PaginationInput): S3FileList @beehiveList(target_type_name: "S3File")
-    # Find coordinate spaces using a complex query
-    # searchS3Files(query: QueryExpression!, page: PaginationInput): S3FileList @beehiveQuery(target_type_name: "S3File")
   }
 
   extend type Mutation {
