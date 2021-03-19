@@ -15,7 +15,7 @@ steps:
   commands:
   - npm install
   - npm test
-  - echo -n v$(date -u "+%Y-%m-%d-%H-%M-%S")-$ > .tags
+  - echo -n v$(date -u "+%Y-%m-%d-%H-%M-%S")-$DRONE_BUILD_NUMBER > .tags
   - cat .tags
 - name: docker
   image: plugins/docker
