@@ -1,0 +1,36 @@
+kind: pipeline
+type: kubernetes
+name: drone
+service_account_name: default
+
+metadata:
+  namespace: drone
+
+steps:
+- name: tests/coverage
+  image: node:12.13.0
+  environment:
+    DRONE: "true"
+    BEEHIVE_MOCK_STREAM: "yes"
+  commands:
+  - npm install
+  - npm test
+  - echo -n v$(date -u "+%Y-%m-%d-%H-%M-%S")-$ > .tags
+  - cat .tags
+- name: docker
+  image: plugins/docker
+  settings:
+    username:
+      from_secret: docker_username
+    password:
+      from_secret: docker_password
+    repo: wildflowerschools/sensors_honeycomb_api
+
+
+services:
+- name: postgres-ci
+  image: postgres:10.4
+  environment:
+    POSTGRES_PASSWORD: "iamaninsecurepassword"
+    POSTGRES_USER: "beehive_user"
+    POSTGRES_DB: "beehive-tests-integrated"
