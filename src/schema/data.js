@@ -139,6 +139,8 @@ type Position @beehiveTable(
     object: Positionable! @beehiveUnionResolver(target_types: ["Device", "Material", "Tray", "Person", "Environment"])
     # Coordinates of the position in the specified coordinate space
     coordinates: [Float!]!
+    # Quality of the position data
+    quality: Float
     # duration of the data included in this observation. time should be expressed in milliseconds. If not set then assumed to be a snapshot observation without a duration
     duration: Int
     # where did the data originate
@@ -160,6 +162,7 @@ input PositionInput {
     coordinate_space: ID!
     object: ID!
     coordinates: [Float!]!
+    quality: Float
     duration: Int
     source: ID
     source_type: DataSourceType
@@ -691,7 +694,7 @@ extend type Query {
     radioPings(page: PaginationInput): RadioPingList @beehiveList(target_type_name: "RadioPing")
     # Get a radio ping
     getRadioPing(radio_ping_id: ID!): RadioPing @beehiveGet(target_type_name: "RadioPing")
-    # Find positions using a complex query
+    # Find radio pings using a complex query
     searchRadioPings(query: QueryExpression!, page: PaginationInput): RadioPingList @beehiveQuery(target_type_name: "RadioPing")
 
     # Get the list of positions
