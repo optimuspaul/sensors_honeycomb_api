@@ -36,7 +36,7 @@
     "author": "pjdecoursey",
     "license": "MIT",
     "dependencies": {
-        "@wildflowerschools/graphql-beehive": "^1.4.1",
+        "@wildflowerschools/graphql-beehive": "^1.4.2",
         "apollo": "^1.9.2",
         "apollo-server": "^2.14.2",
         "apollo-server-express": "^2.14.2",
