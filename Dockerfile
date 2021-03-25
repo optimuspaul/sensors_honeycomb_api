@@ -1,4 +1,4 @@
-FROM node:12.13.0-alpine
+FROM node:15.12.0-alpine
 
 RUN mkdir -p /app
 COPY package.json /app
@@ -11,4 +11,3 @@ RUN npm install --only=production
 COPY src/ /app/
 
 CMD node index.js
-
