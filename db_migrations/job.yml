@@ -3,22 +3,16 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: honeycomb-db-migrate-v2019-12-04-15-33-54---regress
+  name: honeycomb-migrate-v2021-03-31-19-03-02
   namespace: honeycomb
 spec:
   template:
     spec:
       containers:
       - name: migrate
-        image: wildflowerschools/sensors_honeycomb_api:v2019-12-04-15-33-54-migrations
-        env:
-        - name: POSTGRES_USER
-          value: honeycomb_app_rw
-        - name: POSTGRES_PASSWORD
-          value: D0BF56B00DA62700941259C30607C39D
-        - name: POSTGRES_DB
-          value: honeycomb
-        - name: PGHOST
-          value: honeycomb-postgres-encrypted.honeycomb.svc.cluster.local
+        image: wildflowerschools/honeycomb-migrate:v2021-03-31-19-03-02
+        envFrom:
+          - secretRef:
+              name: honeycomb-db-secret
       restartPolicy: OnFailure
   backoffLimit: 4
