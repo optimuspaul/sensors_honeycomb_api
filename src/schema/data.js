@@ -131,8 +131,12 @@ type Position @beehiveTable(
     ]
 ) {
     position_id: ID!
-    # Timestamp that the data was observed, measured, or inferred.
+    # Time that the data was observed, measured, or inferred
     timestamp: Datetime!
+    # Time that the data was read from the stream
+    socket_read_time: Datetime
+    # UWB network time associatd with the data (encoded as string because of large size)
+    network_time: String
     # Coordinate space in which the position is specified
     coordinate_space: CoordinateSpace! @beehiveRelation(target_type_name: "CoordinateSpace")
     # Object associated with this position
@@ -141,6 +145,8 @@ type Position @beehiveTable(
     coordinates: [Float!]!
     # Quality of the position data
     quality: Float
+    # Number of anchors involved in the calculation of this position
+    anchor_count: Int
     # duration of the data included in this observation. time should be expressed in milliseconds. If not set then assumed to be a snapshot observation without a duration
     duration: Int
     # where did the data originate
@@ -159,10 +165,13 @@ type PositionList{
 
 input PositionInput {
     timestamp: Datetime!
+    socket_read_time: Datetime
+    network_time: String
     coordinate_space: ID!
     object: ID!
     coordinates: [Float!]!
     quality: Float
+    anchor_count: Int
     duration: Int
     source: ID
     source_type: DataSourceType
@@ -183,6 +192,10 @@ type AccelerometerData @beehiveTable(
     accelerometer_data_id: ID!
     # Timestamp that the data was measured
     timestamp: Datetime!
+    # Time that the data was read from the stream
+    socket_read_time: Datetime
+    # UWB network time associatd with the data (encoded as string because of large size)
+    network_time: String
     # Device associated with this data
     device: Device! @beehiveRelation(target_type_name: "Device")
     # Accelerometer data
@@ -196,6 +209,8 @@ type AccelerometerDataList{
 
 input AccelerometerDataInput {
     timestamp: Datetime!
+    socket_read_time: Datetime
+    network_time: String
     device: ID!
     data: [Float!]!
 }
@@ -214,6 +229,10 @@ type GyroscopeData @beehiveTable(
     gyroscope_data_id: ID!
     # Timestamp that the data was measured
     timestamp: Datetime!
+    # Time that the data was read from the stream
+    socket_read_time: Datetime
+    # UWB network time associatd with the data (encoded as string because of large size)
+    network_time: String
     # Device associated with this data
     device: Device! @beehiveRelation(target_type_name: "Device")
     # Gyroscope data
@@ -227,6 +246,8 @@ type GyroscopeDataList{
 
 input GyroscopeDataInput {
     timestamp: Datetime!
+    socket_read_time: Datetime
+    network_time: String
     device: ID!
     data: [Float!]!
 }
@@ -245,6 +266,10 @@ type MagnetometerData @beehiveTable(
     magnetometer_data_id: ID!
     # Timestamp that the data was measured
     timestamp: Datetime!
+    # Time that the data was read from the stream
+    socket_read_time: Datetime
+    # UWB network time associatd with the data (encoded as string because of large size)
+    network_time: String
     # Device associated with this data
     device: Device! @beehiveRelation(target_type_name: "Device")
     # Magnetometer data
@@ -258,6 +283,8 @@ type MagnetometerDataList{
 
 input MagnetometerDataInput {
     timestamp: Datetime!
+    socket_read_time: Datetime
+    network_time: String
     device: ID!
     data: [Float!]!
 }
