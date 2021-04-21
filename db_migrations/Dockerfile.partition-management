@@ -1,0 +1,22 @@
+FROM python:3.7-alpine
+
+
+RUN apk update && \
+    apk add --no-cache --update \
+    python3 \
+    python3-dev \
+    py3-pip \
+    build-base
+
+RUN apk add --virtual build-deps gcc python3-dev musl-dev && \
+    apk add --no-cache --update postgresql-dev postgresql-client && \
+    pip install psycopg2
+
+
+RUN mkdir /scripts
+
+COPY ./partition-management.sql /scripts/
+COPY ./entrypoint-partition-management.sh /entrypoint-partition-management.sh
+RUN chmod 777 /entrypoint-partition-management.sh
+
+ENTRYPOINT ["sh", "/entrypoint-partition-management.sh"]
