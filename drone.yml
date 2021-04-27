@@ -21,7 +21,7 @@ steps:
   image: plugins/docker
   when:
     branch:
-    - master
+    - main
     event:
       exclude:
       - pull_request
@@ -35,7 +35,7 @@ steps:
 
 services:
 - name: postgres-ci
-  image: postgres:10.4
+  image: postgres:12.4
   environment:
     POSTGRES_PASSWORD: "iamaninsecurepassword"
     POSTGRES_USER: "beehive_user"
