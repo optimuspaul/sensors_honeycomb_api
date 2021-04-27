@@ -3,14 +3,14 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: honeycomb-migrate-v2021-03-31-19-03-02
+  name: honeycomb-migrate-v2021-04-27-03-12-38
   namespace: honeycomb
 spec:
   template:
     spec:
       containers:
       - name: migrate
-        image: wildflowerschools/honeycomb-migrate:v2021-03-31-19-03-02
+        image: wildflowerschools/honeycomb-migrate:v2021-04-27-03-12-38
         envFrom:
           - secretRef:
               name: honeycomb-db-secret

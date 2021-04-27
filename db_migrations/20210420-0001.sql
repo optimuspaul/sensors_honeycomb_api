@@ -1,3 +1,4 @@
+SET search_path TO honeycomb;
 CREATE EXTENSION pgcrypto;
 
 -- POSITIONS
