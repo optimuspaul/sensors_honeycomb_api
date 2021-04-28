@@ -14,8 +14,8 @@ run-migrate: build-docker-migrate
 
 docker-push-migrate: build-docker-migrate
 	@echo 'Pushing wildflowerschools/honeycomb-migrate:${version} to Docker Hub'
-    @docker push wildflowerschools/honeycomb-migrate:${version}
+    docker push wildflowerschools/honeycomb-migrate:${version}
 
 docker-push-imu-partitioner: build-docker-imu-partitioner
 	@echo 'Pushing wildflowerschools/honeycomb-migrate:imu-partitioner-${version} to Docker Hub'
-    @docker push wildflowerschools/honeycomb-migrate:imu-partitioner-${version}
+    docker push wildflowerschools/honeycomb-migrate:imu-partitioner-${version}

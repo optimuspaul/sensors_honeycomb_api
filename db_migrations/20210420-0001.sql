@@ -133,6 +133,10 @@ LOOP
             partition_date_from := to_char(dates.day, 'YYYY_MM_DD');
             partition_date_to := to_char(dates.day + INTERVAL '1 day', 'YYYY_MM_DD');
             partition := imu_table || '_' || partition_date_from;
+            partition_tmp := partition || '_tmp';
+
+            EXECUTE 'CREATE TABLE ' || partition_tmp || ' AS (SELECT * FROM ' || imu_table_default || ' WHERE timestamp >= (''' || partition_date_from || ''') AND timestamp < (''' || partition_date_to ||  '''));';
+            EXECUTE 'DELETE FROM ' || imu_table || ' WHERE timestamp >= (''' || partition_date_from || ''') AND timestamp < (''' || partition_date_to ||  ''');';
 
             IF NOT EXISTS(SELECT relname FROM pg_class WHERE relname=partition) THEN
                 RAISE NOTICE 'A partition is being created: %', partition;
@@ -143,10 +147,6 @@ LOOP
             END IF;
 
             RAISE NOTICE 'Moving data to partition...';
-            partition_tmp := partition || '_tmp';
-
-            EXECUTE 'CREATE TABLE ' || partition_tmp || '  AS (SELECT * FROM ' || imu_table_default || ' WHERE timestamp >= (''' || partition_date_from || ''') AND timestamp < (''' || partition_date_to ||  '''));';
-            EXECUTE 'DELETE FROM ' || imu_table || ' WHERE timestamp >= (''' || partition_date_from || ''') AND timestamp < (''' || partition_date_to ||  ''');';
             EXECUTE 'INSERT INTO ' || partition || ' SELECT * FROM ' || partition_tmp;
             EXECUTE 'DROP TABLE ' || partition_tmp;
             RAISE NOTICE 'Clustering...';
