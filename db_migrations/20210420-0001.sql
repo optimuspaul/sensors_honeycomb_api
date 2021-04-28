@@ -111,8 +111,8 @@ $BODY$
 LANGUAGE plpgsql;
 
 /* Create a function for daily, dynamic rebalancing of data */
-CREATE OR REPLACE FUNCTION imu_tables_balance()
-RETURNS VOID AS $BODY$
+CREATE OR REPLACE PROCEDURE imu_tables_balance()
+AS $BODY$
 DECLARE
   imu_tables text[] := array['positions', 'accelerometer_data', 'gyroscope_data', 'magnetometer_data'];
   imu_table TEXT;
@@ -135,6 +135,8 @@ LOOP
             partition := imu_table || '_' || partition_date_from;
             partition_tmp := partition || '_tmp';
 
+            RAISE NOTICE 'Moving %:% to % in preparation for partition data migration...', imu_table, partition_date_from, partition_tmp;
+
             EXECUTE 'CREATE TABLE ' || partition_tmp || ' AS (SELECT * FROM ' || imu_table_default || ' WHERE timestamp >= (''' || partition_date_from || ''') AND timestamp < (''' || partition_date_to ||  '''));';
             EXECUTE 'DELETE FROM ' || imu_table || ' WHERE timestamp >= (''' || partition_date_from || ''') AND timestamp < (''' || partition_date_to ||  ''');';
 
@@ -148,7 +150,7 @@ LOOP
 
             RAISE NOTICE 'Moving data to partition...';
             EXECUTE 'INSERT INTO ' || partition || ' SELECT * FROM ' || partition_tmp;
-            EXECUTE 'DROP TABLE ' || partition_tmp;
+            -- EXECUTE 'DROP TABLE ' || partition_tmp;
             RAISE NOTICE 'Clustering...';
             EXECUTE 'CLUSTER ' || partition || ' USING ' || get_partition_table_index_name(partition, '{\"timestamp\"}');
             RAISE NOTICE 'Analyzing...';
@@ -156,6 +158,7 @@ LOOP
             RAISE NOTICE 'Warming up table...';
             EXECUTE 'EXPLAIN ANALYZE SELECT * FROM ' || partition;
             RAISE NOTICE 'Done.';
+            COMMIT;
         END LOOP;
 END LOOP;
 END;
@@ -163,8 +166,8 @@ $BODY$
 LANGUAGE plpgsql;
 
 /* Add 7 days of partitioned IMU tables */
-CREATE OR REPLACE FUNCTION imu_tables_add_partitions()
-RETURNS VOID AS $BODY$
+CREATE OR REPLACE PROCEDURE imu_tables_add_partitions()
+AS $BODY$
 DECLARE
     imu_tables text[] := array['positions', 'accelerometer_data', 'gyroscope_data', 'magnetometer_data'];
     imu_table TEXT;

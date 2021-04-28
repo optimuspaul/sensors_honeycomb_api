@@ -3,14 +3,14 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: honeycomb-migrate-imu-partitioner-v2021-04-28-03-21-17
+  name: honeycomb-migrate-imu-partitioner-v2021-04-28-16-16-35
   namespace: honeycomb
 spec:
   template:
     spec:
       containers:
       - name: imu-partitioner
-        image: wildflowerschools/honeycomb-migrate:imu-partitioner-v2021-04-28-03-21-17
+        image: wildflowerschools/honeycomb-migrate:imu-partitioner-v2021-04-28-16-16-35
         envFrom:
           - secretRef:
               name: honeycomb-db-secret

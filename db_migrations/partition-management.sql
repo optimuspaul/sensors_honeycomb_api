@@ -1,5 +1,5 @@
 SET search_path TO honeycomb;
 
-select imu_tables_balance();
-select imu_tables_add_partitions();
+CALL imu_tables_balance();
+CALL imu_tables_add_partitions();
 
