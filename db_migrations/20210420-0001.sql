@@ -150,7 +150,7 @@ LOOP
 
             RAISE NOTICE 'Moving data to partition...';
             EXECUTE 'INSERT INTO ' || partition || ' SELECT * FROM ' || partition_tmp;
-            -- EXECUTE 'DROP TABLE ' || partition_tmp;
+            EXECUTE 'DROP TABLE ' || partition_tmp;
             RAISE NOTICE 'Clustering...';
             EXECUTE 'CLUSTER ' || partition || ' USING ' || get_partition_table_index_name(partition, '{\"timestamp\"}');
             RAISE NOTICE 'Analyzing...';
